@@ -7,14 +7,7 @@ describe('json (without automatic stringify)', () => {
             expect(TypedJSON.parse('"str"', String)).toEqual('str');
             // already parsed
             expect(TypedJSON.parse('str', String)).toEqual('str');
-
-            // because we detect naively
-            try {
-                expect(TypedJSON.parse('"sdfs"fdsf"', String)).toEqual(undefined);
-                fail();
-            } catch (e) {
-                // Ignore error
-            }
+            expect(() => TypedJSON.parse('"sdfs"fdsf"', String)).toThrow();
         });
 
         it('should serialize', () => {

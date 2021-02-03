@@ -73,12 +73,11 @@ describe('initializer', () => {
         }
 
         const errorHandlerSpy = jasmine.createSpy();
-        const person = TypedJSON.parse(
+        expect(() => TypedJSON.parse(
             {name: 'John'},
             Person,
             {errorHandler: errorHandlerSpy},
-        )!;
-        expect(person).toBeUndefined();
+        )).toThrow();
         expect(initializerSpy).toHaveBeenCalled();
         expect(errorHandlerSpy).toHaveBeenCalled();
     });
@@ -112,12 +111,11 @@ describe('initializer', () => {
         }
 
         const errorHandlerSpy = jasmine.createSpy();
-        const person = TypedJSON.parse(
+        expect(() => TypedJSON.parse(
             {name: 'John'},
             Person,
             {errorHandler: errorHandlerSpy},
-        )!;
-        expect(person).toBeUndefined();
+        )).toThrow();
         expect(initializerSpy).toHaveBeenCalled();
         expect(errorHandlerSpy).toHaveBeenCalled();
     });

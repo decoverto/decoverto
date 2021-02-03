@@ -102,6 +102,7 @@ export function logWarning(message?: any, ...optionalParams: Array<any>) {
 
 export type NotNull<T> = T extends null ? never : T;
 export type RequiredNoNull<T> = {[P in keyof T]-?: NotNull<T[P]>};
+export type NotUndefined<T> = T extends undefined ? never : T;
 
 /**
  * Checks if the value is considered defined (not undefined and not null).
@@ -109,6 +110,10 @@ export type RequiredNoNull<T> = {[P in keyof T]-?: NotNull<T[P]>};
  */
 export function isValueDefined<T>(value: T): value is Exclude<T, undefined | null> {
     return !(typeof value === 'undefined' || value === null);
+}
+
+export function isNotUndefined<T>(value: T): value is NotUndefined<T> {
+    return value !== undefined;
 }
 
 export function isInstanceOf<T>(value: any, constructor: Function): boolean {
