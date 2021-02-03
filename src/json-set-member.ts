@@ -1,4 +1,4 @@
-import {isReflectMetadataSupported, logError, MISSING_REFLECT_CONF_MSG, nameof} from './helpers';
+import {isReflectMetadataSupported, MISSING_REFLECT_CONF_MSG, nameof} from './helpers';
 import {
     CustomDeserializerParams,
     CustomSerializerParams,
@@ -50,8 +50,7 @@ export function jsonSetMember(typeThunk: TypeThunk, options: IJsonSetMemberOptio
             : null;
 
         if (reflectedType != null && reflectedType !== Set && reflectedType !== Object) {
-            logError(`${decoratorName}: property is not a Set. ${MISSING_REFLECT_CONF_MSG}`);
-            return;
+            throw new Error(`${decoratorName}: property is not a Set. ${MISSING_REFLECT_CONF_MSG}`);
         }
 
         injectMetadataInformation(target, propKey, {

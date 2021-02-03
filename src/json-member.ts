@@ -3,7 +3,6 @@ import {
     isSubtypeOf,
     isValueDefined,
     LAZY_TYPE_EXPLANATION,
-    logError,
     logWarning,
     nameof,
 } from './helpers';
@@ -89,9 +88,8 @@ export function jsonMember<T extends Function>(
             }
 
             if (!isValueDefined(options.constructor)) {
-                logError(`${decoratorName}: cannot resolve specified property constructor at \
-runtime. ${LAZY_TYPE_EXPLANATION}`);
-                return;
+                throw new Error(`${decoratorName}: cannot resolve specified property constructor \
+at runtime. ${LAZY_TYPE_EXPLANATION}`);
             }
 
             // Property constructor has been specified. Use ReflectDecorators (if available) to
@@ -117,20 +115,18 @@ runtime. ${LAZY_TYPE_EXPLANATION}`);
             ) as Function | null | undefined;
 
             if (reflectCtor == null) {
-                logError(`${decoratorName}: cannot resolve detected property constructor at \
+                throw new Error(`${decoratorName}: cannot resolve detected property constructor at \
 runtime. ${LAZY_TYPE_EXPLANATION}`);
-                return;
             }
             typeThunk = () => ensureTypeDescriptor(reflectCtor);
         } else if (options.deserializer === undefined) {
-            logError(`${decoratorName}: Cannot determine type`);
-            return;
+            throw new Error(`${decoratorName}: Cannot determine type`);
         }
 
         const typeToTest = typeThunk?.();
 
-        if (typeToTest !== undefined && isSpecialPropertyType(decoratorName, typeToTest)) {
-            return;
+        if (typeToTest !== undefined) {
+            throwIfSpecialProperty(decoratorName, typeToTest);
         }
 
         injectMetadataInformation(target, property, {
@@ -152,25 +148,20 @@ function isConstructorEqual(type: Typelike, constructor: Constructor<any>) {
     return type instanceof TypeDescriptor ? type.ctor === constructor : type === constructor;
 }
 
-function isSpecialPropertyType(decoratorName: string, typeDescriptor: Typelike) {
+function throwIfSpecialProperty(decoratorName: string, typeDescriptor: Typelike) {
     if (!(typeDescriptor instanceof ArrayTypeDescriptor)
         && isConstructorEqual(typeDescriptor, Array)) {
-        logError(`${decoratorName}: property is an Array. Use the jsonArrayMember decorator to`
-            + ` serialize this property.`);
-        return true;
+        throw new Error(`${decoratorName}: property is an Array. Use the jsonArrayMember decorator \
+to serialize this property.`);
     }
 
     if (!(typeDescriptor instanceof SetTypeDescriptor) && isConstructorEqual(typeDescriptor, Set)) {
-        logError(`${decoratorName}: property is a Set. Use the jsonSetMember decorator to`
-            + ` serialize this property.`);
-        return true;
+        throw new Error(`${decoratorName}: property is a Set. Use the jsonSetMember decorator to \
+serialize this property.`);
     }
 
     if (!(typeDescriptor instanceof MapTypeDescriptor) && isConstructorEqual(typeDescriptor, Map)) {
-        logError(`${decoratorName}: property is a Map. Use the jsonMapMember decorator to`
-            + ` serialize this property.`);
-        return true;
+        throw new Error(`${decoratorName}: property is a Map. Use the jsonMapMember decorator to \`
+serialize this property.`);
     }
-
-    return false;
 }

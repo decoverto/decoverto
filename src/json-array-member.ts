@@ -1,4 +1,4 @@
-import {isReflectMetadataSupported, logError, MISSING_REFLECT_CONF_MSG, nameof} from './helpers';
+import {isReflectMetadataSupported, MISSING_REFLECT_CONF_MSG, nameof} from './helpers';
 import {
     CustomDeserializerParams,
     CustomSerializerParams,
@@ -55,8 +55,7 @@ export function jsonArrayMember(
 
         const dimensions = options.dimensions == null ? 1 : options.dimensions;
         if (!isNaN(dimensions) && dimensions < 1) {
-            logError(`${decoratorName}: 'dimensions' option must be at least 1.`);
-            return;
+            throw new Error(`${decoratorName}: 'dimensions' option must be at least 1.`);
         }
 
         // If ReflectDecorators is available, use it to check whether 'jsonArrayMember' has been
@@ -66,8 +65,9 @@ export function jsonArrayMember(
             : null;
 
         if (reflectedType != null && reflectedType !== Array && reflectedType !== Object) {
-            logError(`${decoratorName}: property is not an Array. ${MISSING_REFLECT_CONF_MSG}`);
-            return;
+            throw new Error(
+                `${decoratorName}: property is not an Array. ${MISSING_REFLECT_CONF_MSG}`,
+            );
         }
 
         injectMetadataInformation(target, propKey, {

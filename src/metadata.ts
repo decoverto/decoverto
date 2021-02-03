@@ -1,4 +1,4 @@
-import {isDirectlySerializableNativeType, isTypeTypedArray, logError, nameof} from './helpers';
+import {isDirectlySerializableNativeType, isTypeTypedArray, nameof} from './helpers';
 import {OptionsBase} from './options-base';
 import {TypeDescriptor} from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
@@ -158,22 +158,19 @@ export function injectMetadataInformation(
     // https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
     // ... and static members are not supported here, so abort.
     if (typeof prototype as any === 'function') {
-        logError(`${decoratorName}: cannot use a static property.`);
-        return;
+        throw new Error(`${decoratorName}: cannot use a static property.`);
     }
 
     // Methods cannot be serialized.
     // symbol indexing is not supported by ts
     if (typeof prototype[propKey as string] === 'function') {
-        logError(`${decoratorName}: cannot use a method property.`);
-        return;
+        throw new Error(`${decoratorName}: cannot use a method property.`);
     }
 
     // @todo check if metadata is ever undefined, if so, change parameter type
     if (metadata as any == null
         || (metadata.type === undefined && metadata.deserializer === undefined)) {
-        logError(`${decoratorName}: JsonMemberMetadata has unknown type.`);
-        return;
+        throw new Error(`${decoratorName}: JsonMemberMetadata has unknown type.`);
     }
 
     // Add jsonObject metadata to 'constructor' if not yet exists ('constructor' is the prototype).
