@@ -148,6 +148,6 @@ export function nameof(fn: Function & {name?: string}) {
     return 'undefined';
 }
 
-export function identity<T>(arg: T): T {
-    return arg;
+export function identity<T>({sourceObject}: {sourceObject: T}): T {
+    return sourceObject;
 }

@@ -329,10 +329,10 @@ export class TypedJSON<RootType> {
     parse(object: any): RootType {
         const json = parseToJSObject(object, this.rootConstructor);
 
-        return this.deserializer.convertSingleValue(
-            json,
-            ensureTypeDescriptor(this.rootConstructor),
-        );
+        return this.deserializer.convertSingleValue({
+            sourceObject: json,
+            typeDescriptor: ensureTypeDescriptor(this.rootConstructor),
+        });
     }
 
     parseAsArray(object: any, dimensions?: 1): Array<RootType>;
@@ -343,26 +343,26 @@ export class TypedJSON<RootType> {
     parseAsArray(object: any, dimensions: number): Array<any>;
     parseAsArray(object: any, dimensions: number = 1): Array<any> {
         const json = parseToJSObject(object, Array);
-        return this.deserializer.convertSingleValue(
-            json,
-            createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
-        );
+        return this.deserializer.convertSingleValue({
+            sourceObject: json,
+            typeDescriptor: createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
+        });
     }
 
     parseAsSet(object: any): Set<RootType> {
         const json = parseToJSObject(object, Set);
-        return this.deserializer.convertSingleValue(
-            json,
-            SetT(this.rootConstructor),
-        );
+        return this.deserializer.convertSingleValue({
+            sourceObject: json,
+            typeDescriptor: SetT(this.rootConstructor),
+        });
     }
 
     parseAsMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, RootType> {
         const json = parseToJSObject(object, Map);
-        return this.deserializer.convertSingleValue(
-            json,
-            MapT(keyConstructor, this.rootConstructor),
-        );
+        return this.deserializer.convertSingleValue({
+            sourceObject: json,
+            typeDescriptor: MapT(keyConstructor, this.rootConstructor),
+        });
     }
 
     /**
@@ -371,10 +371,10 @@ export class TypedJSON<RootType> {
      * @returns Serialized object.
      */
     toPlainJson(object: RootType): JsonTypes {
-        return this.serializer.convertSingleValue(
-            object,
-            ensureTypeDescriptor(this.rootConstructor),
-        );
+        return this.serializer.convertSingleValue({
+            sourceObject: object,
+            typeDescriptor: ensureTypeDescriptor(this.rootConstructor),
+        });
     }
 
     toPlainArray(object: Array<RootType>, dimensions?: 1): Array<Object>;
@@ -389,27 +389,27 @@ export class TypedJSON<RootType> {
         dimensions: 5,
     ): Array<Array<Array<Array<Array<Object>>>>>;
     toPlainArray(object: Array<any>, dimensions: 1 | 2 | 3 | 4 | 5 = 1): Array<Object> {
-        return this.serializer.convertSingleValue(
-            object,
-            createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
-        );
+        return this.serializer.convertSingleValue({
+            sourceObject: object,
+            typeDescriptor: createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
+        });
     }
 
     toPlainSet(object: Set<RootType>): Array<Object> | undefined {
-        return this.serializer.convertSingleValue(
-            object,
-            SetT(this.rootConstructor),
-        );
+        return this.serializer.convertSingleValue({
+            sourceObject: object,
+            typeDescriptor: SetT(this.rootConstructor),
+        });
     }
 
     toPlainMap<K>(
         object: Map<K, RootType>,
         keyConstructor: Serializable<K>,
     ): IndexedObject | Array<{key: any; value: any}> {
-        return this.serializer.convertSingleValue(
-            object,
-            MapT(keyConstructor, this.rootConstructor),
-        );
+        return this.serializer.convertSingleValue({
+            sourceObject: object,
+            typeDescriptor: MapT(keyConstructor, this.rootConstructor),
+    });
     }
 
     /**
@@ -448,14 +448,14 @@ export class TypedJSON<RootType> {
         converters: MappedTypeConverters<R>,
     ): void {
         if (converters.deserializer != null) {
-            this.deserializer.setDeserializationStrategy(type, (value) => {
-                return converters.deserializer!(value);
+            this.deserializer.setDeserializationStrategy(type, ({sourceObject}) => {
+                return converters.deserializer!(sourceObject);
             });
         }
 
         if (converters.serializer != null) {
-            this.serializer.setSerializationStrategy(type, (value) => {
-                return converters.serializer!(value);
+            this.serializer.setSerializationStrategy(type, ({sourceObject}) => {
+                return converters.serializer!(sourceObject);
             });
         }
     }
