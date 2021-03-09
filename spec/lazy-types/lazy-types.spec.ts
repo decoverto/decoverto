@@ -11,14 +11,14 @@ import {B} from './b.model';
 
 describe('Lazy types', () => {
     describe('simple member', () => {
-        @jsonObject
+        @jsonObject()
         class Root {
 
             @jsonMember(() => Lazy)
             lazy: Lazy;
         }
 
-        @jsonObject
+        @jsonObject()
         class Lazy {
 
             @jsonMember()
@@ -49,14 +49,14 @@ describe('Lazy types', () => {
     });
 
     describe('array member', () => {
-        @jsonObject
+        @jsonObject()
         class Root {
 
             @jsonArrayMember(() => Lazy)
             lazy: Array<Lazy>;
         }
 
-        @jsonObject
+        @jsonObject()
         class Lazy {
 
             @jsonMember()
@@ -88,14 +88,14 @@ describe('Lazy types', () => {
     });
 
     describe('map member', () => {
-        @jsonObject
+        @jsonObject()
         class Root {
 
             @jsonMapMember(() => String, () => LazyValue)
             lazy: Map<String, LazyValue>;
         }
 
-        @jsonObject
+        @jsonObject()
         class LazyValue {
 
             @jsonMember()
@@ -129,14 +129,14 @@ describe('Lazy types', () => {
     });
 
     describe('set member', () => {
-        @jsonObject
+        @jsonObject()
         class Root {
 
             @jsonSetMember(() => Lazy)
             lazy: Set<Lazy>;
         }
 
-        @jsonObject
+        @jsonObject()
         class Lazy {
 
             @jsonMember()

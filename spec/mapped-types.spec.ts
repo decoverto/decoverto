@@ -22,7 +22,7 @@ describe('mapped types', () => {
         }
     }
 
-    @jsonObject
+    @jsonObject()
     class MappedTypesSpec {
 
         @jsonMember()
@@ -89,7 +89,7 @@ describe('mapped types', () => {
     });
 
     describe('works with constructor,', () => {
-        @jsonObject
+        @jsonObject()
         class MappedTypeWithConstructor {
 
             @jsonMember(() => CustomType)
@@ -137,7 +137,7 @@ describe('mapped types', () => {
         spyOn(CustomTypeMap, 'deserializer').and.callThrough();
         spyOn(jsonMemberOptions, 'deserializer').and.callThrough();
 
-        @jsonObject
+        @jsonObject()
         class OverriddenSerializer {
             @jsonMember(jsonMemberOptions)
             overwritten: CustomType;
@@ -163,7 +163,7 @@ describe('mapped types', () => {
     });
 
     it('should use default when only mapping deserializer', () => {
-        @jsonObject
+        @jsonObject()
         class OnlyDeSerializer {
             @jsonMember()
             date: Date;
@@ -182,7 +182,7 @@ describe('mapped types', () => {
     });
 
     it('should use default when only mapping serializer', () => {
-        @jsonObject
+        @jsonObject()
         class OnlySerializer {
             @jsonMember()
             date: Date;
@@ -202,7 +202,7 @@ describe('mapped types', () => {
     });
 
     it('should handle mapping arrays', () => {
-        @jsonObject
+        @jsonObject()
         class MappedTypeWithArray {
 
             @jsonArrayMember(() => String)
@@ -229,7 +229,7 @@ describe('mapped types', () => {
     });
 
     it('works on arrays', () => {
-        @jsonObject
+        @jsonObject()
         class MappedTypeWithArray {
 
             @jsonArrayMember(() => CustomType)

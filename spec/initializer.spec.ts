@@ -16,7 +16,7 @@ describe('initializer', () => {
             return new Person(src.name, src.address);
         });
 
-        @jsonObject
+        @jsonObject()
         class Address {
             @jsonMember()
             street: string;

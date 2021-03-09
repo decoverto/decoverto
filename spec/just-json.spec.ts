@@ -57,7 +57,7 @@ describe('json (without automatic stringify)', () => {
     });
 
     describe('object', () => {
-        @jsonObject
+        @jsonObject()
         class SomeThing {
             @jsonMember()
             propStr: String;

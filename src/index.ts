@@ -8,7 +8,6 @@ export {
     jsonObject,
     IJsonObjectOptions,
     InitializerCallback,
-    IJsonObjectOptionsWithInitializer,
     IJsonObjectOptionsBase,
 } from './json-object';
 export {jsonMember, IJsonMemberOptions} from './json-member';

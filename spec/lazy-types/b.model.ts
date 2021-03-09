@@ -1,7 +1,7 @@
 import {jsonMember, jsonObject} from '../../src';
 import {A} from './a.model';
 
-@jsonObject
+@jsonObject()
 export class B {
 
     @jsonMember(() => A)

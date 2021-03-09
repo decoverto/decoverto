@@ -43,7 +43,7 @@ describe('basic serialization of', () => {
     });
 
     describe('single class', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMember()
             firstName: string;
@@ -101,7 +101,7 @@ describe('basic serialization of', () => {
     });
 
     describe('nullable', () => {
-        @jsonObject
+        @jsonObject()
         class WithNullable {
             // nullable should be optional when not using preserve null
             @jsonMember()
@@ -132,7 +132,7 @@ describe('basic serialization of', () => {
 
     describe('class with defaults', () => {
         describe('by assigment', () => {
-            @jsonObject
+            @jsonObject()
             class WithDefaults {
                 @jsonMember()
                 num: number = 2;
@@ -159,7 +159,7 @@ describe('basic serialization of', () => {
         });
 
         describe('by constructor', () => {
-            @jsonObject
+            @jsonObject()
             class WithCtr {
                 @jsonMember()
                 num: number;
@@ -195,7 +195,7 @@ describe('basic serialization of', () => {
     });
 
     describe('getters/setters', () => {
-        @jsonObject
+        @jsonObject()
         class SomeClass {
             private _prop: string = 'value';
             @jsonMember()
@@ -258,7 +258,7 @@ describe('basic serialization of', () => {
 
         }
 
-        @jsonObject
+        @jsonObject()
         class Child extends JustForOrganizationalPurpose {
 
         }

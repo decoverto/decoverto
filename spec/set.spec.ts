@@ -2,7 +2,7 @@ import {AnyT, ArrayT, jsonMember, jsonObject, jsonSetMember, SetT, TypedJSON} fr
 import {Everything} from './utils/everything';
 
 describe('set of objects', () => {
-    @jsonObject
+    @jsonObject()
     class Simple {
         @jsonMember()
         strProp: string;
@@ -65,7 +65,7 @@ describe('set of objects', () => {
 });
 
 describe('set member', () => {
-    @jsonObject
+    @jsonObject()
     class WithSet {
         @jsonSetMember(() => Everything)
         prop: Set<Everything>;
@@ -97,7 +97,7 @@ describe('set member', () => {
 });
 
 describe('set array member', () => {
-    @jsonObject
+    @jsonObject()
     class Simple {
         @jsonMember()
         strProp: string;
@@ -117,7 +117,7 @@ describe('set array member', () => {
         }
     }
 
-    @jsonObject
+    @jsonObject()
     class WithSet {
         @jsonMember(() => SetT(ArrayT(Simple)))
         prop: Set<Array<Simple>>;
@@ -200,7 +200,7 @@ describe('set array member', () => {
 });
 
 describe('set of raw objects', () => {
-    @jsonObject
+    @jsonObject()
     class WithRawSet {
         @jsonSetMember(() => AnyT)
         rawSet: Set<any>;

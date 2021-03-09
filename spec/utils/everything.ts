@@ -62,7 +62,7 @@ export interface IEverything {
     // [symbolProp]: string;
 }
 
-@jsonObject
+@jsonObject()
 export class Everything implements IEverything {
     @jsonMember()
     strProp: string;

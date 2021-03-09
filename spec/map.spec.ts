@@ -5,7 +5,7 @@ import {TypedJSON} from '../src/parser';
 import {MapShape} from '../src/type-descriptor';
 
 describe('map dictionary shape', () => {
-    @jsonObject
+    @jsonObject()
     class Simple {
         @jsonMember()
         strProp: string;
@@ -25,7 +25,7 @@ describe('map dictionary shape', () => {
         }
     }
 
-    @jsonObject
+    @jsonObject()
     class DictMap {
         @jsonMapMember(() => String, () => Simple, {shape: MapShape.OBJECT})
         prop: Map<String, Simple>;
@@ -75,7 +75,7 @@ describe('map dictionary shape', () => {
 });
 
 describe('map of array dictionary shape', () => {
-    @jsonObject
+    @jsonObject()
     class Simple {
         @jsonMember()
         strProp: string;
@@ -95,7 +95,7 @@ describe('map of array dictionary shape', () => {
         }
     }
 
-    @jsonObject
+    @jsonObject()
     class DictArrayMap {
         @jsonMapMember(() => String, () => ArrayT(Simple), {shape: MapShape.OBJECT})
         prop: Map<String, Array<Simple>>;

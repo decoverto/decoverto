@@ -3,7 +3,7 @@ import {jsonMember, jsonObject, toJson} from '../src';
 describe('toJson decorator', () => {
     it('should work with JSON.stringify', () => {
         @toJson
-        @jsonObject
+        @jsonObject()
         class Person {
             firstName?: string;
 
@@ -28,13 +28,13 @@ describe('toJson decorator', () => {
             prop?: string;
         }
 
-        @jsonObject
+        @jsonObject()
         class Sub extends Base {
             @jsonMember({name: 'numeric'})
             num?: number;
         }
 
-        @jsonObject
+        @jsonObject()
         class OtherSub extends Base {
             @jsonMember()
             decimal?: number;
@@ -56,7 +56,7 @@ describe('toJson decorator', () => {
     it('should throw an error when toJSON already exists', () => {
         try {
             @toJson
-            @jsonObject
+            @jsonObject()
             class Some {
                 @jsonMember()
                 prop?: string;
@@ -78,7 +78,7 @@ describe('toJson decorator', () => {
 
     it('should overwrite toJSON when overwrite is true', () => {
         @toJson({overwrite: true})
-        @jsonObject
+        @jsonObject()
         class Some {
             @jsonMember()
             prop?: string;

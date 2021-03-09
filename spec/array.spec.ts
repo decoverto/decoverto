@@ -2,7 +2,7 @@ import {AnyT, jsonArrayMember, jsonMember, jsonObject, TypedJSON} from '../src';
 import {Everything, IEverything} from './utils/everything';
 
 describe('array of objects', () => {
-    @jsonObject
+    @jsonObject()
     class Simple {
         @jsonMember()
         strProp: string;
@@ -71,7 +71,7 @@ describe('multidimensional arrays', () => {
         arrayWithArray?: Array<Array<IWithArrays>>;
     }
 
-    @jsonObject
+    @jsonObject()
     class WithArrays implements IWithArrays {
         @jsonArrayMember(() => Everything)
         one: Array<Everything>;
@@ -168,7 +168,7 @@ describe('multidimensional arrays', () => {
 });
 
 describe('array of raw objects', () => {
-    @jsonObject
+    @jsonObject()
     class Translations {
         @jsonArrayMember(() => AnyT)
         localization: Array<any>;

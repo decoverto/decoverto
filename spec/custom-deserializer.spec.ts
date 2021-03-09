@@ -2,7 +2,7 @@ import {jsonArrayMember, jsonMember, jsonObject, TypedJSON} from '../src';
 import {CustomDeserializerParams} from '../src/metadata';
 
 describe('custom member deserializer', () => {
-    @jsonObject
+    @jsonObject()
     class Person {
         @jsonMember({deserializer: (json: any) => json[0]})
         firstName: string;
@@ -40,7 +40,7 @@ describe('custom member deserializer', () => {
 });
 
 describe('custom array member deserializer', () => {
-    @jsonObject
+    @jsonObject()
     class Obj {
         @jsonArrayMember(() => Number, {
             deserializer: (json: any) => json.split(',').map((v) => parseInt(v, 10)),
@@ -79,7 +79,7 @@ describe('custom array member deserializer', () => {
 });
 
 describe('custom delegating array member serializer', () => {
-    @jsonObject
+    @jsonObject()
     class Inner {
         @jsonMember()
         prop: string;
@@ -102,7 +102,7 @@ describe('custom delegating array member serializer', () => {
         );
     }
 
-    @jsonObject
+    @jsonObject()
     class Obj {
         @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
         inners: Array<Inner>;
@@ -143,7 +143,7 @@ describe('custom delegating array member serializer', () => {
 });
 
 describe('custom delegating array member serializer with fallback', () => {
-    @jsonObject
+    @jsonObject()
     class Inner {
         @jsonMember()
         prop: string;
@@ -162,7 +162,7 @@ describe('custom delegating array member serializer with fallback', () => {
         );
     }
 
-    @jsonObject
+    @jsonObject()
     class Obj {
         @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
         inners: Array<Inner>;

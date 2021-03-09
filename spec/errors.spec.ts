@@ -5,7 +5,7 @@ describe('errors', () => {
     }
 
     it('should be thrown when types could not be determined', () => {
-        @jsonObject
+        @jsonObject()
         class TestNonDeterminableTypes {
 
             @jsonMember()

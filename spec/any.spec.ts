@@ -2,7 +2,7 @@ import {AnyT, jsonArrayMember, jsonMember, jsonObject, jsonSetMember, TypedJSON}
 
 describe('AnyT', () => {
     describe('on a simple class property', () => {
-        @jsonObject
+        @jsonObject()
         class SimplePropertyAny {
             @jsonMember(() => AnyT)
             any: any;
@@ -42,7 +42,7 @@ describe('AnyT', () => {
     });
 
     describe('on arrays', () => {
-        @jsonObject
+        @jsonObject()
         class ArrayPropertyAny {
             @jsonArrayMember(() => AnyT)
             any: Array<any>;
@@ -86,7 +86,7 @@ describe('AnyT', () => {
     });
 
     describe('on set', () => {
-        @jsonObject
+        @jsonObject()
         class SetPropertyAny {
 
             @jsonSetMember(() => AnyT)
@@ -134,14 +134,14 @@ describe('AnyT', () => {
     });
 
     it('should handle complex structures', () => {
-        @jsonObject
+        @jsonObject()
         class Event {
 
             @jsonMember(() => AnyT)
             data?: {[k: string]: any} | null;
         }
 
-        @jsonObject
+        @jsonObject()
         class A {
 
             @jsonArrayMember(() => Event)

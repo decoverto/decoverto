@@ -36,7 +36,7 @@ The following example demonstrates how to annotate a basic, non-nested class for
 import 'reflect-metadata';
 import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class MyDataClass
 {
     @jsonMember()
@@ -93,7 +93,7 @@ TypedJSON.mapType(Decimal, {
     serializer: value => value == null ? value : value.toString(),
 });
 
-@jsonObject
+@jsonObject()
 class MappedTypes {
 
     @jsonMember()
@@ -118,7 +118,7 @@ Properties which are of type Array, Set, or Map require the special `@jsonArrayM
 import 'reflect-metadata';
 import { jsonObject, jsonArrayMember, jsonSetMember, jsonMapMember, TypedJSON } from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class MyDataClass
 {
     @jsonArrayMember(() => Number)
@@ -144,7 +144,7 @@ TypedJSON works through your objects recursively, and can consume massively comp
 import 'reflect-metadata';
 import { jsonObject, jsonMember, jsonArrayMember, jsonMapMember, TypedJSON } from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class MySecondDataClass
 {
     @jsonMember()
@@ -154,7 +154,7 @@ class MySecondDataClass
     public prop2: number;
 }
 
-@jsonObject
+@jsonObject()
 class MyDataClass
 {
     @jsonMember()
@@ -174,7 +174,7 @@ In case you don't want TypedJSON to make any conversion the `AnyT` type can be u
 ```typescript
 import {AnyT, jsonObject, jsonMember} from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class Something {
     @jsonMember(() => AnyT)
     anythingGoes: any;
@@ -189,7 +189,7 @@ Without ReflectDecorators, `@jsonMember` requires an additional type argument, b
 - import 'reflect-metadata';
   import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 
-  @jsonObject
+  @jsonObject()
   class MyDataClass
   {
 -     @jsonMember()
@@ -230,7 +230,7 @@ On `@jsonObject` you can specify name of methods to be called before serializing
 On `@jsonMember` decorator family you can provide your own functions to perform custom serialization and deserialization. This could be useful if you want to transform your input/output. For example, if instead of using javascript Date object you want to use moment.js object, you could use code like this:
 
 ```typescript
-@jsonObject
+@jsonObject()
 class UsingMoment {
     @jsonMember({ deserializer: value => moment(value), serializer: timestamp => timestamp.format() })
     timestamp: Moment;
@@ -251,7 +251,7 @@ function objArrayDeserializer(
     );
 }
 
-@jsonObject
+@jsonObject()
 class Obj {
     @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
     inners: Array<Inner>;
@@ -269,7 +269,7 @@ You can provide a name for a property if it differs between a serialized JSON an
 import 'reflect-metadata';
 import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class MyDataClass {
     @jsonMember({ name: 'kebab-case' })
     camelCase: string;
@@ -279,7 +279,7 @@ class MyDataClass {
 For even more advanced cases, it is possible to provide different names for deserialization and serialization, although it requires more typing. In such a case however, you might want to reconsider your model - maybe you are putting two different things into a single class.
 
 ```typescript
-@jsonObject
+@jsonObject()
 class Model {
     private _prop: any;
 
@@ -311,7 +311,7 @@ TypedJSON is primarily for use-cases where object-trees are defined using instan
 import 'reflect-metadata';
 import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class MyDataClass
 {
     @jsonMember()
@@ -329,7 +329,7 @@ TypedJSON only supports multi-dimensional arrays of a single type (can be polymo
 import 'reflect-metadata';
 import { jsonObject, jsonArrayMember, TypedJSON } from 'typedjson';
 
-@jsonObject
+@jsonObject()
 class MyDataClass
 {
     @jsonArrayMember(Number, { dimensions: 2 })
@@ -348,7 +348,7 @@ If using ReflectDecorators to infer the constructor (type) of properties, it's a
   import 'reflect-metadata';
   import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 
-  @jsonObject
+  @jsonObject()
   class MyDataClass
   {
       @jsonMember()

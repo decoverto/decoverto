@@ -4,7 +4,7 @@ describe('preserveNull', () => {
     it('should work globally', () => {
         TypedJSON.setGlobalConfig({preserveNull: true});
 
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMember()
             name: string | null;
@@ -24,7 +24,7 @@ describe('preserveNull', () => {
     });
 
     it('should work in settings', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMember()
             name: string | null;
@@ -56,7 +56,7 @@ describe('preserveNull', () => {
     });
 
     it('should work on member', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMember({preserveNull: true})
             name: string | null;
@@ -72,7 +72,7 @@ describe('preserveNull', () => {
     });
 
     it('should override parser when more specific', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMember({preserveNull: false})
             name?: string | null;
@@ -104,7 +104,7 @@ describe('preserveNull', () => {
     });
 
     it('should not affect other properties', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMember({preserveNull: true})
             name: string | null;
@@ -126,7 +126,7 @@ describe('preserveNull', () => {
     });
 
     it('should not affect inner jsonObjects when set from parent jsonObject', () => {
-        @jsonObject
+        @jsonObject()
         class Inner {
             @jsonMember()
             prop: string | null;
@@ -154,7 +154,7 @@ describe('preserveNull', () => {
     });
 
     it('should preserve nulls in array', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonArrayMember(() => String, {preserveNull: true})
             names: Array<string | null>;
@@ -169,7 +169,7 @@ describe('preserveNull', () => {
     });
 
     it('should preserve nulls in maps', () => {
-        @jsonObject
+        @jsonObject()
         class Person {
             @jsonMapMember(() => String, () => String, {preserveNull: true})
             map: Map<string, string | null>;
