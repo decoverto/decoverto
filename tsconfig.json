@@ -6,13 +6,13 @@
   https://devblogs.microsoft.com/typescript/announcing-typescript-3-9/#solution-style-tsconfig.
 */
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig/tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig/tsconfig.spec.json"
-    }
-  ]
+    "files": [],
+    "references": [
+        {
+            "path": "./tsconfig/tsconfig.app.json"
+        },
+        {
+            "path": "./tsconfig/tsconfig.spec.json"
+        }
+    ]
 }
