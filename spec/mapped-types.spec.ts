@@ -1,11 +1,5 @@
 import {jsonArrayMember, jsonMember, jsonObject, TypedJSON} from '../src';
 
-TypedJSON.setGlobalConfig({
-    errorHandler: e => {
-        throw e;
-    },
-});
-
 const date2000 = '2000-01-01T00:00:00.000Z';
 const date3000 = '3000-01-01T00:00:00.000Z';
 
@@ -253,8 +247,4 @@ describe('mapped types', () => {
         expect(CustomTypeMap.serializer).toHaveBeenCalled();
         expect(plain.array).toEqual([1, 5]);
     });
-});
-
-TypedJSON.setGlobalConfig({
-    errorHandler: () => undefined,
 });

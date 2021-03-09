@@ -72,14 +72,11 @@ describe('initializer', () => {
             }
         }
 
-        const errorHandlerSpy = jasmine.createSpy();
         expect(() => TypedJSON.parse(
             {name: 'John'},
             Person,
-            {errorHandler: errorHandlerSpy},
-        )).toThrow();
+        )!).toThrow();
         expect(initializerSpy).toHaveBeenCalled();
-        expect(errorHandlerSpy).toHaveBeenCalled();
     });
 
     it('should fail if wrong type is returned', () => {
@@ -110,14 +107,11 @@ describe('initializer', () => {
             }
         }
 
-        const errorHandlerSpy = jasmine.createSpy();
         expect(() => TypedJSON.parse(
             {name: 'John'},
             Person,
-            {errorHandler: errorHandlerSpy},
         )).toThrow();
         expect(initializerSpy).toHaveBeenCalled();
-        expect(errorHandlerSpy).toHaveBeenCalled();
     });
 
     it('should accept subtypes', () => {

@@ -13,12 +13,6 @@ describe('errors', () => {
         }
 
         const typedJson = new TypedJSON(TestNonDeterminableTypes);
-        typedJson.config({
-            errorHandler: e => {
-                throw e;
-            },
-        });
-
         expect(() => typedJson.parse({bar: 'bar'})).toThrow();
     });
 });

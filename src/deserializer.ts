@@ -1,4 +1,4 @@
-import {identity, isValueDefined, logError, nameof} from './helpers';
+import {identity, isValueDefined, nameof} from './helpers';
 import {JsonObjectMetadata} from './metadata';
 import {getOptionValue, mergeOptions, OptionsBase} from './options-base';
 import {
@@ -28,7 +28,6 @@ export type DeserializerFn<T, TD extends TypeDescriptor, Raw> = (
 export class Deserializer<T> {
     options?: OptionsBase;
 
-    private errorHandler: (error: Error) => void = logError;
     private deserializationStrategy = new Map<
         Serializable<any>,
         DeserializerFn<any, TypeDescriptor, any>
@@ -61,18 +60,6 @@ export class Deserializer<T> {
         deserializer: DeserializerFn<any, TypeDescriptor, any>,
     ) {
         this.deserializationStrategy.set(type, deserializer);
-    }
-
-    setErrorHandler(errorHandlerCallback: (error: Error) => void) {
-        if (typeof errorHandlerCallback as any !== 'function') {
-            throw new TypeError('\'errorHandlerCallback\' is not a function.');
-        }
-
-        this.errorHandler = errorHandlerCallback;
-    }
-
-    getErrorHandler(): (error: Error) => void {
-        return this.errorHandler;
     }
 
     convertSingleValue(
@@ -108,7 +95,7 @@ export class Deserializer<T> {
             error += ` '${typeDescriptor.ctor.name}'`;
         }
 
-        this.errorHandler(new TypeError(`${error}.`));
+        throw new TypeError(`${error}.`);
     }
 
     instantiateType(ctor: any) {
@@ -172,10 +159,9 @@ function convertAsObject<T>(
     deserializer: Deserializer<any>,
 ): IndexedObject | T | undefined {
     if (typeof sourceObject as any !== 'object' || sourceObject as any === null) {
-        deserializer.getErrorHandler()(new TypeError(
+        throw new TypeError(
             `Cannot deserialize ${memberName}: 'sourceObject' must be a defined object.`,
-        ));
-        return undefined;
+        );
     }
 
     const expectedSelfType = typeDescriptor.ctor;
@@ -227,9 +213,9 @@ function convertAsObject<T>(
             ) {
                 sourceObjectWithDeserializedProperties[objMemberMetadata.key] = revivedValue;
             } else if (objMemberMetadata.isRequired === true) {
-                deserializer.getErrorHandler()(new TypeError(
+                throw new TypeError(
                     `Missing required member '${objMemberDebugName}'.`,
-                ));
+                );
             }
         });
 
@@ -237,31 +223,26 @@ function convertAsObject<T>(
         let targetObject: IndexedObject;
 
         if (typeof sourceObjectMetadata.initializerCallback === 'function') {
-            try {
-                targetObject = sourceObjectMetadata.initializerCallback(
-                    sourceObjectWithDeserializedProperties,
-                    sourceObject,
-                );
+            targetObject = sourceObjectMetadata.initializerCallback(
+                sourceObjectWithDeserializedProperties,
+                sourceObject,
+            );
 
-                // Check the validity of user-defined initializer callback.
-                if (targetObject as any == null) {
-                    throw new TypeError(
-                        `Cannot deserialize ${memberName}:`
-                        + ` 'initializer' function returned undefined/null`
-                        + `, but '${nameof(sourceObjectMetadata.classType)}' was expected.`,
-                    );
-                } else if (!(targetObject instanceof sourceObjectMetadata.classType)) {
-                    throw new TypeError(
-                        `Cannot deserialize ${memberName}:`
-                        + `'initializer' returned '${nameof(targetObject.constructor)}'`
-                        + `, but '${nameof(sourceObjectMetadata.classType)}' was expected`
-                        + `, and '${nameof(targetObject.constructor)}' is not a subtype of`
-                        + ` '${nameof(sourceObjectMetadata.classType)}'`,
-                    );
-                }
-            } catch (e) {
-                deserializer.getErrorHandler()(e);
-                return undefined;
+            // Check the validity of user-defined initializer callback.
+            if (targetObject as any == null) {
+                throw new TypeError(
+                    `Cannot deserialize ${memberName}:`
+                    + ` 'initializer' function returned undefined/null`
+                    + `, but '${nameof(sourceObjectMetadata.classType)}' was expected.`,
+                );
+            } else if (!(targetObject instanceof sourceObjectMetadata.classType)) {
+                throw new TypeError(
+                    `Cannot deserialize ${memberName}:`
+                    + `'initializer' returned '${nameof(targetObject.constructor)}'`
+                    + `, but '${nameof(sourceObjectMetadata.classType)}' was expected`
+                    + `, and '${nameof(targetObject.constructor)}' is not a subtype of`
+                    + ` '${nameof(sourceObjectMetadata.classType)}'`,
+                );
             }
         } else {
             targetObject = deserializer.instantiateType(expectedSelfType);
@@ -280,10 +261,10 @@ function convertAsObject<T>(
                 // check for static
                 (targetObject.constructor as any)[methodName]();
             } else {
-                deserializer.getErrorHandler()(new TypeError(
+                throw new TypeError(
                     `onDeserialized callback`
                     + `'${nameof(sourceObjectMetadata.classType)}.${methodName}' is not a method.`,
-                ));
+                );
             }
         }
 
@@ -318,40 +299,21 @@ function convertAsArray(
         );
     }
     if (!Array.isArray(sourceObject)) {
-        deserializer.getErrorHandler()(
-            new TypeError(makeTypeErrorMessage(Array, sourceObject.constructor, memberName)),
-        );
-        return [];
+        throw new TypeError(makeTypeErrorMessage(Array, sourceObject.constructor, memberName));
     }
 
     if (typeDescriptor.elementType as any == null) {
-        deserializer.getErrorHandler()(
-            new TypeError(
-                `Could not deserialize ${memberName} as Array: missing constructor reference of`
-                + ` Array elements.`,
-            ),
-        );
-        return [];
+        throw new TypeError(`Could not deserialize ${memberName} as Array: missing constructor \
+reference of Array elements.`);
     }
 
     return sourceObject.map((element, i) => {
-        // If an array element fails to deserialize, substitute with undefined. This is so that the
-        // original ordering is not interrupted by faulty
-        // entries, as an Array is ordered.
-        try {
-            return deserializer.convertSingleValue(
-                element,
-                typeDescriptor.elementType,
-                `${memberName}[${i}]`,
-                memberOptions,
-            );
-        } catch (e) {
-            deserializer.getErrorHandler()(e);
-
-            // Keep filling the array here with undefined to keep original ordering.
-            // Note: this is just aesthetics, not returning anything produces the same result.
-            return undefined;
-        }
+        return deserializer.convertSingleValue(
+            element,
+            typeDescriptor.elementType,
+            `${memberName}[${i}]`,
+            memberOptions,
+        );
     });
 }
 
@@ -369,39 +331,27 @@ function convertAsSet(
         );
     }
     if (!Array.isArray(sourceObject)) {
-        deserializer.getErrorHandler()(new TypeError(makeTypeErrorMessage(
+        throw new TypeError(makeTypeErrorMessage(
             Array,
             sourceObject.constructor,
             memberName,
-        )));
-        return new Set<any>();
+        ));
     }
 
     if (typeDescriptor.elementType as any == null) {
-        deserializer.getErrorHandler()(
-            new TypeError(
-                `Could not deserialize ${memberName} as Set: missing constructor reference of`
-                + ` Set elements.`,
-            ),
-        );
-        return new Set<any>();
+        throw new TypeError(`Could not deserialize ${memberName} as Set: missing constructor \
+reference of Set elements.`);
     }
 
     const resultSet = new Set<any>();
 
     sourceObject.forEach((element, i) => {
-        try {
-            resultSet.add(deserializer.convertSingleValue(
-                element,
-                typeDescriptor.elementType,
-                `${memberName}[${i}]`,
-                memberOptions,
-            ));
-        } catch (e) {
-            // Faulty entries are skipped, because a Set is not ordered, and skipping an entry
-            // does not affect others.
-            deserializer.getErrorHandler()(e);
-        }
+        resultSet.add(deserializer.convertSingleValue(
+            element,
+            typeDescriptor.elementType,
+            `${memberName}[${i}]`,
+            memberOptions,
+        ));
     });
 
     return resultSet;
@@ -428,24 +378,21 @@ function convertAsMap(
     const expectedShape = typeDescriptor.getCompleteOptions().shape;
     if (!isExpectedMapShape(sourceObject, expectedShape)) {
         const expectedType = expectedShape === MapShape.ARRAY ? Array : Object;
-        deserializer.getErrorHandler()(
-            new TypeError(makeTypeErrorMessage(expectedType, sourceObject.constructor, memberName)),
-        );
-        return new Map<any, any>();
+        throw new TypeError(makeTypeErrorMessage(
+            expectedType,
+            sourceObject.constructor,
+            memberName,
+        ));
     }
 
     if (typeDescriptor.keyType as any == null) {
-        deserializer.getErrorHandler()(
-            new TypeError(`Could not deserialize ${memberName} as Map: missing key constructor.`),
-        );
-        return new Map<any, any>();
+        throw new TypeError(`Could not deserialize ${memberName} as Map: missing key constructor.`);
     }
 
     if (typeDescriptor.valueType as any == null) {
-        deserializer.getErrorHandler()(
-            new TypeError(`Could not deserialize ${memberName} as Map: missing value constructor.`),
+        throw new TypeError(
+            `Could not deserialize ${memberName} as Map: missing value constructor.`,
         );
-        return new Map<any, any>();
     }
 
     const keyMemberName = `${memberName}[].key`;
@@ -454,56 +401,44 @@ function convertAsMap(
 
     if (expectedShape === MapShape.OBJECT) {
         Object.keys(sourceObject).forEach(key => {
-            try {
-                const resultKey = deserializer.convertSingleValue(
-                    key,
-                    typeDescriptor.keyType,
-                    keyMemberName,
-                    memberOptions,
+            const resultKey = deserializer.convertSingleValue(
+                key,
+                typeDescriptor.keyType,
+                keyMemberName,
+                memberOptions,
+            );
+            if (isValueDefined(resultKey)) {
+                resultMap.set(
+                    resultKey,
+                    deserializer.convertSingleValue(
+                        sourceObject[key],
+                        typeDescriptor.valueType,
+                        valueMemberName,
+                        memberOptions,
+                    ),
                 );
-                if (isValueDefined(resultKey)) {
-                    resultMap.set(
-                        resultKey,
-                        deserializer.convertSingleValue(
-                            sourceObject[key],
-                            typeDescriptor.valueType,
-                            valueMemberName,
-                            memberOptions,
-                        ),
-                    );
-                }
-            } catch (e) {
-                // Faulty entries are skipped, because a Map is not ordered,
-                // and skipping an entry does not affect others.
-                deserializer.getErrorHandler()(e);
             }
         });
     } else {
         sourceObject.forEach((element: any) => {
-            try {
-                const key = deserializer.convertSingleValue(
-                    element.key,
-                    typeDescriptor.keyType,
-                    keyMemberName,
-                    memberOptions,
-                );
+            const key = deserializer.convertSingleValue(
+                element.key,
+                typeDescriptor.keyType,
+                keyMemberName,
+                memberOptions,
+            );
 
-                // Undefined/null keys not supported, skip if so.
-                if (isValueDefined(key)) {
-                    resultMap.set(
-                        key,
-                        deserializer.convertSingleValue(
-                            element.value,
-                            typeDescriptor.valueType,
-                            valueMemberName,
-                            memberOptions,
-                        ),
-                    );
-                }
-            } catch (e) {
-                // Faulty entries are skipped, because a Map is not ordered,
-                // and skipping an entry does not affect others.
-                deserializer.getErrorHandler()(e);
+            // Undefined/null keys not supported, skip if so.
+            if (isValueDefined(key)) {
+                resultMap.set(
+                    key,
+                    deserializer.convertSingleValue(
+                        element.value,
+                        typeDescriptor.valueType,
+                        valueMemberName,
+                        memberOptions,
+                    ),
+                );
             }
         });
     }

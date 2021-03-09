@@ -2,7 +2,6 @@ import {
     identity,
     isInstanceOf,
     isValueDefined,
-    logError,
     nameof,
 } from './helpers';
 import {JsonObjectMetadata} from './metadata';
@@ -47,7 +46,6 @@ export type SerializerFn<T, TD extends TypeDescriptor, Raw> = (
  */
 export class Serializer {
     options?: OptionsBase;
-    private errorHandler: (error: Error) => void = logError;
     private serializationStrategy = new Map<
         Serializable<any>,
         SerializerFn<any, TypeDescriptor, any>
@@ -85,18 +83,6 @@ export class Serializer {
         this.serializationStrategy.set(type, serializer);
     }
 
-    setErrorHandler(errorHandlerCallback: (error: Error) => void) {
-        if (typeof errorHandlerCallback as any !== 'function') {
-            throw new TypeError('\'errorHandlerCallback\' is not a function.');
-        }
-
-        this.errorHandler = errorHandlerCallback;
-    }
-
-    getErrorHandler(): (error: Error) => void {
-        return this.errorHandler;
-    }
-
     retrievePreserveNull(memberOptions?: OptionsBase): boolean {
         return getOptionValue('preserveNull', mergeOptions(this.options, memberOptions));
     }
@@ -122,11 +108,10 @@ export class Serializer {
             const expectedName = nameof(typeDescriptor.ctor);
             const actualName = nameof(sourceObject.constructor);
 
-            this.errorHandler(new TypeError(
+            throw new TypeError(
                 `Could not serialize '${memberName}': expected '${expectedName}',`
                 + ` got '${actualName}'.`,
-            ));
-            return;
+            );
         }
 
         const serializer = this.serializationStrategy.get(typeDescriptor.ctor);
@@ -144,7 +129,7 @@ export class Serializer {
             error += ` '${typeDescriptor.ctor.name}'`;
         }
 
-        this.errorHandler(new TypeError(`${error}.`));
+        throw new TypeError(`${error}.`);
     }
 }
 
@@ -188,11 +173,8 @@ function convertAsObject(
                 // check for static
                 (sourceObject.constructor as any)[beforeSerializationMethodName]();
             } else {
-                serializer.getErrorHandler()(new TypeError(
-                    `beforeSerialization callback '`
-                    + `${nameof(sourceTypeMetadata.classType)}.${beforeSerializationMethodName}`
-                    + `' is not a method.`,
-                ));
+                throw new TypeError(`beforeSerialization callback \
+'${nameof(sourceTypeMetadata.classType)}.${beforeSerializationMethodName}' is not a method.`);
             }
         }
 

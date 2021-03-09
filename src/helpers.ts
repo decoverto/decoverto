@@ -78,6 +78,8 @@ export function isSubtypeOf(A: Function, B: Function) {
     return A === B || A.prototype instanceof B;
 }
 
+export type ErrorHandler = (error: Error) => void;
+
 export function logError(message?: any, ...optionalParams: Array<any>) {
     if (typeof console as any === 'object' && typeof console.error as any === 'function') {
         console.error(message, ...optionalParams);
