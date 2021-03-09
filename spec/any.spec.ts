@@ -4,10 +4,10 @@ describe('AnyT', () => {
     describe('on a simple class property', () => {
         @jsonObject
         class SimplePropertyAny {
-            @jsonMember(AnyT)
+            @jsonMember(() => AnyT)
             any: any;
 
-            @jsonMember(AnyT)
+            @jsonMember(() => AnyT)
             anyNullable?: any | null;
         }
 
@@ -44,10 +44,10 @@ describe('AnyT', () => {
     describe('on arrays', () => {
         @jsonObject
         class ArrayPropertyAny {
-            @jsonArrayMember(AnyT)
+            @jsonArrayMember(() => AnyT)
             any: Array<any>;
 
-            @jsonArrayMember(AnyT)
+            @jsonArrayMember(() => AnyT)
             anyNullable?: Array<any> | null;
         }
 
@@ -89,10 +89,10 @@ describe('AnyT', () => {
         @jsonObject
         class SetPropertyAny {
 
-            @jsonSetMember(AnyT)
+            @jsonSetMember(() => AnyT)
             any: Set<any>;
 
-            @jsonSetMember(AnyT)
+            @jsonSetMember(() => AnyT)
             anyNullable?: Set<any> | null;
         }
 
@@ -137,14 +137,14 @@ describe('AnyT', () => {
         @jsonObject
         class Event {
 
-            @jsonMember(AnyT)
+            @jsonMember(() => AnyT)
             data?: {[k: string]: any} | null;
         }
 
         @jsonObject
         class A {
 
-            @jsonArrayMember(Event)
+            @jsonArrayMember(() => Event)
             events: Array<Event>
         }
 

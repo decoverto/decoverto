@@ -4,8 +4,7 @@ import {
     isValueDefined,
     LAZY_TYPE_EXPLANATION,
     logError,
-    logWarning,
-    MISSING_REFLECT_CONF_MSG,
+    logWarning, MISSING_REFLECT_CONF_MSG,
     nameof,
 } from './helpers';
 import {
@@ -17,11 +16,8 @@ import {extractOptionBase, OptionsBase} from './options-base';
 import {
     ArrayTypeDescriptor,
     ensureTypeDescriptor,
-    ensureTypeThunk,
-    isTypelike,
     isTypeThunk,
     MapTypeDescriptor,
-    MaybeTypeThunk,
     SetTypeDescriptor,
     TypeDescriptor,
     Typelike,
@@ -34,11 +30,6 @@ declare abstract class Reflect {
 }
 
 export interface IJsonMemberOptions extends OptionsBase {
-    /**
-     * Sets the constructor of the property.
-     * Optional with ReflectDecorators.
-     */
-    constructor?: Typelike | null;
 
     /** When set, indicates that the member must be present when deserializing. */
     isRequired?: boolean | null;
@@ -79,12 +70,12 @@ export function jsonMember(options: IJsonMemberOptions): PropertyDecorator;
  * options.
  */
 export function jsonMember(
-    type: MaybeTypeThunk,
+    type?: TypeThunk,
     options?: IJsonMemberOptions,
 ): PropertyDecorator;
 
 export function jsonMember<T extends Function>(
-    optionsOrPrototype?: IndexedObject | IJsonMemberOptions | MaybeTypeThunk,
+    optionsOrPrototype?: IndexedObject | IJsonMemberOptions | TypeThunk,
     propertyKeyOrOptions?: string | symbol | IJsonMemberOptions,
 ): PropertyDecorator | void {
     if (typeof propertyKeyOrOptions === 'string' || typeof propertyKeyOrOptions === 'symbol') {
@@ -127,19 +118,19 @@ runtime. Potential solutions:
     }
 
     // jsonMember used as a decorator factory.
-    return jsonMemberDecoratorFactory(optionsOrPrototype, propertyKeyOrOptions);
+    return jsonMemberDecoratorFactory(optionsOrPrototype as any, propertyKeyOrOptions);
 }
 
 function jsonMemberDecoratorFactory(
-    optionsOrType: IJsonMemberOptions | MaybeTypeThunk | undefined,
+    optionsOrType: IJsonMemberOptions | TypeThunk | undefined,
     options: IJsonMemberOptions | undefined,
 ): PropertyDecorator {
     return (target, property) => {
         const decoratorName = `@jsonMember on ${nameof(target.constructor)}.${String(property)}`;
         let typeThunk: TypeThunk | undefined;
 
-        if (isTypelike(optionsOrType) || isTypeThunk(optionsOrType)) {
-            typeThunk = ensureTypeThunk(optionsOrType, decoratorName);
+        if (isTypeThunk(optionsOrType)) {
+            typeThunk = optionsOrType;
         } else {
             options = optionsOrType;
         }

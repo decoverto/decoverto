@@ -8,8 +8,6 @@ import {extractOptionBase, OptionsBase} from './options-base';
 import {
     ArrayTypeDescriptor,
     ensureTypeDescriptor,
-    ensureTypeThunk,
-    MaybeTypeThunk,
     TypeDescriptor,
     TypeThunk,
 } from './type-descriptor';
@@ -43,18 +41,17 @@ export interface IJsonArrayMemberOptions extends OptionsBase {
 
 /**
  * Specifies that a property, of type array, is part of an object when serializing.
- * @param maybeTypeThunk Constructor of array elements (e.g. 'Number' for 'number[]', or 'Date'
+ * @param typeThunk Constructor of array elements (e.g. 'Number' for 'number[]', or 'Date'
  * for 'Date[]').
  * @param options Additional options.
  */
 export function jsonArrayMember(
-    maybeTypeThunk: MaybeTypeThunk,
+    typeThunk: TypeThunk,
     options: IJsonArrayMemberOptions = {},
 ) {
     return (target: Object, propKey: string | symbol) => {
         const decoratorName =
             `@jsonArrayMember on ${nameof(target.constructor)}.${String(propKey)}`;
-        const typeThunk: TypeThunk = ensureTypeThunk(maybeTypeThunk, decoratorName);
 
         const dimensions = options.dimensions == null ? 1 : options.dimensions;
         if (!isNaN(dimensions) && dimensions < 1) {

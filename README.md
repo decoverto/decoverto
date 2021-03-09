@@ -121,13 +121,13 @@ import { jsonObject, jsonArrayMember, jsonSetMember, jsonMapMember, TypedJSON } 
 @jsonObject
 class MyDataClass
 {
-    @jsonArrayMember(Number)
+    @jsonArrayMember(() => Number)
     public prop1: number[];
 
-    @jsonSetMember(String)
+    @jsonSetMember(() => String)
     public prop2: Set<string>;
     
-    @jsonMapMember(Number, MySecondDataClass)
+    @jsonMapMember(() => Number, MySecondDataClass)
     public prop3: Map<number, MySecondDataClass>;
 }
 ```
@@ -160,10 +160,10 @@ class MyDataClass
     @jsonMember
     public prop1: MySecondDataClass;
     
-    @jsonArrayMember(MySecondDataClass)
+    @jsonArrayMember(() => MySecondDataClass)
     public arrayProp: MySecondDataClass[];
 
-    @jsonMapMember(Number, MySecondDataClass)
+    @jsonMapMember(() => Number, MySecondDataClass)
     public mapProp: Map<number, MySecondDataClass>;
 }
 ```
@@ -176,7 +176,7 @@ import {AnyT, jsonObject, jsonMember} from 'typedjson';
 
 @jsonObject
 class Something {
-    @jsonMember(AnyT)
+    @jsonMember(() => AnyT)
     anythingGoes: any;
 }
 ```
@@ -253,7 +253,7 @@ function objArrayDeserializer(
 
 @jsonObject
 class Obj {
-    @jsonArrayMember(Inner, {deserializer: objArrayDeserializer})
+    @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
     inners: Array<Inner>;
 
     @jsonMember
@@ -302,56 +302,6 @@ class Model {
 ```
 
 ## Limitations
-
-### Declaration order &amp; circular class dependencies
-
-Because of how decorators work at runtime, dependent class declaration order matters in TypedJSON. If a dependency is referenced before it is declared, it will result in an undefined reference and cause errors:
-
-```typescript
-@jsonObject
-class Foo {
-    @jsonMember // error, because Bar is only defined later
-    bar: Bar;
-    
-    @jsonMember(Bar) // error, because Bar is only defined later
-    baz: Bar;
-}
-
-
-@jsonObject
-class Bar {
-    @jsonMember
-    foo: Foo;
-}
-```
-
-This can be resolved by fixing the declaration order of your dependent classes (i.e. by moving `Bar` before `Foo` in the above example).
-
-In cases where this is not possible (most commonly because of a circular class-dependency), the more flexible lazy type definition syntax can be used instead:
-
-```diff
-  import {jsonObject, jsonMember} from 'typedjson';
-
-  @jsonObject
-  class Foo {
--     @jsonMember
-+     @jsonMember(() => Bar)
-      bar: Bar;
-  
--     @jsonMember(Bar)
-+     @jsonMember(() => Bar)
-      baz: Bar;
-  }
-  
-  @jsonObject
-  class Bar {
--     @jsonMember
-+     @jsonMember(() => Foo)
-      foo: Foo;
-  }
-```
-
-_Note: this is necessary even when inferring the type from the TypeScript type-annotation, requiring the use of an explicit lazy type definition at all times._
 
 ### Type-definitions
 

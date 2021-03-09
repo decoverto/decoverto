@@ -5,7 +5,7 @@ import {
     injectMetadataInformation,
 } from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
-import {ensureTypeThunk, MaybeTypeThunk, SetT} from './type-descriptor';
+import {SetT, TypeThunk} from './type-descriptor';
 
 declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
@@ -34,15 +34,14 @@ export interface IJsonSetMemberOptions extends OptionsBase {
 /**
  * Specifies that the property is part of the object when serializing.
  * Use this decorator on properties of type Set<T>.
- * @param maybeTypeThunk Constructor of set elements (e.g. 'Number' for Set<number> or 'Date'
+ * @param typeThunk Constructor of set elements (e.g. 'Number' for Set<number> or 'Date'
  * for Set<Date>).
  * @param options Additional options.
  */
-export function jsonSetMember(maybeTypeThunk: MaybeTypeThunk, options: IJsonSetMemberOptions = {}) {
+export function jsonSetMember(typeThunk: TypeThunk, options: IJsonSetMemberOptions = {}) {
     return (target: Object, propKey: string | symbol) => {
         // For error messages
         const decoratorName = `@jsonSetMember on ${nameof(target.constructor)}.${String(propKey)}`;
-        const typeThunk = ensureTypeThunk(maybeTypeThunk, decoratorName);
 
         // If ReflectDecorators is available, use it to check whether 'jsonSetMember' has been used
         // on a set. Warn if not.
