@@ -1,20 +1,17 @@
-import {defaultTypeResolver, Deserializer} from './deserializer';
-import {logError, logWarning, nameof, parseToJSObject} from './helpers';
+import {Deserializer} from './deserializer';
+import {logError, parseToJSObject} from './helpers';
 import {createArrayType} from './json-array-member';
 import {
     CustomDeserializerParams,
     CustomSerializerParams,
     JsonObjectMetadata,
-    TypeHintEmitter,
-    TypeResolver,
 } from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
-import {defaultTypeEmitter, Serializer} from './serializer';
+import {Serializer} from './serializer';
 import {ensureTypeDescriptor, MapT, SetT} from './type-descriptor';
-import {Constructor, IndexedObject, Serializable} from './types';
+import {IndexedObject, Serializable} from './types';
 
 export type JsonTypes = Object | boolean | string | number | null | undefined;
-export {defaultTypeResolver, defaultTypeEmitter};
 
 export interface MappedTypeConverters<T> {
 
@@ -44,32 +41,12 @@ export interface ITypedJSONSettings extends OptionsBase {
     mappedTypes?: Map<Serializable<any>, MappedTypeConverters<any>> | null;
 
     /**
-     * Sets a callback that determines the constructor of the correct sub-type of polymorphic
-     * objects while deserializing.
-     * The default behavior is to read the type-name from the '__type' property of 'sourceObject',
-     * and look it up in 'knownTypes'.
-     * The constructor of the sub-type should be returned.
-     */
-    typeResolver?: TypeResolver | null;
-
-    nameResolver?: ((ctor: Function) => string) | null;
-
-    /**
-     * Sets a callback that writes type-hints to serialized objects.
-     * The default behavior is to write the type-name to the '__type' property, if a derived type
-     * is present in place of a base type.
-     */
-    typeHintEmitter?: TypeHintEmitter | null;
-
-    /**
      * Sets the amount of indentation to use in produced JSON strings.
      * Default value is 0, or no indentation.
      */
     indent?: number | null;
 
     replacer?: ((key: string, value: any) => any) | null;
-
-    knownTypes?: Array<Constructor<any>> | null;
 }
 
 export class TypedJSON<T> {
@@ -78,11 +55,9 @@ export class TypedJSON<T> {
 
     private serializer: Serializer = new Serializer();
     private deserializer: Deserializer<T> = new Deserializer<T>();
-    private globalKnownTypes: Array<Constructor<any>> = [];
     private indent: number = 0;
     private rootConstructor: Serializable<T>;
     private errorHandler: (e: Error) => void;
-    private nameResolver: (ctor: Function) => string;
     private replacer?: (key: string, value: any) => any;
 
     /**
@@ -101,7 +76,6 @@ export class TypedJSON<T> {
             );
         }
 
-        this.nameResolver = (ctor) => nameof(ctor);
         this.rootConstructor = rootConstructor;
         this.errorHandler = (error) => logError(error);
 
@@ -335,14 +309,6 @@ export class TypedJSON<T> {
             ...settings,
         };
 
-        if (settings.knownTypes != null
-            && TypedJSON._globalConfig.knownTypes != null) {
-            // Merge known-types (also de-duplicate them, so Array -> Set -> Array).
-            settings.knownTypes = Array.from(new Set(
-                settings.knownTypes.concat(TypedJSON._globalConfig.knownTypes),
-            ));
-        }
-
         const options = extractOptionBase(settings);
         this.serializer.options = options;
         this.deserializer.options = options;
@@ -356,12 +322,6 @@ export class TypedJSON<T> {
         if (settings.replacer != null) {
             this.replacer = settings.replacer;
         }
-        if (settings.typeResolver != null) {
-            this.deserializer.setTypeResolver(settings.typeResolver);
-        }
-        if (settings.typeHintEmitter != null) {
-            this.serializer.setTypeHintEmitter(settings.typeHintEmitter);
-        }
         if (settings.indent != null) {
             this.indent = settings.indent;
         }
@@ -370,25 +330,6 @@ export class TypedJSON<T> {
             settings.mappedTypes.forEach((upDown, type) => {
                 this.setSerializationStrategies(type, upDown);
             });
-        }
-
-        if (settings.nameResolver != null) {
-            this.nameResolver = settings.nameResolver;
-            this.deserializer.setNameResolver(settings.nameResolver);
-        }
-
-        if (settings.knownTypes != null) {
-            // Type-check knownTypes elements to recognize errors in advance.
-            settings.knownTypes.forEach((knownType: any, i) => {
-                if (typeof knownType === 'undefined' || knownType === null) {
-                    logWarning(
-                        `TypedJSON.config: 'knownTypes' contains an undefined/null value`
-                        + ` (element ${i}).`,
-                    );
-                }
-            });
-
-            this.globalKnownTypes = settings.knownTypes;
         }
     }
 
@@ -411,7 +352,6 @@ export class TypedJSON<T> {
             result = this.deserializer.convertSingleValue(
                 json,
                 ensureTypeDescriptor(this.rootConstructor),
-                this.getKnownTypes(),
             ) as T;
         } catch (e) {
             this.errorHandler(e);
@@ -431,7 +371,6 @@ export class TypedJSON<T> {
         return this.deserializer.convertSingleValue(
             json,
             createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
-            this._mapKnownTypes(this.globalKnownTypes),
         );
     }
 
@@ -440,7 +379,6 @@ export class TypedJSON<T> {
         return this.deserializer.convertSingleValue(
             json,
             SetT(this.rootConstructor),
-            this._mapKnownTypes(this.globalKnownTypes),
         );
     }
 
@@ -449,7 +387,6 @@ export class TypedJSON<T> {
         return this.deserializer.convertSingleValue(
             json,
             MapT(keyConstructor, this.rootConstructor),
-            this._mapKnownTypes(this.globalKnownTypes),
         );
     }
 
@@ -545,31 +482,6 @@ export class TypedJSON<T> {
         return JSON.stringify(this.toPlainMap(object, keyConstructor), this.replacer, this.indent);
     }
 
-    private getKnownTypes(): Map<string, Function> {
-        const rootMetadata = JsonObjectMetadata.getFromConstructor(this.rootConstructor);
-        const knownTypes = new Map<string, Function>();
-
-        this.globalKnownTypes.filter(ktc => ktc).forEach(knownTypeCtor => {
-            knownTypes.set(this.nameResolver(knownTypeCtor), knownTypeCtor);
-        });
-
-        if (rootMetadata !== undefined) {
-            rootMetadata.processDeferredKnownTypes();
-            rootMetadata.knownTypes.forEach(knownTypeCtor => {
-                knownTypes.set(this.nameResolver(knownTypeCtor), knownTypeCtor);
-            });
-        }
-        return knownTypes;
-    }
-
-    private _mapKnownTypes(constructors: Array<Constructor<any>>) {
-        const map = new Map<string, Constructor<any>>();
-
-        constructors.filter(ctor => ctor).forEach(ctor => map.set(this.nameResolver(ctor), ctor));
-
-        return map;
-    }
-
     private setSerializationStrategies<T, R = T>(
         type: Serializable<T>,
         converters: MappedTypeConverters<R>,
@@ -583,7 +495,6 @@ export class TypedJSON<T> {
                         fallback: (so, td) => this.deserializer.convertSingleValue(
                             so,
                             ensureTypeDescriptor(td),
-                            this.getKnownTypes(),
                         ),
                     },
                 ),

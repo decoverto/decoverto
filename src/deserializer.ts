@@ -1,5 +1,5 @@
-import {identity, isSubtypeOf, isValueDefined, logError, nameof} from './helpers';
-import {JsonObjectMetadata, TypeResolver} from './metadata';
+import {identity, isValueDefined, logError, nameof} from './helpers';
+import {JsonObjectMetadata} from './metadata';
 import {getOptionValue, mergeOptions, OptionsBase} from './options-base';
 import {
     AnyT,
@@ -13,19 +13,9 @@ import {
 } from './type-descriptor';
 import {Constructor, IndexedObject, Serializable} from './types';
 
-export function defaultTypeResolver(
-    sourceObject: IndexedObject,
-    knownTypes: Map<string, Function>,
-): Function | undefined {
-    if (sourceObject.__type != null) {
-        return knownTypes.get(sourceObject.__type);
-    }
-}
-
 export type DeserializerFn<T, TD extends TypeDescriptor, Raw> = (
     sourceObject: Raw,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
     deserializer: Deserializer<T>,
     memberOptions?: OptionsBase,
@@ -38,8 +28,6 @@ export type DeserializerFn<T, TD extends TypeDescriptor, Raw> = (
 export class Deserializer<T> {
     options?: OptionsBase;
 
-    private typeResolver: TypeResolver = defaultTypeResolver;
-    private nameResolver?: (ctor: Function) => string;
     private errorHandler: (error: Error) => void = logError;
     private deserializationStrategy = new Map<
         Serializable<any>,
@@ -75,22 +63,6 @@ export class Deserializer<T> {
         this.deserializationStrategy.set(type, deserializer);
     }
 
-    setNameResolver(nameResolverCallback: (ctor: Function) => string) {
-        this.nameResolver = nameResolverCallback;
-    }
-
-    setTypeResolver(typeResolverCallback: TypeResolver) {
-        if (typeof typeResolverCallback as any !== 'function') {
-            throw new TypeError('\'typeResolverCallback\' is not a function.');
-        }
-
-        this.typeResolver = typeResolverCallback;
-    }
-
-    getTypeResolver(): TypeResolver {
-        return this.typeResolver;
-    }
-
     setErrorHandler(errorHandlerCallback: (error: Error) => void) {
         if (typeof errorHandlerCallback as any !== 'function') {
             throw new TypeError('\'errorHandlerCallback\' is not a function.');
@@ -106,7 +78,6 @@ export class Deserializer<T> {
     convertSingleValue(
         sourceObject: any,
         typeDescriptor: TypeDescriptor,
-        knownTypes: Map<string, Function>,
         memberName = 'object',
         memberOptions?: OptionsBase,
     ): any {
@@ -121,7 +92,6 @@ export class Deserializer<T> {
             return deserializer(
                 sourceObject,
                 typeDescriptor,
-                knownTypes,
                 memberName,
                 this,
                 memberOptions,
@@ -129,7 +99,7 @@ export class Deserializer<T> {
         }
 
         if (typeof sourceObject === 'object') {
-            return convertAsObject(sourceObject, typeDescriptor, knownTypes, memberName, this);
+            return convertAsObject(sourceObject, typeDescriptor, memberName, this);
         }
 
         let error = `Could not deserialize '${memberName}'; don't know how to deserialize type`;
@@ -143,40 +113,6 @@ export class Deserializer<T> {
 
     instantiateType(ctor: any) {
         return new ctor();
-    }
-
-    mergeKnownTypes(...knownTypeMaps: Array<Map<string, Function>>) {
-        const result = new Map<string, Function>();
-
-        knownTypeMaps.forEach(knownTypes => {
-            knownTypes.forEach((ctor, name) => {
-                if (this.nameResolver === undefined) {
-                    result.set(name, ctor);
-                } else {
-                    result.set(this.nameResolver(ctor), ctor);
-                }
-            });
-        });
-
-        return result;
-    }
-
-    createKnownTypesMap(knowTypes: Set<Function>) {
-        const map = new Map<string, Function>();
-
-        knowTypes.forEach(ctor => {
-            if (this.nameResolver === undefined) {
-                const knownTypeMeta = JsonObjectMetadata.getFromConstructor(ctor);
-                const customName = knownTypeMeta?.isExplicitlyMarked === true
-                    ? knownTypeMeta.name
-                    : null;
-                map.set(customName ?? ctor.name, ctor);
-            } else {
-                map.set(this.nameResolver(ctor), ctor);
-            }
-        });
-
-        return map;
     }
 
     retrievePreserveNull(memberOptions?: OptionsBase): boolean {
@@ -217,7 +153,6 @@ function srcTypeNameForDebug(sourceObject: any) {
 function deserializeDirectly<T extends string | number | boolean>(
     sourceObject: T,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     objectName: string,
 ): T {
     if (sourceObject.constructor !== typeDescriptor.ctor) {
@@ -233,7 +168,6 @@ function deserializeDirectly<T extends string | number | boolean>(
 function convertAsObject<T>(
     sourceObject: IndexedObject,
     typeDescriptor: ConcreteTypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
     deserializer: Deserializer<any>,
 ): IndexedObject | T | undefined {
@@ -244,43 +178,8 @@ function convertAsObject<T>(
         return undefined;
     }
 
-    let expectedSelfType = typeDescriptor.ctor;
-    let sourceObjectMetadata = JsonObjectMetadata.getFromConstructor(expectedSelfType);
-    let knownTypeConstructors = knownTypes;
-    let typeResolver = deserializer.getTypeResolver();
-
-    if (sourceObjectMetadata !== undefined) {
-        sourceObjectMetadata.processDeferredKnownTypes();
-
-        // Merge known types received from "above" with known types defined on the current type.
-        knownTypeConstructors = deserializer.mergeKnownTypes(
-            knownTypeConstructors,
-            deserializer.createKnownTypesMap(sourceObjectMetadata.knownTypes),
-        );
-        if (sourceObjectMetadata.typeResolver != null) {
-            typeResolver = sourceObjectMetadata.typeResolver;
-        }
-    }
-
-    // Check if a type-hint is available from the source object.
-    const typeFromTypeHint = typeResolver(sourceObject, knownTypeConstructors);
-
-    if (typeFromTypeHint != null) {
-        // Check if type hint is a valid subtype of the expected source type.
-        if (isSubtypeOf(typeFromTypeHint, expectedSelfType)) {
-            // Hell yes.
-            expectedSelfType = typeFromTypeHint;
-            sourceObjectMetadata = JsonObjectMetadata.getFromConstructor(typeFromTypeHint);
-
-            if (sourceObjectMetadata !== undefined) {
-                // Also merge new known types from subtype.
-                knownTypeConstructors = deserializer.mergeKnownTypes(
-                    knownTypeConstructors,
-                    deserializer.createKnownTypesMap(sourceObjectMetadata.knownTypes),
-                );
-            }
-        }
-    }
+    const expectedSelfType = typeDescriptor.ctor;
+    const sourceObjectMetadata = JsonObjectMetadata.getFromConstructor(expectedSelfType);
 
     if (sourceObjectMetadata?.isExplicitlyMarked === true) {
         const sourceMetadata = sourceObjectMetadata;
@@ -304,7 +203,6 @@ function convertAsObject<T>(
                         fallback: (so, td) => deserializer.convertSingleValue(
                             so,
                             ensureTypeDescriptor(td),
-                            knownTypes,
                         ),
                     },
                 );
@@ -317,7 +215,6 @@ function convertAsObject<T>(
                 revivedValue = deserializer.convertSingleValue(
                     objMemberValue,
                     objMemberMetadata.type(),
-                    knownTypeConstructors,
                     objMemberDebugName,
                     objMemberOptions,
                 );
@@ -399,7 +296,6 @@ function convertAsObject<T>(
             targetObject[sourceKey] = deserializer.convertSingleValue(
                 sourceObject[sourceKey],
                 new ConcreteTypeDescriptor(sourceObject[sourceKey].constructor),
-                knownTypes,
                 sourceKey,
             );
         });
@@ -411,7 +307,6 @@ function convertAsObject<T>(
 function convertAsArray(
     sourceObject: any,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
     deserializer: Deserializer<any>,
     memberOptions?: OptionsBase,
@@ -447,7 +342,6 @@ function convertAsArray(
             return deserializer.convertSingleValue(
                 element,
                 typeDescriptor.elementType,
-                knownTypes,
                 `${memberName}[${i}]`,
                 memberOptions,
             );
@@ -464,7 +358,6 @@ function convertAsArray(
 function convertAsSet(
     sourceObject: any,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
     deserializer: Deserializer<any>,
     memberOptions?: OptionsBase,
@@ -501,7 +394,6 @@ function convertAsSet(
             resultSet.add(deserializer.convertSingleValue(
                 element,
                 typeDescriptor.elementType,
-                knownTypes,
                 `${memberName}[${i}]`,
                 memberOptions,
             ));
@@ -523,7 +415,6 @@ function isExpectedMapShape(source: any, expectedShape: MapShape): boolean {
 function convertAsMap(
     sourceObject: any,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
     deserializer: Deserializer<any>,
     memberOptions?: OptionsBase,
@@ -567,7 +458,6 @@ function convertAsMap(
                 const resultKey = deserializer.convertSingleValue(
                     key,
                     typeDescriptor.keyType,
-                    knownTypes,
                     keyMemberName,
                     memberOptions,
                 );
@@ -577,7 +467,6 @@ function convertAsMap(
                         deserializer.convertSingleValue(
                             sourceObject[key],
                             typeDescriptor.valueType,
-                            knownTypes,
                             valueMemberName,
                             memberOptions,
                         ),
@@ -595,7 +484,6 @@ function convertAsMap(
                 const key = deserializer.convertSingleValue(
                     element.key,
                     typeDescriptor.keyType,
-                    knownTypes,
                     keyMemberName,
                     memberOptions,
                 );
@@ -607,7 +495,6 @@ function convertAsMap(
                         deserializer.convertSingleValue(
                             element.value,
                             typeDescriptor.valueType,
-                            knownTypes,
                             valueMemberName,
                             memberOptions,
                         ),
@@ -627,7 +514,6 @@ function convertAsMap(
 function deserializeDate(
     sourceObject: string | number | Date,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
 ): Date {
     // Support for Date with ISO 8601 format, or with numeric timestamp (milliseconds elapsed since
@@ -661,7 +547,6 @@ function deserializeDate(
 function stringToArrayBuffer(
     sourceObject: string | number | Date,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
 ) {
     if (typeof sourceObject !== 'string') {
@@ -678,7 +563,6 @@ function stringToArrayBuffer(
 function stringToDataView(
     sourceObject: string | number | Date,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
 ) {
     if (typeof sourceObject !== 'string') {
@@ -706,7 +590,6 @@ function createArrayBufferFromString(input: string): ArrayBuffer {
 function convertAsFloatArray<T extends Float32Array | Float64Array>(
     sourceObject: string | number | Date,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
 ): T {
     const constructor = typeDescriptor.ctor as Constructor<T>;
@@ -725,7 +608,6 @@ function convertAsFloatArray<T extends Float32Array | Float64Array>(
 function convertAsUintArray<T extends Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array>(
     sourceObject: string | number | Date,
     typeDescriptor: TypeDescriptor,
-    knownTypes: Map<string, Function>,
     memberName: string,
 ): T {
     const constructor = typeDescriptor.ctor as Constructor<T>;

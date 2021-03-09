@@ -13,18 +13,6 @@ export interface CustomSerializerParams {
     fallback: (sourceObject: any, constructor: Serializable<any> | TypeDescriptor) => any;
 }
 
-export type TypeResolver = (
-    sourceObject: IndexedObject,
-    knownTypes: Map<string, Function>,
-) => Function | undefined | null;
-export type TypeHintEmitter
-    = (
-        targetObject: IndexedObject,
-        sourceObject: IndexedObject,
-        expectedSourceType: Function,
-        sourceTypeMetadata?: JsonObjectMetadata,
-    ) => void;
-
 export interface JsonMemberMetadata {
     /** If set, a default value will be emitted for uninitialized members. */
     emitDefaultValue?: boolean | null;
@@ -54,16 +42,6 @@ export class JsonObjectMetadata {
 
     dataMembers = new Map<string, JsonMemberMetadata>();
 
-    /** Set of known types used for polymorphic deserialization */
-    knownTypes = new Set<Serializable<any>>();
-
-    /** Known types to be evaluated when (de)serialization occurs */
-    knownTypesDeferred: Array<() => TypeDescriptor> = [];
-
-    /** If present override the global function */
-    typeHintEmitter?: TypeHintEmitter | null;
-    /** If present override the global function */
-    typeResolver?: TypeResolver | null;
     /** Gets or sets the constructor function for the jsonObject. */
     classType: Function;
 
@@ -142,17 +120,12 @@ export class JsonObjectMetadata {
         // Target has no JsonObjectMetadata associated with it yet, create it now.
         const objectMetadata = new JsonObjectMetadata(prototype.constructor);
 
-        // Inherit json members and known types from parent @jsonObject (if any).
+        // Inherit json members and from parent @jsonObject (if any).
         const parentMetadata: JsonObjectMetadata | undefined = prototype[METADATA_FIELD_KEY];
         if (parentMetadata !== undefined) {
             parentMetadata.dataMembers.forEach((memberMetadata, propKey) => {
                 objectMetadata.dataMembers.set(propKey, memberMetadata);
             });
-            parentMetadata.knownTypes.forEach((knownType) => {
-                objectMetadata.knownTypes.add(knownType);
-            });
-            objectMetadata.typeResolver = parentMetadata.typeResolver;
-            objectMetadata.typeHintEmitter = parentMetadata.typeHintEmitter;
         }
 
         Object.defineProperty(prototype, METADATA_FIELD_KEY, {
@@ -164,25 +137,9 @@ export class JsonObjectMetadata {
         return objectMetadata;
     }
 
-    /**
-     * Gets the known type name of a jsonObject class for type hint.
-     * @param constructor The constructor class.
-     */
-    static getKnownTypeNameFromType(constructor: Function): string {
-        const metadata = JsonObjectMetadata.getFromConstructor(constructor);
-        return metadata === undefined ? nameof(constructor) : nameof(metadata.classType);
-    }
-
     private static doesHandleWithoutAnnotation(ctor: Function): boolean {
         return isDirectlySerializableNativeType(ctor) || isTypeTypedArray(ctor)
             || ctor === DataView || ctor === ArrayBuffer;
-    }
-
-    processDeferredKnownTypes(): void {
-        this.knownTypesDeferred.forEach(typeThunk => {
-            typeThunk().getTypes().forEach(ctor => this.knownTypes.add(ctor));
-        });
-        this.knownTypesDeferred = [];
     }
 }
 
@@ -223,11 +180,6 @@ export function injectMetadataInformation(
     // NOTE: this will not fire up custom serialization, as 'constructor' must be explicitly marked
     // with '@jsonObject' as well.
     const objectMetadata = JsonObjectMetadata.ensurePresentInPrototype(prototype);
-
-    if (metadata.deserializer === undefined) {
-        // If deserializer is not present then type must be
-        objectMetadata.knownTypesDeferred.push(metadata.type!);
-    }
 
     // clear metadata of undefined properties to save memory
     (Object.keys(metadata) as Array<keyof JsonMemberMetadata>)
