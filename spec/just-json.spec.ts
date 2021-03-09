@@ -59,13 +59,13 @@ describe('json (without automatic stringify)', () => {
     describe('object', () => {
         @jsonObject
         class SomeThing {
-            @jsonMember
+            @jsonMember()
             propStr: String;
-            @jsonMember
+            @jsonMember()
             propNum: number;
             @jsonArrayMember(() => String)
             propArr: Array<String>;
-            @jsonMember
+            @jsonMember()
             propDate: Date;
         }
 

@@ -7,7 +7,7 @@ export class B {
     @jsonMember(() => A)
     a: A;
 
-    @jsonMember
+    @jsonMember()
     name: string;
 
     test(): true {

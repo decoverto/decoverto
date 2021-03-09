@@ -64,37 +64,37 @@ export interface IEverything {
 
 @jsonObject
 export class Everything implements IEverything {
-    @jsonMember
+    @jsonMember()
     strProp: string;
-    @jsonMember
+    @jsonMember()
     numProp: number;
-    @jsonMember
+    @jsonMember()
     boolProp: boolean;
-    @jsonMember
+    @jsonMember()
     dateProp: Date;
-    // @jsonMember
+    // @jsonMember()
     // nullable: {}|null;
-    @jsonMember
+    @jsonMember()
     optional?: {};
-    @jsonMember
+    @jsonMember()
     undefinable: {} | undefined;
-    @jsonMember
+    @jsonMember()
     enum: JustEnum;
-    @jsonMember
+    @jsonMember()
     constEnum: ConstEnum;
-    @jsonMember
+    @jsonMember()
     strEnum: StrEnum;
-    @jsonMember
+    @jsonMember()
     constStrEnum: ConstStrEnum;
-    // @jsonMember
+    // @jsonMember()
     // heteroEnum: HeteroEnum;
-    // @jsonMember
+    // @jsonMember()
     // heteroEnum2: HeteroEnum;
-    // @jsonMember
+    // @jsonMember()
     // constHeteroEnum: ConstHeteroEnum;
-    // @jsonMember
+    // @jsonMember()
     // constHeteroEnum2: ConstHeteroEnum;
-    // @jsonMember
+    // @jsonMember()
     // [symbolProp]: string;
 
     constructor(init?: IEverything) {

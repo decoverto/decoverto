@@ -7,7 +7,7 @@ describe('custom member deserializer', () => {
         @jsonMember({deserializer: (json: any) => json[0]})
         firstName: string;
 
-        @jsonMember
+        @jsonMember()
         lastName: string;
 
         getFullName() {
@@ -47,7 +47,7 @@ describe('custom array member deserializer', () => {
         })
         nums: Array<number>;
 
-        @jsonMember
+        @jsonMember()
         str: string;
 
         sum() {
@@ -81,7 +81,7 @@ describe('custom array member deserializer', () => {
 describe('custom delegating array member serializer', () => {
     @jsonObject
     class Inner {
-        @jsonMember
+        @jsonMember()
         prop: string;
 
         woo(): string {
@@ -107,7 +107,7 @@ describe('custom delegating array member serializer', () => {
         @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
         inners: Array<Inner>;
 
-        @jsonMember
+        @jsonMember()
         str: string;
     }
 
@@ -145,7 +145,7 @@ describe('custom delegating array member serializer', () => {
 describe('custom delegating array member serializer with fallback', () => {
     @jsonObject
     class Inner {
-        @jsonMember
+        @jsonMember()
         prop: string;
 
         woo(): string {
@@ -167,7 +167,7 @@ describe('custom delegating array member serializer with fallback', () => {
         @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
         inners: Array<Inner>;
 
-        @jsonMember
+        @jsonMember()
         str: string;
     }
 

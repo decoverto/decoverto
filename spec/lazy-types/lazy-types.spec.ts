@@ -21,7 +21,7 @@ describe('Lazy types', () => {
         @jsonObject
         class Lazy {
 
-            @jsonMember
+            @jsonMember()
             name: string;
         }
 
@@ -59,7 +59,7 @@ describe('Lazy types', () => {
         @jsonObject
         class Lazy {
 
-            @jsonMember
+            @jsonMember()
             name: string;
         }
 
@@ -98,7 +98,7 @@ describe('Lazy types', () => {
         @jsonObject
         class LazyValue {
 
-            @jsonMember
+            @jsonMember()
             name: string;
         }
 
@@ -139,7 +139,7 @@ describe('Lazy types', () => {
         @jsonObject
         class Lazy {
 
-            @jsonMember
+            @jsonMember()
             name: string;
         }
 

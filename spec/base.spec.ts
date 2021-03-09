@@ -45,10 +45,10 @@ describe('basic serialization of', () => {
     describe('single class', () => {
         @jsonObject
         class Person {
-            @jsonMember
+            @jsonMember()
             firstName: string;
 
-            @jsonMember
+            @jsonMember()
             lastName: string;
 
             getFullName() {
@@ -104,7 +104,7 @@ describe('basic serialization of', () => {
         @jsonObject
         class WithNullable {
             // nullable should be optional when not using preserve null
-            @jsonMember
+            @jsonMember()
             nullable?: string | null;
         }
 
@@ -134,19 +134,19 @@ describe('basic serialization of', () => {
         describe('by assigment', () => {
             @jsonObject
             class WithDefaults {
-                @jsonMember
+                @jsonMember()
                 num: number = 2;
 
-                @jsonMember
+                @jsonMember()
                 str: string = 'Hello world';
 
-                @jsonMember
+                @jsonMember()
                 bool: boolean = true;
 
                 @jsonArrayMember(() => String)
                 arr: Array<string> = [];
 
-                @jsonMember
+                @jsonMember()
                 present: number = 10;
             }
 
@@ -161,19 +161,19 @@ describe('basic serialization of', () => {
         describe('by constructor', () => {
             @jsonObject
             class WithCtr {
-                @jsonMember
+                @jsonMember()
                 num: number;
 
-                @jsonMember
+                @jsonMember()
                 str: string;
 
-                @jsonMember
+                @jsonMember()
                 bool: boolean;
 
                 @jsonArrayMember(() => String)
                 arr: Array<string>;
 
-                @jsonMember
+                @jsonMember()
                 present: number;
 
                 constructor() {
@@ -198,7 +198,7 @@ describe('basic serialization of', () => {
         @jsonObject
         class SomeClass {
             private _prop: string = 'value';
-            @jsonMember
+            @jsonMember()
             get prop(): string {
                 return this._prop;
             }
@@ -208,7 +208,7 @@ describe('basic serialization of', () => {
             }
 
             private _getterOnly: string = 'getter';
-            @jsonMember
+            @jsonMember()
             get getterOnly(): string {
                 return this._getterOnly;
             }
@@ -216,7 +216,7 @@ describe('basic serialization of', () => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             private _setterOnly: string = 'setter';
-            @jsonMember
+            @jsonMember()
             set setterOnly(val: string) {
                 this._setterOnly = val;
             }

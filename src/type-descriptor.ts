@@ -125,7 +125,6 @@ export const AnyT = new ConcreteTypeDescriptor(() => undefined);
 // }
 
 export type TypeThunk = () => Serializable<any> | TypeDescriptor;
-export type MaybeTypeThunk = Serializable<any> | TypeDescriptor | TypeThunk;
 
 export function isTypelike(type: any): type is Typelike {
     return type != null && (typeof type === 'function' || type instanceof TypeDescriptor);

@@ -36,7 +36,7 @@ describe('toJson decorator', () => {
 
         @jsonObject
         class OtherSub extends Base {
-            @jsonMember
+            @jsonMember()
             decimal?: number;
             ignored?: string;
         }
@@ -58,7 +58,7 @@ describe('toJson decorator', () => {
             @toJson
             @jsonObject
             class Some {
-                @jsonMember
+                @jsonMember()
                 prop?: string;
 
                 toJSON() {
@@ -80,7 +80,7 @@ describe('toJson decorator', () => {
         @toJson({overwrite: true})
         @jsonObject
         class Some {
-            @jsonMember
+            @jsonMember()
             prop?: string;
 
             toJSON() {

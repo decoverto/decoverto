@@ -4,10 +4,10 @@ import {Everything} from './utils/everything';
 describe('set of objects', () => {
     @jsonObject
     class Simple {
-        @jsonMember
+        @jsonMember()
         strProp: string;
 
-        @jsonMember
+        @jsonMember()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {
@@ -99,10 +99,10 @@ describe('set member', () => {
 describe('set array member', () => {
     @jsonObject
     class Simple {
-        @jsonMember
+        @jsonMember()
         strProp: string;
 
-        @jsonMember
+        @jsonMember()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {

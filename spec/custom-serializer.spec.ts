@@ -7,7 +7,7 @@ describe('custom member serializer', () => {
         @jsonMember({serializer: (value: string) => value.split(' ')})
         firstName: string;
 
-        @jsonMember
+        @jsonMember()
         lastName: string;
 
         getFullName() {
@@ -43,7 +43,7 @@ describe('custom array member serializer', () => {
         @jsonArrayMember(() => Number, {serializer: (values: Array<number>) => values.join(',')})
         nums: Array<number>;
 
-        @jsonMember
+        @jsonMember()
         str: string;
 
         sum() {
@@ -76,7 +76,7 @@ describe('custom array member serializer', () => {
 describe('custom delegating array member serializer', () => {
     @jsonObject
     class Inner {
-        @jsonMember
+        @jsonMember()
         prop: string;
 
         shouldSerialize: boolean;
@@ -101,7 +101,7 @@ describe('custom delegating array member serializer', () => {
         @jsonArrayMember(() => Inner, {serializer: objArraySerializer})
         inners: Array<Inner>;
 
-        @jsonMember
+        @jsonMember()
         str: string;
     }
 
@@ -132,7 +132,7 @@ describe('custom delegating array member serializer', () => {
 describe('custom delegating array member serializer with fallback', () => {
     @jsonObject
     class Inner {
-        @jsonMember
+        @jsonMember()
         prop: string;
 
         shouldSerialize: boolean;
@@ -156,7 +156,7 @@ describe('custom delegating array member serializer with fallback', () => {
         @jsonArrayMember(() => Inner, {serializer: objArraySerializer})
         inners: Array<Inner>;
 
-        @jsonMember
+        @jsonMember()
         str: string;
     }
 

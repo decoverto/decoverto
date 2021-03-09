@@ -39,10 +39,10 @@ import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 @jsonObject
 class MyDataClass
 {
-    @jsonMember
+    @jsonMember()
     public prop1: number;
 
-    @jsonMember
+    @jsonMember()
     public prop2: string;
 }
 ```
@@ -96,10 +96,10 @@ TypedJSON.mapType(Decimal, {
 @jsonObject
 class MappedTypes {
 
-    @jsonMember
+    @jsonMember()
     cryptoKey: bigint;
 
-    @jsonMember
+    @jsonMember()
     money: Decimal;
 }
 
@@ -147,17 +147,17 @@ import { jsonObject, jsonMember, jsonArrayMember, jsonMapMember, TypedJSON } fro
 @jsonObject
 class MySecondDataClass
 {
-    @jsonMember
+    @jsonMember()
     public prop1: number;
 
-    @jsonMember
+    @jsonMember()
     public prop2: number;
 }
 
 @jsonObject
 class MyDataClass
 {
-    @jsonMember
+    @jsonMember()
     public prop1: MySecondDataClass;
     
     @jsonArrayMember(() => MySecondDataClass)
@@ -192,11 +192,11 @@ Without ReflectDecorators, `@jsonMember` requires an additional type argument, b
   @jsonObject
   class MyDataClass
   {
--     @jsonMember
+-     @jsonMember()
 +     @jsonMember(Number)
       public prop1: number;
 
--     @jsonMember
+-     @jsonMember()
 +     @jsonMember(MySecondDataClass)
       public prop2: MySecondDataClass;
   }
@@ -256,7 +256,7 @@ class Obj {
     @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
     inners: Array<Inner>;
 
-    @jsonMember
+    @jsonMember()
     str: string;
 }
 ```
@@ -283,7 +283,7 @@ For even more advanced cases, it is possible to provide different names for dese
 class Model {
     private _prop: any;
 
-    @jsonMember
+    @jsonMember()
     public get outputProp(): any {
         return this._prop;
     }
@@ -291,7 +291,7 @@ class Model {
         // noop
     }
 
-    @jsonMember
+    @jsonMember()
     public get inputProp(): any {
         return undefined;
     }
@@ -314,7 +314,7 @@ import { jsonObject, jsonMember, TypedJSON } from 'typedjson';
 @jsonObject
 class MyDataClass
 {
-    @jsonMember
+    @jsonMember()
     public prop1: { prop2: { prop3: [1, 2, 3] } };
 }
 ```
@@ -351,7 +351,7 @@ If using ReflectDecorators to infer the constructor (type) of properties, it's a
   @jsonObject
   class MyDataClass
   {
-      @jsonMember
+      @jsonMember()
 -     public firstName = "john";
 +     public firstName: string = "john";
   }

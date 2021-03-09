@@ -18,9 +18,9 @@ describe('initializer', () => {
 
         @jsonObject
         class Address {
-            @jsonMember
+            @jsonMember()
             street: string;
-            @jsonMember
+            @jsonMember()
             city: string;
 
             getAddressLine() {
@@ -32,10 +32,10 @@ describe('initializer', () => {
             initializer: initializerSpy,
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
-            @jsonMember
+            @jsonMember()
             address: Address;
 
             constructor(name: string, address: Address) {
@@ -64,7 +64,7 @@ describe('initializer', () => {
             initializer: initializerSpy,
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
             getDescription() {
@@ -91,7 +91,7 @@ describe('initializer', () => {
             initializer: initializerSpy,
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
             getDescription() {
@@ -130,7 +130,7 @@ describe('initializer', () => {
             initializer: initializerSpy,
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
             constructor(name: string) {

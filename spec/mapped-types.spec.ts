@@ -25,10 +25,10 @@ describe('mapped types', () => {
     @jsonObject
     class MappedTypesSpec {
 
-        @jsonMember
+        @jsonMember()
         one: CustomType;
 
-        @jsonMember
+        @jsonMember()
         two: CustomType;
     }
 
@@ -142,7 +142,7 @@ describe('mapped types', () => {
             @jsonMember(jsonMemberOptions)
             overwritten: CustomType;
 
-            @jsonMember
+            @jsonMember()
             simple: CustomType;
         }
 
@@ -165,7 +165,7 @@ describe('mapped types', () => {
     it('should use default when only mapping deserializer', () => {
         @jsonObject
         class OnlyDeSerializer {
-            @jsonMember
+            @jsonMember()
             date: Date;
         }
 
@@ -184,7 +184,7 @@ describe('mapped types', () => {
     it('should use default when only mapping serializer', () => {
         @jsonObject
         class OnlySerializer {
-            @jsonMember
+            @jsonMember()
             date: Date;
         }
 
@@ -258,4 +258,3 @@ describe('mapped types', () => {
 TypedJSON.setGlobalConfig({
     errorHandler: () => undefined,
 });
-

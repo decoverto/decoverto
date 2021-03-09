@@ -4,10 +4,10 @@ import {Everything, IEverything} from './utils/everything';
 describe('array of objects', () => {
     @jsonObject
     class Simple {
-        @jsonMember
+        @jsonMember()
         strProp: string;
 
-        @jsonMember
+        @jsonMember()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {

@@ -6,10 +6,10 @@ describe('onDeserialized', () => {
             onDeserialized: 'afterDeser',
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
-            @jsonMember
+            @jsonMember()
             age: number;
 
             static afterDeser() {
@@ -34,10 +34,10 @@ describe('onDeserialized', () => {
             onDeserialized: 'afterDeser',
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
-            @jsonMember
+            @jsonMember()
             age: number;
 
             constructor() {
@@ -64,10 +64,10 @@ describe('onDeserialized', () => {
             onDeserialized: 'afterDeser',
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string;
 
-            @jsonMember
+            @jsonMember()
             age: number;
 
             constructor() {

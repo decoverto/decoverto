@@ -6,7 +6,7 @@ describe('preserveNull', () => {
 
         @jsonObject
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string | null;
         }
 
@@ -26,7 +26,7 @@ describe('preserveNull', () => {
     it('should work in settings', () => {
         @jsonObject
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string | null;
         }
 
@@ -42,7 +42,7 @@ describe('preserveNull', () => {
     it('should work on class', () => {
         @jsonObject({preserveNull: true})
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string | null;
         }
 
@@ -109,7 +109,7 @@ describe('preserveNull', () => {
             @jsonMember({preserveNull: true})
             name: string | null;
 
-            @jsonMember
+            @jsonMember()
             age: number | null;
         }
 
@@ -128,16 +128,16 @@ describe('preserveNull', () => {
     it('should not affect inner jsonObjects when set from parent jsonObject', () => {
         @jsonObject
         class Inner {
-            @jsonMember
+            @jsonMember()
             prop: string | null;
         }
 
         @jsonObject({preserveNull: true})
         class Person {
-            @jsonMember
+            @jsonMember()
             name: string | null;
 
-            @jsonMember
+            @jsonMember()
             inn: Inner = new Inner();
         }
 

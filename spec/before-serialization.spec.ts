@@ -6,10 +6,10 @@ describe('beforeSerialization', () => {
             beforeSerialization: 'beforeSerial',
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             age: number;
 
-            @jsonMember
+            @jsonMember()
             isOld: boolean;
 
             static beforeSerial() {
@@ -32,10 +32,10 @@ describe('beforeSerialization', () => {
             beforeSerialization: 'beforeSerial',
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             age: number;
 
-            @jsonMember
+            @jsonMember()
             isOld: boolean;
 
             beforeSerial() {
@@ -66,10 +66,10 @@ describe('beforeSerialization', () => {
             beforeSerialization: 'beforeSerial',
         })
         class Person {
-            @jsonMember
+            @jsonMember()
             age: number;
 
-            @jsonMember
+            @jsonMember()
             isOld: boolean;
 
             constructor() {

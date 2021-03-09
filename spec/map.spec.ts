@@ -7,10 +7,10 @@ import {MapShape} from '../src/type-descriptor';
 describe('map dictionary shape', () => {
     @jsonObject
     class Simple {
-        @jsonMember
+        @jsonMember()
         strProp: string;
 
-        @jsonMember
+        @jsonMember()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {
@@ -77,10 +77,10 @@ describe('map dictionary shape', () => {
 describe('map of array dictionary shape', () => {
     @jsonObject
     class Simple {
-        @jsonMember
+        @jsonMember()
         strProp: string;
 
-        @jsonMember
+        @jsonMember()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {

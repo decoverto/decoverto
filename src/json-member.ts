@@ -4,7 +4,7 @@ import {
     isValueDefined,
     LAZY_TYPE_EXPLANATION,
     logError,
-    logWarning, MISSING_REFLECT_CONF_MSG,
+    logWarning,
     nameof,
 } from './helpers';
 import {
@@ -23,7 +23,7 @@ import {
     Typelike,
     TypeThunk,
 } from './type-descriptor';
-import {Constructor, IndexedObject} from './types';
+import {Constructor} from './types';
 
 declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
@@ -51,15 +51,6 @@ export interface IJsonMemberOptions extends OptionsBase {
 }
 
 /**
- * Specifies that a property is part of the object when serializing.
- * Requires ReflectDecorators.
- */
-export function jsonMember<T extends Function>(
-    prototype: IndexedObject,
-    propertyKey: string | symbol,
-): void;
-
-/**
  * Specifies that a property is part of the object when serializing, with additional options.
  * Requires ReflectDecorators.
  */
@@ -75,55 +66,8 @@ export function jsonMember(
 ): PropertyDecorator;
 
 export function jsonMember<T extends Function>(
-    optionsOrPrototype?: IndexedObject | IJsonMemberOptions | TypeThunk,
-    propertyKeyOrOptions?: string | symbol | IJsonMemberOptions,
-): PropertyDecorator | void {
-    if (typeof propertyKeyOrOptions === 'string' || typeof propertyKeyOrOptions === 'symbol') {
-        const property = propertyKeyOrOptions as string;
-        const prototype = optionsOrPrototype as IndexedObject;
-        // For error messages.
-        const decoratorName = `@jsonMember on ${nameof(prototype.constructor)}.${String(property)}`;
-
-        // jsonMember used directly, no additional information directly available besides target and
-        // propKey.
-        // Obtain property constructor through ReflectDecorators.
-        if (!isReflectMetadataSupported) {
-            logError(`${decoratorName}: ReflectDecorators is required if the type is not \
-explicitly provided with e.g. @jsonMember(Number)`);
-            return;
-        }
-
-        const reflectPropCtor: Function | null | undefined =
-            Reflect.getMetadata('design:type', prototype, property);
-
-        if (reflectPropCtor == null) {
-            logError(`${decoratorName}: could not resolve detected property constructor at \
-runtime. Potential solutions:
- - ${LAZY_TYPE_EXPLANATION}
- - ${MISSING_REFLECT_CONF_MSG}`);
-            return;
-        }
-
-        const typeDescriptor = ensureTypeDescriptor(reflectPropCtor);
-        if (isSpecialPropertyType(decoratorName, typeDescriptor)) {
-            return;
-        }
-
-        injectMetadataInformation(prototype, property, {
-            type: () => typeDescriptor,
-            key: propertyKeyOrOptions.toString(),
-            name: propertyKeyOrOptions.toString(),
-        });
-        return;
-    }
-
-    // jsonMember used as a decorator factory.
-    return jsonMemberDecoratorFactory(optionsOrPrototype as any, propertyKeyOrOptions);
-}
-
-function jsonMemberDecoratorFactory(
-    optionsOrType: IJsonMemberOptions | TypeThunk | undefined,
-    options: IJsonMemberOptions | undefined,
+    optionsOrType?: IJsonMemberOptions | TypeThunk,
+    options?: IJsonMemberOptions,
 ): PropertyDecorator {
     return (target, property) => {
         const decoratorName = `@jsonMember on ${nameof(target.constructor)}.${String(property)}`;

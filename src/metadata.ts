@@ -47,7 +47,7 @@ export class JsonObjectMetadata {
 
     /**
      * Indicates whether this class was explicitly annotated with @jsonObject
-     * or implicitly by @jsonMember
+     * or implicitly by @jsonMember()
      */
     isExplicitlyMarked: boolean = false;
 

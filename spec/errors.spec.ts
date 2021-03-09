@@ -8,7 +8,7 @@ describe('errors', () => {
         @jsonObject
         class TestNonDeterminableTypes {
 
-            @jsonMember
+            @jsonMember()
             bar: CustomType;
         }
 
