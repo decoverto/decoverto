@@ -1,7 +1,7 @@
 {
-    "name": "typedjson",
-    "version": "1.8.0-rc1",
-    "description": "Typed JSON parsing and serializing for TypeScript that preserves type information, using decorators. Parse JSON into actual class instances.",
+    "name": "decorated-json",
+    "version": "0.1.0",
+    "description": "Converts JSON to JS classes and back using decorators",
     "main": "./lib/cjs/index.js",
     "module": "./lib/esm5/index.js",
     "es2015": "./lib/esm/index.js",
@@ -29,16 +29,13 @@
         "test:ts:spec": "tsc -p tsconfig/tsconfig.spec-strict.json",
         "version": "yarn run build"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/JohnWhiteTB/TypedJSON.git"
-    },
+    "repository": "github:MatthiasKunnen/decorated-json",
     "author": "Matthias Kunnen",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/JohnWhiteTB/TypedJSON/issues"
+        "url": "https://github.com/MatthiasKunnen/decorated-json/issues"
     },
-    "homepage": "https://github.com/JohnWhiteTB/TypedJSON",
+    "homepage": "https://github.com/MatthiasKunnen/decorated-json",
     "dependencies": {
         "tslib": "^2.0.1"
     },

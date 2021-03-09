@@ -1,10 +1,12 @@
-[![npm version](https://img.shields.io/npm/v/typedjson.svg?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/typedjson)
-[![Build Status](https://img.shields.io/github/workflow/status/JohnWeisz/TypedJSON/Node%20CI?label=CI&logo=github&style=for-the-badge)
-](https://github.com/JohnWeisz/TypedJSON/actions)
-[![Build Status](https://img.shields.io/npm/l/typedjson?&style=for-the-badge&color=green)
-](https://github.com/JohnWeisz/typedjson/blob/master/LICENSE)
+[![npm version](https://img.shields.io/npm/v/decorated-json.svg?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/decorated-json)
+[![Build Status](https://img.shields.io/github/workflow/status/MatthiasKunnen/decorated-json/Node%20CI?label=CI&logo=github&style=for-the-badge)
+](https://github.com/MatthiasKunnen/decorated-json/actions)
+[![Build Status](https://img.shields.io/npm/l/decorated-json?&style=for-the-badge&color=green)
+](https://github.com/MatthiasKunnen/decorated-json/LICENSE)
 
-Typed JSON parsing and serializing for TypeScript with [decorators](https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md). Annotate your data-classes with simple-to-use decorators and parse standard JSON into actual class instances. For more type-safety and less syntax, recommended to be used with [reflect-metadata](https://github.com/rbuckton/reflect-metadata), a prototype for an ES7 Reflection API for Decorator Metadata.
+# Decorated JSON
+
+Converting JSON into classes and back using decorators. Annotate your data-classes with simple-to-use decorators and parse standard JSON into actual class instances. For more type-safety and less syntax, recommended to be used with [reflect-metadata](https://github.com/rbuckton/reflect-metadata), a prototype for an ES7 Reflection API for Decorator Metadata.
 
  - Seamlessly integrate into existing code with [decorators](https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md), ultra-lightweight syntax
  - Parse standard JSON to typed class instances, safely, without requiring any type-information to be specified in the source JSON
@@ -67,7 +69,7 @@ const object3 = serializer.parse('{ "prop1": 1, "prop2": "2" }');
 object3 instanceof MyDataClass; // true
 ```
 
-Note TypedJSON supports parsing arrays and maps at root level as well. Those methods are defined in [parser.ts](https://github.com/JohnWeisz/TypedJSON/blob/master/src/parser.ts). Here is an example showing how to parse a json array:
+Note TypedJSON supports parsing arrays and maps at root level as well. Those methods are defined in [parser.ts](./src/parser.ts). Here is an example showing how to parse a json array:
 ```typescript
 const object4 = serializer.parseAsArray('[{ "prop1": 1, "prop2": "2" }]');
 object4; // [ MyDataClass { prop1: 1, prop2: '2' } ]
