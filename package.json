@@ -33,7 +33,7 @@
     "type": "git",
     "url": "git+https://github.com/JohnWhiteTB/TypedJSON.git"
   },
-  "author": "John White",
+  "author": "Matthias Kunnen",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/JohnWhiteTB/TypedJSON/issues"
