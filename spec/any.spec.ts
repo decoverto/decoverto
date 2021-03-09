@@ -145,7 +145,7 @@ describe('AnyT', () => {
         class A {
 
             @jsonArrayMember(() => Event)
-            events: Array<Event>
+            events: Array<Event>;
         }
 
         const result = TypedJSON.parse({

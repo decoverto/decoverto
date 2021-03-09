@@ -38,6 +38,7 @@ export class ArrayTypeDescriptor extends GenericTypeDescriptor {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function ArrayT(elementType: Typelike): ArrayTypeDescriptor {
     return new ArrayTypeDescriptor(ensureTypeDescriptor(elementType));
 }
@@ -52,6 +53,7 @@ export class SetTypeDescriptor extends GenericTypeDescriptor {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function SetT(elementType: Typelike): SetTypeDescriptor {
     return new SetTypeDescriptor(ensureTypeDescriptor(elementType));
 }
@@ -60,12 +62,12 @@ export const enum MapShape {
     /**
      * A map will be serialized as an array of {key: ..., value: ...} objects.
      */
-    ARRAY,
+    ARRAY = 'ARRAY',
 
     /**
      * A map will be serialized as a JSON object.
      */
-    OBJECT,
+    OBJECT = 'OBJECT',
 }
 
 export interface MapOptions {
@@ -95,6 +97,7 @@ export class MapTypeDescriptor extends GenericTypeDescriptor {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function MapT(
     keyType: Typelike,
     valueType: Typelike,

@@ -40,14 +40,14 @@ export interface ITypedJSONSettings extends OptionsBase {
     replacer?: ((key: string, value: any) => any) | null;
 }
 
-export class TypedJSON<T> {
+export class TypedJSON<RootType> {
 
     private static _globalConfig: ITypedJSONSettings = {};
 
     private serializer: Serializer = new Serializer();
-    private deserializer: Deserializer<T> = new Deserializer<T>();
+    private deserializer: Deserializer<RootType> = new Deserializer<RootType>();
     private indent: number = 0;
-    private rootConstructor: Serializable<T>;
+    private rootConstructor: Serializable<RootType>;
     private replacer?: (key: string, value: any) => any;
 
     /**
@@ -56,7 +56,7 @@ export class TypedJSON<T> {
      * @param rootConstructor The constructor of the root class type.
      * @param settings Additional configuration settings.
      */
-    constructor(rootConstructor: Serializable<T>, settings?: ITypedJSONSettings) {
+    constructor(rootConstructor: Serializable<RootType>, settings?: ITypedJSONSettings) {
         const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
 
         if (rootMetadata === undefined
@@ -326,7 +326,7 @@ export class TypedJSON<T> {
      * @throws Error if any errors are thrown in the specified errorHandler callback (re-thrown).
      * @returns Deserialized T or undefined if there were errors.
      */
-    parse(object: any): T {
+    parse(object: any): RootType {
         const json = parseToJSObject(object, this.rootConstructor);
 
         return this.deserializer.convertSingleValue(
@@ -335,11 +335,11 @@ export class TypedJSON<T> {
         );
     }
 
-    parseAsArray(object: any, dimensions?: 1): Array<T>;
-    parseAsArray(object: any, dimensions: 2): Array<Array<T>>;
-    parseAsArray(object: any, dimensions: 3): Array<Array<Array<T>>>;
-    parseAsArray(object: any, dimensions: 4): Array<Array<Array<Array<T>>>>;
-    parseAsArray(object: any, dimensions: 5): Array<Array<Array<Array<Array<T>>>>>;
+    parseAsArray(object: any, dimensions?: 1): Array<RootType>;
+    parseAsArray(object: any, dimensions: 2): Array<Array<RootType>>;
+    parseAsArray(object: any, dimensions: 3): Array<Array<Array<RootType>>>;
+    parseAsArray(object: any, dimensions: 4): Array<Array<Array<Array<RootType>>>>;
+    parseAsArray(object: any, dimensions: 5): Array<Array<Array<Array<Array<RootType>>>>>;
     parseAsArray(object: any, dimensions: number): Array<any>;
     parseAsArray(object: any, dimensions: number = 1): Array<any> {
         const json = parseToJSObject(object, Array);
@@ -349,7 +349,7 @@ export class TypedJSON<T> {
         );
     }
 
-    parseAsSet(object: any): Set<T> {
+    parseAsSet(object: any): Set<RootType> {
         const json = parseToJSObject(object, Set);
         return this.deserializer.convertSingleValue(
             json,
@@ -357,7 +357,7 @@ export class TypedJSON<T> {
         );
     }
 
-    parseAsMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, T> {
+    parseAsMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, RootType> {
         const json = parseToJSObject(object, Map);
         return this.deserializer.convertSingleValue(
             json,
@@ -370,22 +370,22 @@ export class TypedJSON<T> {
      * @param object The instance to convert to a JSON string.
      * @returns Serialized object.
      */
-    toPlainJson(object: T): JsonTypes {
+    toPlainJson(object: RootType): JsonTypes {
         return this.serializer.convertSingleValue(
             object,
             ensureTypeDescriptor(this.rootConstructor),
         );
     }
 
-    toPlainArray(object: Array<T>, dimensions?: 1): Array<Object>;
-    toPlainArray(object: Array<Array<T>>, dimensions: 2): Array<Array<Object>>;
-    toPlainArray(object: Array<Array<Array<T>>>, dimensions: 3): Array<Array<Array<Object>>>;
+    toPlainArray(object: Array<RootType>, dimensions?: 1): Array<Object>;
+    toPlainArray(object: Array<Array<RootType>>, dimensions: 2): Array<Array<Object>>;
+    toPlainArray(object: Array<Array<Array<RootType>>>, dimensions: 3): Array<Array<Array<Object>>>;
     toPlainArray(
-        object: Array<Array<Array<Array<T>>>>,
+        object: Array<Array<Array<Array<RootType>>>>,
         dimensions: 4,
     ): Array<Array<Array<Array<Object>>>>;
     toPlainArray(
-        object: Array<Array<Array<Array<Array<T>>>>>,
+        object: Array<Array<Array<Array<Array<RootType>>>>>,
         dimensions: 5,
     ): Array<Array<Array<Array<Array<Object>>>>>;
     toPlainArray(object: Array<any>, dimensions: 1 | 2 | 3 | 4 | 5 = 1): Array<Object> {
@@ -395,7 +395,7 @@ export class TypedJSON<T> {
         );
     }
 
-    toPlainSet(object: Set<T>): Array<Object> | undefined {
+    toPlainSet(object: Set<RootType>): Array<Object> | undefined {
         return this.serializer.convertSingleValue(
             object,
             SetT(this.rootConstructor),
@@ -403,7 +403,7 @@ export class TypedJSON<T> {
     }
 
     toPlainMap<K>(
-        object: Map<K, T>,
+        object: Map<K, RootType>,
         keyConstructor: Serializable<K>,
     ): IndexedObject | Array<{key: any; value: any}> {
         return this.serializer.convertSingleValue(
@@ -418,7 +418,7 @@ export class TypedJSON<T> {
      * @throws Error if any errors are thrown in the specified errorHandler callback (re-thrown).
      * @returns String with the serialized object.
      */
-    stringify(object: T): string {
+    stringify(object: RootType): string {
         const result = this.toPlainJson(object);
         if (result === undefined) {
             return '';
@@ -426,20 +426,20 @@ export class TypedJSON<T> {
         return JSON.stringify(result, this.replacer, this.indent);
     }
 
-    stringifyAsArray(object: Array<T>, dimensions?: 1): string;
-    stringifyAsArray(object: Array<Array<T>>, dimensions: 2): string;
-    stringifyAsArray(object: Array<Array<Array<T>>>, dimensions: 3): string;
-    stringifyAsArray(object: Array<Array<Array<Array<T>>>>, dimensions: 4): string;
-    stringifyAsArray(object: Array<Array<Array<Array<Array<T>>>>>, dimensions: 5): string;
+    stringifyAsArray(object: Array<RootType>, dimensions?: 1): string;
+    stringifyAsArray(object: Array<Array<RootType>>, dimensions: 2): string;
+    stringifyAsArray(object: Array<Array<Array<RootType>>>, dimensions: 3): string;
+    stringifyAsArray(object: Array<Array<Array<Array<RootType>>>>, dimensions: 4): string;
+    stringifyAsArray(object: Array<Array<Array<Array<Array<RootType>>>>>, dimensions: 5): string;
     stringifyAsArray(object: Array<any>, dimensions: any): string {
         return JSON.stringify(this.toPlainArray(object, dimensions), this.replacer, this.indent);
     }
 
-    stringifyAsSet(object: Set<T>): string {
+    stringifyAsSet(object: Set<RootType>): string {
         return JSON.stringify(this.toPlainSet(object), this.replacer, this.indent);
     }
 
-    stringifyAsMap<K>(object: Map<K, T>, keyConstructor: Serializable<K>): string {
+    stringifyAsMap<K>(object: Map<K, RootType>, keyConstructor: Serializable<K>): string {
         return JSON.stringify(this.toPlainMap(object, keyConstructor), this.replacer, this.indent);
     }
 

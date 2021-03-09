@@ -1,14 +1,14 @@
 import {jsonMember, jsonObject} from '../../src';
 
 export enum JustEnum {
-    One,
-    Two,
+    One = 1,
+    Two = 2,
     Four = 4,
 }
 
 export const enum ConstEnum {
-    One,
-    Two,
+    One = 1,
+    Two = 2,
     Four = 4,
 }
 
@@ -26,13 +26,13 @@ export const enum ConstStrEnum {
 
 export enum HeteroEnum {
     One = 1,
-    Two,
+    Two = 2,
     Four = 'FOUR',
 }
 
 export const enum ConstHeteroEnum {
     One = 1,
-    Two,
+    Two = 2,
     Four = 'FOUR',
 }
 

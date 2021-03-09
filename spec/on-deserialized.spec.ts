@@ -56,6 +56,7 @@ describe('onDeserialized', () => {
         const person = TypedJSON.parse({name: 'John', age: 20}, Person)!;
         expect(person instanceof Person).toBeTruthy();
         expect(person.getDescription()).toEqual('John is 20y old');
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(person.afterDeser).toHaveBeenCalled();
     });
 
@@ -92,6 +93,7 @@ describe('onDeserialized', () => {
         const person = TypedJSON.parse({name: 'John', age: 20}, Person)!;
         expect(person instanceof Person).toBeTruthy();
         expect(person.getDescription()).toEqual('John is 20y old');
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(person.afterDeser).toHaveBeenCalled();
         expect(Person.afterDeser).not.toHaveBeenCalled();
     });

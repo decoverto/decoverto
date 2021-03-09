@@ -93,10 +93,9 @@ describe('beforeSerialization', () => {
 
         const youngPersionUntyped: object = JSON.parse(TypedJSON.stringify(youngPerson, Person));
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(youngPerson.beforeSerial).toHaveBeenCalled();
         expect(youngPersionUntyped['isOld']).toBeFalsy();
-
-        expect(youngPerson.beforeSerial).toHaveBeenCalled();
         expect(Person.beforeSerial).not.toHaveBeenCalled();
     });
 });

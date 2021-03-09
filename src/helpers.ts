@@ -70,12 +70,12 @@ export function parseToJSObject<T>(json: any, expectedType: Serializable<T>): Ob
 }
 
 /**
- * Determines if 'A' is a sub-type of 'B' (or if 'A' equals 'B').
- * @param A The supposed derived type.
- * @param B The supposed base type.
+ * Determines if 'a' is a sub-type of 'b' (or if 'a' equals 'b').
+ * @param a The supposed derived type.
+ * @param b The supposed base type.
  */
-export function isSubtypeOf(A: Function, B: Function) {
-    return A === B || A.prototype instanceof B;
+export function isSubtypeOf(a: Function, b: Function) {
+    return a === b || a.prototype instanceof b;
 }
 
 export type ErrorHandler = (error: Error) => void;
