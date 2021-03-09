@@ -1,7 +1,5 @@
 import {isReflectMetadataSupported, MISSING_REFLECT_CONF_MSG, nameof} from './helpers';
 import {
-    CustomDeserializerParams,
-    CustomSerializerParams,
     injectMetadataInformation,
 } from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
@@ -25,10 +23,10 @@ export interface IJsonSetMemberOptions extends OptionsBase {
      * When set, this deserializer will be used to deserialize the member. The callee must assure
      * the correct type.
      */
-    deserializer?: ((json: any, params: CustomDeserializerParams) => any) | null;
+    deserializer?: ((json: any) => any) | null;
 
     /** When set, this serializer will be used to serialize the member. */
-    serializer?: ((value: any, params: CustomSerializerParams) => any) | null;
+    serializer?: ((value: any) => any) | null;
 }
 
 /**

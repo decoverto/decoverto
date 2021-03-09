@@ -5,14 +5,6 @@ import {IndexedObject, Serializable} from './types';
 
 export const METADATA_FIELD_KEY = '__typedJsonJsonObjectMetadataInformation__';
 
-export interface CustomDeserializerParams {
-    fallback: (sourceObject: any, constructor: Serializable<any> | TypeDescriptor) => any;
-}
-
-export interface CustomSerializerParams {
-    fallback: (sourceObject: any, constructor: Serializable<any> | TypeDescriptor) => any;
-}
-
 export interface JsonMemberMetadata {
     /** If set, a default value will be emitted for uninitialized members. */
     emitDefaultValue?: boolean | null;
@@ -32,10 +24,10 @@ export interface JsonMemberMetadata {
     options?: OptionsBase | null;
 
     /** Custom deserializer to use. */
-    deserializer?: ((json: any, params: CustomDeserializerParams) => any) | null;
+    deserializer?: ((json: any) => any) | null;
 
     /** Custom serializer to use. */
-    serializer?: ((value: any, params: CustomSerializerParams) => any) | null;
+    serializer?: ((value: any) => any) | null;
 }
 
 export class JsonObjectMetadata {

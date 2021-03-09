@@ -2,8 +2,6 @@ import {Deserializer} from './deserializer';
 import {parseToJSObject} from './helpers';
 import {createArrayType} from './json-array-member';
 import {
-    CustomDeserializerParams,
-    CustomSerializerParams,
     JsonObjectMetadata,
 } from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
@@ -18,12 +16,12 @@ export interface MappedTypeConverters<T> {
     /**
      * Use this deserializer to convert a JSON value to the type.
      */
-    deserializer?: ((json: any, params: CustomDeserializerParams) => T | null | undefined) | null;
+    deserializer?: ((json: any) => T | null | undefined) | null;
 
     /**
      * Use this serializer to convert a type back to JSON.
      */
-    serializer?: ((value: T | null | undefined, params: CustomSerializerParams) => any) | null;
+    serializer?: ((value: T | null | undefined) => any) | null;
 }
 
 export interface ITypedJSONSettings extends OptionsBase {
@@ -450,33 +448,15 @@ export class TypedJSON<T> {
         converters: MappedTypeConverters<R>,
     ): void {
         if (converters.deserializer != null) {
-            this.deserializer.setDeserializationStrategy(
-                type,
-                value => converters.deserializer!(
-                    value,
-                    {
-                        fallback: (so, td) => this.deserializer.convertSingleValue(
-                            so,
-                            ensureTypeDescriptor(td),
-                        ),
-                    },
-                ),
-            );
+            this.deserializer.setDeserializationStrategy(type, (value) => {
+                return converters.deserializer!(value);
+            });
         }
 
         if (converters.serializer != null) {
-            this.serializer.setSerializationStrategy(
-                type,
-                value => converters.serializer!(
-                    value,
-                    {
-                        fallback: (so, td) => this.serializer.convertSingleValue(
-                            so,
-                            ensureTypeDescriptor(td),
-                        ),
-                    },
-                ),
-            );
+            this.serializer.setSerializationStrategy(type, (value) => {
+                return converters.serializer!(value);
+            });
         }
     }
 }
