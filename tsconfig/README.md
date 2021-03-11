@@ -1,4 +1,4 @@
-# TypedJSON's tsconfig
+# An explanation of all tsconfig files and their purpose
 **[../tsconfig.json](../tsconfig.json)**    
 Used by IDEs for languages services.
 
