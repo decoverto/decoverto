@@ -3,7 +3,7 @@ import {OptionsBase} from './options-base';
 import {TypeDescriptor} from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
 
-export const METADATA_FIELD_KEY = '__typedJsonJsonObjectMetadataInformation__';
+export const metadataFieldKey = Symbol('decoratedJsonMetadata');
 
 export interface JsonMemberMetadata {
     /** If set, a default value will be emitted for uninitialized members. */
@@ -86,9 +86,9 @@ export class JsonObjectMetadata {
         }
 
         let metadata: JsonObjectMetadata | undefined;
-        if (Object.prototype.hasOwnProperty.call(prototype, METADATA_FIELD_KEY)) {
+        if (Object.prototype.hasOwnProperty.call(prototype, metadataFieldKey)) {
             // The class prototype contains own jsonObject metadata
-            metadata = prototype[METADATA_FIELD_KEY];
+            metadata = prototype[metadataFieldKey as any];
         }
 
         // Ignore implicitly added jsonObject (through jsonMember)
@@ -106,21 +106,21 @@ export class JsonObjectMetadata {
     }
 
     static ensurePresentInPrototype(prototype: IndexedObject): JsonObjectMetadata {
-        if (Object.prototype.hasOwnProperty.call(prototype, METADATA_FIELD_KEY)) {
-            return prototype[METADATA_FIELD_KEY];
+        if (Object.prototype.hasOwnProperty.call(prototype, metadataFieldKey)) {
+            return prototype[metadataFieldKey as any];
         }
         // Target has no JsonObjectMetadata associated with it yet, create it now.
         const objectMetadata = new JsonObjectMetadata(prototype.constructor);
 
         // Inherit json members and from parent @jsonObject (if any).
-        const parentMetadata: JsonObjectMetadata | undefined = prototype[METADATA_FIELD_KEY];
+        const parentMetadata: JsonObjectMetadata | undefined = prototype[metadataFieldKey as any];
         if (parentMetadata !== undefined) {
             parentMetadata.dataMembers.forEach((memberMetadata, propKey) => {
                 objectMetadata.dataMembers.set(propKey, memberMetadata);
             });
         }
 
-        Object.defineProperty(prototype, METADATA_FIELD_KEY, {
+        Object.defineProperty(prototype, metadataFieldKey, {
             enumerable: false,
             configurable: false,
             writable: false,
