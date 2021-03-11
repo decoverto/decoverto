@@ -14,7 +14,6 @@ export {jsonMember, IJsonMemberOptions} from './json-member';
 export {jsonArrayMember, IJsonArrayMemberOptions} from './json-array-member';
 export {jsonSetMember, IJsonSetMemberOptions} from './json-set-member';
 export {jsonMapMember, IJsonMapMemberOptions} from './json-map-member';
-export {toJson, IToJsonOptions} from './to-json';
 export {
     ArrayT,
     AnyT,
