@@ -55,8 +55,6 @@ export class DecoratedJsonTypeHandler<RootType> {
     /**
      * Converts a JSON string to the root class type.
      * @param object The JSON to parse and convert.
-     * @throws Error if any errors are thrown in the specified errorHandler callback (re-thrown).
-     * @returns Deserialized T or undefined if there were errors.
      */
     parse(object: any): RootType {
         const json = this.toJsonObject(object, this.rootConstructor);
@@ -156,8 +154,6 @@ export class DecoratedJsonTypeHandler<RootType> {
     /**
      * Converts an instance of the specified class type to a JSON string.
      * @param object The instance to convert to a JSON string.
-     * @throws Error if any errors are thrown in the specified errorHandler callback (re-thrown).
-     * @returns String with the serialized object.
      */
     stringify(object: RootType): string {
         const result = this.toPlainJson(object);
