@@ -64,12 +64,3 @@ overrides:
       project:
         - tsconfig/tsconfig.lint.json
       sourceType: module
-    rules:
-      '@typescript-eslint/no-use-before-define':
-        - error
-        -
-          classes: true
-          enums: true
-          functions: false
-          variables: true
-          typedefs: true
