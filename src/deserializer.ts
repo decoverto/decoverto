@@ -1,6 +1,6 @@
 import {identity, isValueDefined, nameof} from './helpers';
 import {JsonObjectMetadata} from './metadata';
-import {getOptionValue, mergeOptions, OptionsBase} from './options-base';
+import {OptionsBase} from './options-base';
 import {
     AnyT,
     ArrayTypeDescriptor,
@@ -38,7 +38,6 @@ export type DeserializerFn<Raw, TTypeDescriptor extends TypeDescriptor, T> = (
  * It is used after parsing a JSON-string.
  */
 export class Deserializer<RootType> {
-    options?: OptionsBase;
 
     private deserializationStrategy: Map<
         Serializable<any>,
@@ -82,10 +81,8 @@ export class Deserializer<RootType> {
             memberOptions,
         }: DeserializeParams<any>,
     ): any {
-        if (this.retrievePreserveNull(memberOptions) && sourceObject === null) {
-            return null;
-        } else if (!isValueDefined(sourceObject)) {
-            return;
+        if (sourceObject == null) {
+            return sourceObject;
         }
 
         const deserializer = this.deserializationStrategy.get(typeDescriptor.ctor);
@@ -117,10 +114,6 @@ export class Deserializer<RootType> {
 
     instantiateType(ctor: any) {
         return new ctor();
-    }
-
-    retrievePreserveNull(memberOptions?: OptionsBase): boolean {
-        return getOptionValue('preserveNull', mergeOptions(this.options, memberOptions));
     }
 
     throwTypeMismatchError(
@@ -192,13 +185,11 @@ export class Deserializer<RootType> {
             // First deserialize properties into a temporary object.
             const sourceObjectWithDeserializedProperties = {} as IndexedObject;
 
-            const classOptions = mergeOptions(this.options, sourceMetadata.options);
-
             // Deserialize by expected properties.
             sourceMetadata.dataMembers.forEach((objMemberMetadata, propKey) => {
                 const objMemberValue = sourceObject[propKey];
                 const objMemberDebugName = `${nameof(sourceMetadata.classType)}.${propKey}`;
-                const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
+                const objMemberOptions = {};
 
                 let revivedValue;
                 if (objMemberMetadata.deserializer != null) {
@@ -217,11 +208,7 @@ export class Deserializer<RootType> {
                     });
                 }
 
-                // @todo revivedValue will never be null in RHS of ||
-                if (isValueDefined(revivedValue)
-                    || (this.retrievePreserveNull(objMemberOptions)
-                        && revivedValue as any === null)
-                ) {
+                if (revivedValue !== undefined) {
                     sourceObjectWithDeserializedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
                     throw new TypeError(

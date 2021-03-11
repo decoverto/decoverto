@@ -100,36 +100,6 @@ describe('basic serialization of', () => {
         });
     });
 
-    describe('nullable', () => {
-        @jsonObject()
-        class WithNullable {
-            // nullable should be optional when not using preserve null
-            @jsonMember()
-            nullable?: string | null;
-        }
-
-        it('should serialize to nothing', () => {
-            const nullClass = new WithNullable();
-            nullClass.nullable = null;
-
-            const serialized = TypedJSON.stringify(nullClass, WithNullable);
-
-            expect(serialized).toBe('{}');
-        });
-
-        it('should deserialize to nothing when null', () => {
-            const deserialized = TypedJSON.parse('{"nullable":null}', WithNullable);
-
-            expect(deserialized).toEqual(new WithNullable());
-        });
-
-        it('should deserialize to nothing when nothing', () => {
-            const deserialized = TypedJSON.parse('{}', WithNullable);
-
-            expect(deserialized).toEqual(new WithNullable());
-        });
-    });
-
     describe('class with defaults', () => {
         describe('by assigment', () => {
             @jsonObject()

@@ -4,7 +4,6 @@ import {createArrayType} from './json-array-member';
 import {
     JsonObjectMetadata,
 } from './metadata';
-import {extractOptionBase, OptionsBase} from './options-base';
 import {Serializer} from './serializer';
 import {ensureTypeDescriptor, MapT, SetT} from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
@@ -24,7 +23,7 @@ export interface MappedTypeConverters<T> {
     serializer?: ((value: T | null | undefined) => any) | null;
 }
 
-export interface ITypedJSONSettings extends OptionsBase {
+export interface ITypedJSONSettings {
     /**
      * Maps a type to their respective (de)serializer. Prevents you from having to repeat
      * (de)serializers. Register additional types with `TypedJSON.mapType`.
@@ -297,10 +296,6 @@ export class TypedJSON<RootType> {
             ...TypedJSON._globalConfig,
             ...settings,
         };
-
-        const options = extractOptionBase(settings);
-        this.serializer.options = options;
-        this.deserializer.options = options;
 
         if (settings.replacer != null) {
             this.replacer = settings.replacer;

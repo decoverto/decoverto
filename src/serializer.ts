@@ -5,7 +5,7 @@ import {
     nameof,
 } from './helpers';
 import {JsonObjectMetadata} from './metadata';
-import {getOptionValue, mergeOptions, OptionsBase} from './options-base';
+import {mergeOptions, OptionsBase} from './options-base';
 import {
     AnyT,
     ArrayTypeDescriptor,
@@ -58,7 +58,6 @@ export type SerializerFn<Raw, TTypeDescriptor extends TypeDescriptor = TypeDescr
  * (1) typed object-tree -> (2) simple JS object-tree -> (3) JSON-string
  */
 export class Serializer {
-    options?: OptionsBase;
     private serializationStrategy = new Map<
         Serializable<any>,
         SerializerFn<any>
@@ -96,10 +95,6 @@ export class Serializer {
         this.serializationStrategy.set(type, serializer);
     }
 
-    retrievePreserveNull(memberOptions?: OptionsBase): boolean {
-        return getOptionValue('preserveNull', mergeOptions(this.options, memberOptions));
-    }
-
     /**
      * Convert a value of any supported serializable type.
      * The value type will be detected, and the correct serialization method will be called.
@@ -112,11 +107,8 @@ export class Serializer {
             typeDescriptor,
         }: SerializeParams<any>,
     ): any {
-        if (this.retrievePreserveNull(memberOptions) && sourceObject === null) {
-            return null;
-        }
-        if (!isValueDefined(sourceObject)) {
-            return;
+        if (sourceObject == null) {
+            return sourceObject;
         }
 
         if (!isInstanceOf(sourceObject, typeDescriptor.ctor)) {
@@ -208,7 +200,7 @@ export class Serializer {
             // 'JSON.stringify' finally.
             targetObject = {};
 
-            const classOptions = mergeOptions(this.options, sourceMeta.options);
+            const classOptions = sourceMeta.options ?? {};
 
             sourceMeta.dataMembers.forEach((objMemberMetadata) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
@@ -229,9 +221,7 @@ export class Serializer {
                     });
                 }
 
-                if ((this.retrievePreserveNull(objMemberOptions) && serialized === null)
-                    || isValueDefined(serialized)
-                ) {
+                if (serialized !== undefined) {
                     targetObject[objMemberMetadata.name] = serialized;
                 }
             });
@@ -268,8 +258,7 @@ TypeDescriptor detected, please use proper annotation or function for this type`
         // unexpectedly alter the ordering of other, valid elements, and that no unexpected
         // undefined values are in the emitted array.
         sourceObject.forEach((element, i) => {
-            if (!(this.retrievePreserveNull(memberOptions) && element === null)
-                && !isInstanceOf(element, typeDescriptor.elementType.ctor)
+            if (element !== null && !isInstanceOf(element, typeDescriptor.elementType.ctor)
             ) {
                 const expectedTypeName = nameof(typeDescriptor.elementType.ctor);
                 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
@@ -371,7 +360,6 @@ TypeDescriptor detected, please use proper annotation or function for this type`
         const valueMemberName = `${memberName}[].value`;
         const resultShape = typeDescriptor.getCompleteOptions().shape;
         const result = resultShape === MapShape.OBJECT ? ({} as IndexedObject) : [];
-        const preserveNull = this.retrievePreserveNull(memberOptions);
 
         // Convert each *entry* in the map to a simple javascript object with key and value
         // properties.
@@ -393,8 +381,7 @@ TypeDescriptor detected, please use proper annotation or function for this type`
 
             // We are not going to emit entries with undefined keys OR undefined values.
             const keyDefined = isValueDefined(resultKeyValuePairObj.key);
-            const valueDefined = (resultKeyValuePairObj.value === null && preserveNull)
-                || isValueDefined(resultKeyValuePairObj.value);
+            const valueDefined = resultKeyValuePairObj.value !== undefined;
             if (keyDefined && valueDefined) {
                 if (resultShape === MapShape.OBJECT) {
                     result[resultKeyValuePairObj.key] = resultKeyValuePairObj.value;
