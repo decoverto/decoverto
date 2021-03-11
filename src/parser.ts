@@ -8,7 +8,10 @@ import {Serializer} from './serializer';
 import {ensureTypeDescriptor, MapT, SetT} from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
 
-export type JsonTypes = Object | boolean | string | number | null | undefined;
+export type ToPlainResult<T> =
+    T extends Object
+        ? {[k in keyof T]?: T[k]} | {[k: string]: any}
+        : any;
 
 export interface MappedTypeConverters<T> {
 
@@ -138,7 +141,7 @@ export class TypedJSON<RootType> {
         object: T,
         rootType: Serializable<T>,
         settings?: ITypedJSONSettings,
-    ): JsonTypes {
+    ): ToPlainResult<T> {
         return new TypedJSON(rootType, settings).toPlainJson(object);
     }
 
@@ -147,42 +150,42 @@ export class TypedJSON<RootType> {
         elementType: Serializable<T>,
         dimensions?: 1,
         settings?: ITypedJSONSettings,
-    ): Array<Object>;
+    ): Array<ToPlainResult<T>>;
     static toPlainArray<T>(
         object: Array<Array<T>>,
         elementType: Serializable<T>,
         dimensions: 2,
         settings?: ITypedJSONSettings,
-    ): Array<Array<Object>>;
+    ): Array<Array<ToPlainResult<T>>>;
     static toPlainArray<T>(
         object: Array<Array<Array<T>>>,
         elementType: Serializable<T>,
         dimensions: 3,
         settings?: ITypedJSONSettings,
-    ): Array<Array<Array<Object>>>;
+    ): Array<Array<Array<ToPlainResult<T>>>>;
     static toPlainArray<T>(
         object: Array<Array<Array<Array<T>>>>,
         elementType: Serializable<T>,
         dimensions: 4, settings?: ITypedJSONSettings,
-    ): Array<Array<Array<Array<Object>>>>;
+    ): Array<Array<Array<Array<ToPlainResult<T>>>>>;
     static toPlainArray<T>(
         object: Array<Array<Array<Array<Array<T>>>>>,
         elementType: Serializable<T>,
         dimensions: 5,
         settings?: ITypedJSONSettings,
-    ): Array<Array<Array<Array<Array<Object>>>>>;
+    ): Array<Array<Array<Array<Array<ToPlainResult<T>>>>>>;
     static toPlainArray<T>(
         object: Array<any>,
         elementType: Serializable<T>,
         dimensions: number,
         settings?: ITypedJSONSettings,
-    ): Array<any>;
+    ): Array<ToPlainResult<T>>;
     static toPlainArray<T>(
         object: Array<any>,
         elementType: Serializable<T>,
         dimensions?: any,
         settings?: ITypedJSONSettings,
-    ): Array<any> {
+    ): Array<ToPlainResult<T>> {
         return new TypedJSON(elementType, settings).toPlainArray(object, dimensions);
     }
 
@@ -190,7 +193,7 @@ export class TypedJSON<RootType> {
         object: Set<T>,
         elementType: Serializable<T>,
         settings?: ITypedJSONSettings,
-    ): Array<Object> | undefined {
+    ): Array<ToPlainResult<T>> | undefined {
         return new TypedJSON(elementType, settings).toPlainSet(object);
     }
 
@@ -199,7 +202,7 @@ export class TypedJSON<RootType> {
         keyCtor: Serializable<K>,
         valueCtor: Serializable<V>,
         settings?: ITypedJSONSettings,
-    ): IndexedObject | Array<{key: any; value: any}> | undefined {
+    ): IndexedObject | Array<{key: any; value: ToPlainResult<V>}> | undefined {
         return new TypedJSON(valueCtor, settings).toPlainMap(object, keyCtor);
     }
 
@@ -365,32 +368,41 @@ export class TypedJSON<RootType> {
      * @param object The instance to convert to a JSON string.
      * @returns Serialized object.
      */
-    toPlainJson(object: RootType): JsonTypes {
+    toPlainJson(object: RootType): ToPlainResult<RootType> {
         return this.serializer.convertSingleValue({
             sourceObject: object,
             typeDescriptor: ensureTypeDescriptor(this.rootConstructor),
         });
     }
 
-    toPlainArray(object: Array<RootType>, dimensions?: 1): Array<Object>;
-    toPlainArray(object: Array<Array<RootType>>, dimensions: 2): Array<Array<Object>>;
-    toPlainArray(object: Array<Array<Array<RootType>>>, dimensions: 3): Array<Array<Array<Object>>>;
+    toPlainArray(
+        object: Array<RootType>,
+        dimensions?: 1,
+    ): Array<ToPlainResult<RootType>>;
+    toPlainArray(
+        object: Array<Array<RootType>>,
+        dimensions: 2,
+    ): Array<Array<ToPlainResult<RootType>>>;
+    toPlainArray(
+        object: Array<Array<Array<RootType>>>,
+        dimensions: 3,
+    ): Array<Array<Array<ToPlainResult<RootType>>>>;
     toPlainArray(
         object: Array<Array<Array<Array<RootType>>>>,
         dimensions: 4,
-    ): Array<Array<Array<Array<Object>>>>;
+    ): Array<Array<Array<Array<ToPlainResult<RootType>>>>>;
     toPlainArray(
         object: Array<Array<Array<Array<Array<RootType>>>>>,
         dimensions: 5,
-    ): Array<Array<Array<Array<Array<Object>>>>>;
-    toPlainArray(object: Array<any>, dimensions: 1 | 2 | 3 | 4 | 5 = 1): Array<Object> {
+    ): Array<Array<Array<Array<Array<ToPlainResult<RootType>>>>>>;
+    toPlainArray(object: Array<any>, dimensions: number = 1) {
         return this.serializer.convertSingleValue({
             sourceObject: object,
             typeDescriptor: createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
         });
     }
 
-    toPlainSet(object: Set<RootType>): Array<Object> | undefined {
+    toPlainSet(object: Set<RootType>): Array<ToPlainResult<RootType>> {
         return this.serializer.convertSingleValue({
             sourceObject: object,
             typeDescriptor: SetT(this.rootConstructor),
@@ -400,11 +412,11 @@ export class TypedJSON<RootType> {
     toPlainMap<K>(
         object: Map<K, RootType>,
         keyConstructor: Serializable<K>,
-    ): IndexedObject | Array<{key: any; value: any}> {
+    ): IndexedObject | Array<{key: any; value: ToPlainResult<RootType>}> {
         return this.serializer.convertSingleValue({
             sourceObject: object,
             typeDescriptor: MapT(keyConstructor, this.rootConstructor),
-    });
+        });
     }
 
     /**
@@ -415,9 +427,6 @@ export class TypedJSON<RootType> {
      */
     stringify(object: RootType): string {
         const result = this.toPlainJson(object);
-        if (result === undefined) {
-            return '';
-        }
         return JSON.stringify(result, this.replacer, this.indent);
     }
 

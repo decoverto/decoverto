@@ -149,7 +149,7 @@ describe('mapped types', () => {
         expect(parsed.overwritten.value).toBe(0);
         expect(parsed.simple.value).toBe(5);
 
-        const plain: any = typedJson.toPlainJson(parsed);
+        const plain = typedJson.toPlainJson(parsed);
         expect(CustomTypeMap.serializer).toHaveBeenCalledTimes(1);
         expect(jsonMemberOptions.serializer).toHaveBeenCalledTimes(1);
         expect(plain.overwritten).toBe(1);
@@ -217,7 +217,7 @@ describe('mapped types', () => {
         expect(ArrayTypeMap.deserializer).toHaveBeenCalled();
         expect(parsed.array).toEqual(['deserialized']);
 
-        const plain: any = typedJson.toPlainJson(parsed);
+        const plain = typedJson.toPlainJson(parsed);
         expect(ArrayTypeMap.serializer).toHaveBeenCalled();
         expect(plain.array).toEqual(['serialized']);
     });
@@ -243,7 +243,7 @@ describe('mapped types', () => {
         expect(CustomTypeMap.deserializer).toHaveBeenCalled();
         expect(parsed.array.map(c => c.value)).toEqual([1, 5]);
 
-        const plain: any = typedJson.toPlainJson(parsed);
+        const plain = typedJson.toPlainJson(parsed);
         expect(CustomTypeMap.serializer).toHaveBeenCalled();
         expect(plain.array).toEqual([1, 5]);
     });

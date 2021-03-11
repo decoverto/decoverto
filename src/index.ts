@@ -1,7 +1,6 @@
 export {
     TypedJSON,
     ITypedJSONSettings,
-    JsonTypes,
 } from './parser';
 export {JsonObjectMetadata} from './metadata';
 export {

@@ -35,7 +35,7 @@ describe('AnyT', () => {
             const simplePropertyAny = new SimplePropertyAny();
             simplePropertyAny.any = foo;
             simplePropertyAny.anyNullable = foo;
-            const result: any = TypedJSON.toPlainJson(simplePropertyAny, SimplePropertyAny);
+            const result = TypedJSON.toPlainJson(simplePropertyAny, SimplePropertyAny);
             expect(result.any).toEqual(foo);
             expect(result.anyNullable).toEqual(foo);
         });
@@ -79,7 +79,7 @@ describe('AnyT', () => {
             const arrayPropertyAny = new ArrayPropertyAny();
             arrayPropertyAny.any = [foo];
             arrayPropertyAny.anyNullable = [foo];
-            const result: any = TypedJSON.toPlainJson(arrayPropertyAny, ArrayPropertyAny);
+            const result = TypedJSON.toPlainJson(arrayPropertyAny, ArrayPropertyAny);
             expect(result.any[0]).toEqual(foo);
             expect(result.anyNullable[0]).toEqual(foo);
         });
@@ -127,7 +127,7 @@ describe('AnyT', () => {
             const setPropertyAny = new SetPropertyAny();
             setPropertyAny.any = new Set([foo, foo]);
             setPropertyAny.anyNullable = new Set([foo, foo]);
-            const result: any = TypedJSON.toPlainJson(setPropertyAny, SetPropertyAny);
+            const result = TypedJSON.toPlainJson(setPropertyAny, SetPropertyAny);
             expect(result.any.values().next().value).toEqual(foo);
             expect(result.anyNullable.values().next().value).toEqual(foo);
         });

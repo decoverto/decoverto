@@ -42,7 +42,7 @@ describe('Lazy types', () => {
             const root = new Root();
             root.lazy = new Lazy();
             root.lazy.name = 'hello';
-            const result: any = typedJson.toPlainJson(root);
+            const result = typedJson.toPlainJson(root);
 
             expect(result.lazy.name).toBe('hello');
         });
@@ -80,7 +80,7 @@ describe('Lazy types', () => {
             const lazy = new Lazy();
             lazy.name = 'hello';
             root.lazy = [lazy];
-            const result: any = typedJson.toPlainJson(root);
+            const result = typedJson.toPlainJson(root);
 
             expect(result.lazy.length).toBe(1);
             expect(result.lazy[0].name).toBe('hello');
@@ -120,7 +120,7 @@ describe('Lazy types', () => {
             const lazy = new LazyValue();
             lazy.name = 'hello';
             root.lazy = new Map<string, LazyValue>([['key', lazy]]);
-            const result: any = typedJson.toPlainJson(root);
+            const result = typedJson.toPlainJson(root);
 
             expect(result.lazy.length).toBe(1);
             expect(result.lazy[0].key).toBe('key');
@@ -161,7 +161,7 @@ describe('Lazy types', () => {
             const lazy = new Lazy();
             lazy.name = 'hello';
             root.lazy = new Set([lazy]);
-            const result: any = typedJson.toPlainJson(root);
+            const result = typedJson.toPlainJson(root);
 
             expect(result.lazy.length).toBe(1);
             expect(result.lazy[0].name).toBe('hello');
