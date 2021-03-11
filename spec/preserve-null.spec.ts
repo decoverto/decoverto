@@ -1,4 +1,6 @@
-import {jsonMember, jsonObject, TypedJSON} from '../src';
+import {DecoratedJson, jsonMember, jsonObject} from '../src';
+
+const decoratedJson = new DecoratedJson();
 
 describe('null', () => {
     describe('should be preserved', () => {
@@ -9,7 +11,7 @@ describe('null', () => {
         }
 
         it('while deserializing', () => {
-            const obj = TypedJSON.parse({name: null}, Person);
+            const obj = decoratedJson.type(Person).parse({name: null});
             expect(obj).toHaveProperties(['name']);
             expect(obj.name).toBe(null);
         });
@@ -17,7 +19,7 @@ describe('null', () => {
         it('while serializing', () => {
             const input = new Person();
             input.name = null;
-            const json = TypedJSON.toPlainJson(input, Person);
+            const json = decoratedJson.type(Person).toPlainJson(input);
             expect(json).toEqual({name: null});
         });
     });
@@ -32,7 +34,7 @@ describe('undefined', () => {
         }
 
         it('while deserializing', () => {
-            const obj = TypedJSON.parse({name: undefined}, Person);
+            const obj = decoratedJson.type(Person).parse({name: undefined});
             expect(obj).toBeInstanceOf(Person);
             expect(obj).not.toHaveProperties(['name']);
         });
@@ -40,7 +42,7 @@ describe('undefined', () => {
         it('while serializing', () => {
             const input = new Person();
             input.name = undefined;
-            const json = TypedJSON.toPlainJson(input, Person);
+            const json = decoratedJson.type(Person).toPlainJson(input);
             expect(json).toEqual({});
         });
     });

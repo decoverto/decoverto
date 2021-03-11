@@ -1,5 +1,4 @@
 import {AnyT} from './type-descriptor';
-import {Serializable} from './types';
 
 declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
@@ -60,13 +59,6 @@ export function shouldOmitParseString(jsonStr: string, expectedType: Function): 
     }
 
     return expectsTypesSerializedAsStrings && !hasQuotes;
-}
-
-export function parseToJSObject<T>(json: any, expectedType: Serializable<T>): Object {
-    if (typeof json !== 'string' || shouldOmitParseString(json, expectedType)) {
-        return json;
-    }
-    return JSON.parse(json);
 }
 
 /**

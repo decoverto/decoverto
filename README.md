@@ -69,7 +69,7 @@ const object3 = serializer.parse('{ "prop1": 1, "prop2": "2" }');
 object3 instanceof MyDataClass; // true
 ```
 
-Note TypedJSON supports parsing arrays and maps at root level as well. Those methods are defined in [parser.ts](./src/parser.ts). Here is an example showing how to parse a json array:
+Note TypedJSON supports parsing arrays and maps at root level as well. Those methods are defined in [parser.ts](src/decorated-json.ts). Here is an example showing how to parse a json array:
 ```typescript
 const object4 = serializer.parseAsArray('[{ "prop1": 1, "prop2": "2" }]');
 object4; // [ MyDataClass { prop1: 1, prop2: '2' } ]

@@ -1,4 +1,6 @@
-import {jsonMember, jsonObject, TypedJSON} from '../src';
+import {DecoratedJson, jsonMember, jsonObject} from '../src';
+
+const decoratedJson = new DecoratedJson();
 
 describe('initializer', () => {
     it('should be called', () => {
@@ -48,9 +50,8 @@ describe('initializer', () => {
             }
         }
 
-        const person = TypedJSON.parse(
+        const person = decoratedJson.type(Person).parse(
             {name: 'John', address: {street: '44th', city: 'New York'}},
-            Person,
         )!;
         expect(person instanceof Person).toBeTruthy();
         expect(person.getDescription()).toEqual('John is living at 44th, New York');
@@ -72,9 +73,8 @@ describe('initializer', () => {
             }
         }
 
-        expect(() => TypedJSON.parse(
+        expect(() => decoratedJson.type(Person).parse(
             {name: 'John'},
-            Person,
         )!).toThrow();
         expect(initializerSpy).toHaveBeenCalled();
     });
@@ -107,9 +107,8 @@ describe('initializer', () => {
             }
         }
 
-        expect(() => TypedJSON.parse(
+        expect(() => decoratedJson.type(Person).parse(
             {name: 'John'},
-            Person,
         )).toThrow();
         expect(initializerSpy).toHaveBeenCalled();
     });
@@ -147,7 +146,7 @@ describe('initializer', () => {
             }
         }
 
-        const person = TypedJSON.parse({name: 'John'}, Person)!;
+        const person = decoratedJson.type(Person).parse({name: 'John'})!;
         expect(person instanceof Person2).toBeTruthy();
         expect(person.getDescription()).toEqual('John is his name and is 123y old');
         expect(initializerSpy).toHaveBeenCalled();

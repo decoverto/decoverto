@@ -1,5 +1,7 @@
-import {AnyT, ArrayT, jsonMember, jsonObject, jsonSetMember, SetT, TypedJSON} from '../src';
+import {AnyT, ArrayT, DecoratedJson, jsonMember, jsonObject, jsonSetMember, SetT} from '../src';
 import {Everything} from './utils/everything';
+
+const decoratedJson = new DecoratedJson();
 
 describe('set of objects', () => {
     @jsonObject()
@@ -23,13 +25,13 @@ describe('set of objects', () => {
     }
 
     it('deserializes empty set', () => {
-        const result = TypedJSON.parseAsSet('[]', Simple);
+        const result = decoratedJson.type(Simple).parseAsSet('[]');
         expect(result).toBeDefined();
         expect(result.size).toBe(0);
     });
 
     it('serialized empty set', () => {
-        const result = TypedJSON.stringifyAsSet(new Set<Simple>(), Simple);
+        const result = decoratedJson.type(Simple).stringifyAsSet(new Set<Simple>());
         expect(result).toBe('[]');
     });
 
@@ -40,7 +42,7 @@ describe('set of objects', () => {
             {strProp: 'gamma', numProp: 0},
         ];
 
-        const result = TypedJSON.parseAsSet(JSON.stringify(expectation), Simple);
+        const result = decoratedJson.type(Simple).parseAsSet(JSON.stringify(expectation));
 
         expect(result.size).toBe(3, 'Deserialized set is of wrong size');
         result.forEach((obj) => {
@@ -58,7 +60,7 @@ describe('set of objects', () => {
         ];
 
         const set = new Set<Simple>(expectation.map(obj => new Simple(obj)));
-        const result = TypedJSON.stringifyAsSet(set, Simple);
+        const result = decoratedJson.type(Simple).stringifyAsSet(set);
 
         expect(result).toBe(JSON.stringify(expectation));
     });
@@ -77,7 +79,7 @@ describe('set member', () => {
 
     it('deserializes', () => {
         const object = {prop: [Everything.create(), Everything.create()]};
-        const result = TypedJSON.parse(JSON.stringify(object), WithSet);
+        const result = decoratedJson.type(WithSet).parse(JSON.stringify(object));
 
         expect(result).toBeInstanceOf(WithSet);
         expect(result.prop).toBeDefined();
@@ -90,7 +92,7 @@ describe('set member', () => {
     it('serializes', () => {
         const object = new WithSet();
         object.prop = new Set<Everything>([Everything.expected(), Everything.expected()]);
-        const result = TypedJSON.stringify(object, WithSet);
+        const result = decoratedJson.type(WithSet).stringify(object);
 
         expect(result).toBe(JSON.stringify({prop: [Everything.create(), Everything.create()]}));
     });
@@ -128,7 +130,7 @@ describe('set array member', () => {
     }
 
     it('deserializes', () => {
-        const result = TypedJSON.parse(
+        const result = decoratedJson.type(WithSet).parse(
             JSON.stringify(
                 {
                     prop: [
@@ -144,7 +146,6 @@ describe('set array member', () => {
                     ],
                 },
             ),
-            WithSet,
         );
 
         expect(result).toBeInstanceOf(WithSet);
@@ -174,7 +175,7 @@ describe('set array member', () => {
                 new Simple({strProp: 'zeta', numProp: 4358}),
             ],
         ]);
-        const result = TypedJSON.stringify(object, WithSet);
+        const result = decoratedJson.type(WithSet).stringify(object);
 
         expect(result).toBe(JSON.stringify({
             prop: [
@@ -218,7 +219,7 @@ describe('set of raw objects', () => {
     }
 
     it('should deserialize as is', () => {
-        const withRawSet = TypedJSON.parse({rawSet: rawObjects()}, WithRawSet);
+        const withRawSet = decoratedJson.type(WithRawSet).parse({rawSet: rawObjects()});
         expect(withRawSet).toBeDefined();
         expect(withRawSet instanceof WithRawSet).toBeTruthy();
         expect(withRawSet.rawSet).toEqual(new Set(rawObjects()));
@@ -227,7 +228,7 @@ describe('set of raw objects', () => {
     it('should serialize as is', () => {
         const withRawSet = new WithRawSet();
         withRawSet.rawSet = new Set(rawObjects());
-        const json = TypedJSON.toPlainJson(withRawSet, WithRawSet);
+        const json = decoratedJson.type(WithRawSet).toPlainJson(withRawSet);
         expect(json).toEqual({rawSet: rawObjects()});
     });
 });

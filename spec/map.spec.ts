@@ -1,8 +1,7 @@
-import {ArrayT, jsonMapMember} from '../src';
-import {jsonMember} from '../src/json-member';
-import {jsonObject} from '../src/json-object';
-import {TypedJSON} from '../src/parser';
+import {ArrayT, DecoratedJson, jsonMapMember, jsonMember, jsonObject} from '../src';
 import {MapShape} from '../src/type-descriptor';
+
+const decoratedJson = new DecoratedJson();
 
 describe('map dictionary shape', () => {
     @jsonObject()
@@ -36,7 +35,7 @@ describe('map dictionary shape', () => {
     }
 
     it('deserializes', () => {
-        const result = TypedJSON.parse(
+        const result = decoratedJson.type(DictMap).parse(
             JSON.stringify(
                 {
                     prop: {
@@ -45,7 +44,6 @@ describe('map dictionary shape', () => {
                     },
                 },
             ),
-            DictMap,
         );
 
         expect(result).toBeInstanceOf(DictMap);
@@ -63,7 +61,7 @@ describe('map dictionary shape', () => {
             ['one', new Simple({strProp: 'delta', numProp: 4})],
             ['two', new Simple({strProp: 'gamma', numProp: 7})],
         ]);
-        const result = TypedJSON.stringify(object, DictMap);
+        const result = decoratedJson.type(DictMap).stringify(object);
 
         expect(result).toBe(JSON.stringify({
             prop: {
@@ -106,7 +104,7 @@ describe('map of array dictionary shape', () => {
     }
 
     it('deserializes', () => {
-        const result = TypedJSON.parse(
+        const result = decoratedJson.type(DictArrayMap).parse(
             JSON.stringify(
                 {
                     prop: {
@@ -115,7 +113,6 @@ describe('map of array dictionary shape', () => {
                     },
                 },
             ),
-            DictArrayMap,
         );
 
         expect(result).toBeInstanceOf(DictArrayMap);
@@ -139,7 +136,7 @@ describe('map of array dictionary shape', () => {
                 new Simple({strProp: 'alpha', numProp: 2}),
             ]],
         ]);
-        const result = TypedJSON.stringify(object, DictArrayMap);
+        const result = decoratedJson.type(DictArrayMap).stringify(object);
 
         expect(result).toBe(JSON.stringify({
             prop: {

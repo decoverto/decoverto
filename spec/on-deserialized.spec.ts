@@ -1,4 +1,6 @@
-import {jsonMember, jsonObject, TypedJSON} from '../src';
+import {DecoratedJson, jsonMember, jsonObject} from '../src';
+
+const decoratedJson = new DecoratedJson();
 
 describe('onDeserialized', () => {
     it('should call the static method', () => {
@@ -23,7 +25,7 @@ describe('onDeserialized', () => {
 
         spyOn(Person, 'afterDeser');
 
-        const person = TypedJSON.parse({name: 'John', age: 20}, Person)!;
+        const person = decoratedJson.type(Person).parse({name: 'John', age: 20})!;
         expect(person instanceof Person).toBeTruthy();
         expect(person.getDescription()).toEqual('John is 20y old');
         expect(Person.afterDeser).toHaveBeenCalled();
@@ -53,7 +55,7 @@ describe('onDeserialized', () => {
             }
         }
 
-        const person = TypedJSON.parse({name: 'John', age: 20}, Person)!;
+        const person = decoratedJson.type(Person).parse({name: 'John', age: 20})!;
         expect(person instanceof Person).toBeTruthy();
         expect(person.getDescription()).toEqual('John is 20y old');
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -90,7 +92,7 @@ describe('onDeserialized', () => {
 
         spyOn(Person, 'afterDeser');
 
-        const person = TypedJSON.parse({name: 'John', age: 20}, Person)!;
+        const person = decoratedJson.type(Person).parse({name: 'John', age: 20})!;
         expect(person instanceof Person).toBeTruthy();
         expect(person.getDescription()).toEqual('John is 20y old');
         // eslint-disable-next-line @typescript-eslint/unbound-method

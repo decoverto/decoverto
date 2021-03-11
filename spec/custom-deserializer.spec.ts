@@ -1,4 +1,6 @@
-import {jsonArrayMember, jsonMember, jsonObject, TypedJSON} from '../src';
+import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
+
+const decoratedJson = new DecoratedJson();
 
 describe('custom member deserializer', () => {
     @jsonObject()
@@ -15,7 +17,8 @@ describe('custom member deserializer', () => {
     }
 
     beforeAll(function () {
-        this.person = TypedJSON.parse('{ "firstName": ["John"], "lastName": "Doe" }', Person);
+        this.person = decoratedJson.type(Person)
+            .parse('{ "firstName": ["John"], "lastName": "Doe" }');
     });
 
     it('should properly deserialize', function () {
@@ -33,7 +36,7 @@ describe('custom member deserializer', () => {
     });
 
     it('should not affect serialization', function () {
-        expect(TypedJSON.stringify(this.person, Person))
+        expect(decoratedJson.type(Person).stringify(this.person))
             .toBe('{"firstName":"John","lastName":"Doe"}');
     });
 });
@@ -55,7 +58,7 @@ describe('custom array member deserializer', () => {
     }
 
     beforeAll(function () {
-        this.obj = TypedJSON.parse('{ "nums": "1,2,3,4,5", "str": "Some string" }', Obj);
+        this.obj = decoratedJson.type(Obj).parse('{ "nums": "1,2,3,4,5", "str": "Some string" }');
     });
 
     it('should properly deserialize', function () {
@@ -73,7 +76,8 @@ describe('custom array member deserializer', () => {
     });
 
     it('should not affect serialization', function () {
-        expect(TypedJSON.stringify(this.obj, Obj)).toBe('{"nums":[1,2,3,4,5],"str":"Some string"}');
+        expect(decoratedJson.type(Obj).stringify(this.obj))
+            .toBe('{"nums":[1,2,3,4,5],"str":"Some string"}');
     });
 });
 
@@ -95,9 +99,8 @@ describe('custom delegating array member serializer', () => {
             return;
         }
 
-        return TypedJSON.parseAsArray(
+        return decoratedJson.type(Inner).parseAsArray(
             values.filter(value => value.shouldDeserialize),
-            Inner,
         );
     }
 
@@ -111,7 +114,7 @@ describe('custom delegating array member serializer', () => {
     }
 
     beforeAll(function () {
-        this.obj = TypedJSON.parse(
+        this.obj = decoratedJson.type(Obj).parse(
             JSON.stringify({
                 inners: [
                     {
@@ -125,7 +128,6 @@ describe('custom delegating array member serializer', () => {
                 ],
                 str: 'Text',
             }),
-            Obj,
         );
     });
 

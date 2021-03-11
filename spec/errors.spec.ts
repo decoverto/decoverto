@@ -1,4 +1,6 @@
-import {jsonMember, jsonObject, TypedJSON} from '../src';
+import {DecoratedJson, jsonMember, jsonObject} from '../src';
+
+const decoratedJson = new DecoratedJson();
 
 describe('errors', () => {
     class CustomType {
@@ -12,7 +14,7 @@ describe('errors', () => {
             bar: CustomType;
         }
 
-        const typedJson = new TypedJSON(TestNonDeterminableTypes);
-        expect(() => typedJson.parse({bar: 'bar'})).toThrow();
+        const testNonDeterminableTypesHandler = decoratedJson.type(TestNonDeterminableTypes);
+        expect(() => testNonDeterminableTypesHandler.parse({bar: 'bar'})).toThrow();
     });
 });

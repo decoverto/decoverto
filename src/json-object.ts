@@ -35,7 +35,7 @@ export interface IJsonObjectOptions<T> extends IJsonObjectOptionsBase {
 }
 
 /**
- * Marks that a class is serializable using TypedJSON, with additional settings.
+ * Marks that a class is serializable using DecoratedJson, with additional settings.
  * @param options Configuration settings.
  */
 export function jsonObject<T>(

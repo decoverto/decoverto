@@ -1,32 +1,34 @@
-import {jsonArrayMember, jsonMember, jsonObject, TypedJSON} from '../src';
+import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
 import {Everything} from './utils/everything';
+
+const decoratedJson = new DecoratedJson();
 
 describe('basic serialization of', () => {
     describe('builtins', () => {
         it('should deserialize', () => {
-            expect(TypedJSON.parse('"str"', String)).toEqual('str');
-            expect(TypedJSON.parse('45834', Number)).toEqual(45834);
-            expect(TypedJSON.parse('true', Boolean)).toEqual(true);
-            expect(TypedJSON.parse('1543915254', Date)).toEqual(new Date(1543915254));
-            expect(TypedJSON.parse('-1543915254', Date)).toEqual(new Date(-1543915254));
-            expect(TypedJSON.parse('"1970-01-18T20:51:55.254Z"', Date))
+            expect(decoratedJson.type(String).parse('"str"')).toEqual('str');
+            expect(decoratedJson.type(Number).parse('45834')).toEqual(45834);
+            expect(decoratedJson.type(Boolean).parse('true')).toEqual(true);
+            expect(decoratedJson.type(Date).parse('1543915254')).toEqual(new Date(1543915254));
+            expect(decoratedJson.type(Date).parse('-1543915254')).toEqual(new Date(-1543915254));
+            expect(decoratedJson.type(Date).parse('"1970-01-18T20:51:55.254Z"'))
                 .toEqual(new Date(1543915254));
 
             const dataBuffer = Uint8Array.from([100, 117, 112, 97]) as any;
-            expect(TypedJSON.parse('"畤慰"', ArrayBuffer)).toEqual(dataBuffer);
-            expect(TypedJSON.parse('"畤慰"', DataView)).toEqual(dataBuffer);
-            expect(TypedJSON.parse('[100,117,112,97]', Uint8Array)).toEqual(dataBuffer);
+            expect(decoratedJson.type(ArrayBuffer).parse('"畤慰"')).toEqual(dataBuffer);
+            expect(decoratedJson.type(DataView).parse('"畤慰"')).toEqual(dataBuffer);
+            expect(decoratedJson.type(Uint8Array).parse('[100,117,112,97]')).toEqual(dataBuffer);
         });
 
         it('should serialize', () => {
-            expect(TypedJSON.stringify('str', String)).toEqual('"str"');
-            expect(TypedJSON.stringify(45834, Number)).toEqual('45834');
-            expect(TypedJSON.stringify(true, Boolean)).toEqual('true');
-            expect(TypedJSON.stringify(new Date(1543915254), Date))
+            expect(decoratedJson.type(String).stringify('str')).toEqual('"str"');
+            expect(decoratedJson.type(Number).stringify(45834)).toEqual('45834');
+            expect(decoratedJson.type(Boolean).stringify(true)).toEqual('true');
+            expect(decoratedJson.type(Date).stringify(new Date(1543915254)))
                 .toEqual(`"${new Date(1543915254).toISOString()}"`);
-            expect(TypedJSON.stringify(new Date(-1543915254), Date))
+            expect(decoratedJson.type(Date).stringify(new Date(-1543915254)))
                 .toEqual(`"${new Date(-1543915254).toISOString()}"`);
-            expect(TypedJSON.stringify(new Date('2018-12-04T09:20:54'), Date))
+            expect(decoratedJson.type(Date).stringify(new Date('2018-12-04T09:20:54')))
                 .toEqual(`"${new Date('2018-12-04T09:20:54').toISOString()}"`);
 
             const buffer = new ArrayBuffer(4);
@@ -35,9 +37,9 @@ describe('basic serialization of', () => {
             view.setInt8(1, 117);
             view.setInt8(2, 112);
             view.setInt8(3, 97);
-            expect(TypedJSON.stringify(buffer, ArrayBuffer)).toEqual('"畤慰"');
-            expect(TypedJSON.stringify(view, DataView)).toEqual('"畤慰"');
-            expect(TypedJSON.stringify(new Uint8Array(buffer), Uint8Array))
+            expect(decoratedJson.type(ArrayBuffer).stringify(buffer)).toEqual('"畤慰"');
+            expect(decoratedJson.type(DataView).stringify(view)).toEqual('"畤慰"');
+            expect(decoratedJson.type(Uint8Array).stringify(new Uint8Array(buffer)))
                 .toEqual('[100,117,112,97]');
         });
     });
@@ -58,7 +60,9 @@ describe('basic serialization of', () => {
 
         describe('deserialized', () => {
             beforeAll(function () {
-                this.person = TypedJSON.parse('{ "firstName": "John", "lastName": "Doe" }', Person);
+                this.person = decoratedJson
+                    .type(Person)
+                    .parse('{ "firstName": "John", "lastName": "Doe" }');
             });
 
             it('should be of proper type', function () {
@@ -76,7 +80,7 @@ describe('basic serialization of', () => {
                 const person = new Person();
                 person.firstName = 'John';
                 person.lastName = 'Doe';
-                expect(TypedJSON.stringify(person, Person))
+                expect(decoratedJson.type(Person).stringify(person))
                     .toBe('{"firstName":"John","lastName":"Doe"}');
             });
         });
@@ -86,7 +90,7 @@ describe('basic serialization of', () => {
         it('should deserialized', () => {
             const everything = Everything.create();
 
-            const deserialized = TypedJSON.parse(JSON.stringify(everything), Everything);
+            const deserialized = decoratedJson.type(Everything).parse(JSON.stringify(everything));
 
             expect(deserialized).toEqual(Everything.expected());
         });
@@ -94,7 +98,7 @@ describe('basic serialization of', () => {
         it('should serialize', () => {
             const everything = Everything.create();
 
-            const serialized = TypedJSON.stringify(new Everything(everything), Everything);
+            const serialized = decoratedJson.type(Everything).stringify(new Everything(everything));
 
             expect(serialized).toBe(JSON.stringify(everything));
         });
@@ -121,7 +125,7 @@ describe('basic serialization of', () => {
             }
 
             it('should use defaults when missing', () => {
-                const deserialized = TypedJSON.parse('{"present":5}', WithDefaults);
+                const deserialized = decoratedJson.type(WithDefaults).parse('{"present":5}');
                 const expected = new WithDefaults();
                 expected.present = 5;
                 expect(deserialized).toEqual(expected);
@@ -156,7 +160,7 @@ describe('basic serialization of', () => {
             }
 
             it('should use defaults when missing', () => {
-                const deserialized = TypedJSON.parse('{"present":5}', WithCtr);
+                const deserialized = decoratedJson.type(WithCtr).parse('{"present":5}');
                 const expected = new WithCtr();
                 expected.present = 5;
                 expect(deserialized).toEqual(expected);
@@ -193,14 +197,13 @@ describe('basic serialization of', () => {
         }
 
         it('should serialize', () => {
-            const serialized = TypedJSON.stringify(new SomeClass(), SomeClass);
+            const serialized = decoratedJson.type(SomeClass).stringify(new SomeClass());
             expect(serialized).toBe('{"prop":"value","getterOnly":"getter"}');
         });
 
         it('should deserialize', () => {
-            const deserialized = TypedJSON.parse(
+            const deserialized = decoratedJson.type(SomeClass).parse(
                 '{"prop":"other value","setterOnly":"ok"}',
-                SomeClass,
             );
 
             const expected = new SomeClass();
@@ -211,9 +214,8 @@ describe('basic serialization of', () => {
 
         it('should deserialize ignoring readonly properties', () => {
             pending('this is not supported as of now');
-            const deserialized = TypedJSON.parse(
+            const deserialized = decoratedJson.type(SomeClass).parse(
                 '{"prop":"other value","getterOnly":"ignored","setterOnly":"ok"}',
-                SomeClass,
             );
 
             const expected = new SomeClass();
@@ -234,13 +236,14 @@ describe('basic serialization of', () => {
         }
 
         it('should work for unannotated base class', () => {
-            expect(TypedJSON.stringify(new Child(), Child)).toEqual('{}');
-            expect(TypedJSON.parse('{}', Child)).toEqual(new Child());
+            expect(decoratedJson.type(Child).stringify(new Child())).toEqual('{}');
+            expect(decoratedJson.type(Child).parse('{}')).toEqual(new Child());
         });
 
         it('should throw when using passing base for serialization/deserialization', () => {
-            expect(() => TypedJSON.stringify(new Child(), JustForOrganizationalPurpose)).toThrow();
-            expect(() => TypedJSON.parse('{}', JustForOrganizationalPurpose)).toThrow();
+            expect(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()))
+                .toThrow();
+            expect(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}')).toThrow();
         });
     });
 });

@@ -1,4 +1,6 @@
-import {AnyT, jsonArrayMember, jsonMember, jsonObject, jsonSetMember, TypedJSON} from '../src';
+import {AnyT, DecoratedJson, jsonArrayMember, jsonMember, jsonObject, jsonSetMember} from '../src';
+
+const decoratedJson = new DecoratedJson();
 
 describe('AnyT', () => {
     describe('on a simple class property', () => {
@@ -12,20 +14,20 @@ describe('AnyT', () => {
         }
 
         it('should deserialize simple object correctly', () => {
-            const result = TypedJSON.parse({
+            const result = decoratedJson.type(SimplePropertyAny).parse({
                 any: {foo: 'bar'},
                 anyNullable: {foo: 'bar'},
-            }, SimplePropertyAny);
+            });
             expect(result.any).toHaveProperties(['foo']);
             expect(result.anyNullable).toHaveProperties(['foo']);
         });
 
         it('should deserialize class instance correctly', () => {
             const foo = {foo: 'bar'};
-            const result = TypedJSON.parse({
+            const result = decoratedJson.type(SimplePropertyAny).parse({
                 any: foo,
                 anyNullable: foo,
-            }, SimplePropertyAny);
+            });
             expect(result.any).toEqual(foo);
             expect(result.anyNullable).toEqual(foo);
         });
@@ -35,7 +37,9 @@ describe('AnyT', () => {
             const simplePropertyAny = new SimplePropertyAny();
             simplePropertyAny.any = foo;
             simplePropertyAny.anyNullable = foo;
-            const result = TypedJSON.toPlainJson(simplePropertyAny, SimplePropertyAny);
+            const result = decoratedJson
+                .type(SimplePropertyAny)
+                .toPlainJson(simplePropertyAny);
             expect(result.any).toEqual(foo);
             expect(result.anyNullable).toEqual(foo);
         });
@@ -51,11 +55,13 @@ describe('AnyT', () => {
             anyNullable?: Array<any> | null;
         }
 
+        const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
+
         it('should deserialize simple object correctly', () => {
-            const result = TypedJSON.parse({
+            const result = arrayPropertyAnyHandler.parse({
                 any: [{foo: 'bar'}],
                 anyNullable: [{foo: 'bar'}],
-            }, ArrayPropertyAny);
+            });
             expect(result.any).toBeInstanceOf(Array);
             expect(result.any[0].foo).toEqual('bar');
             expect(result.anyNullable).toBeInstanceOf(Array);
@@ -64,10 +70,10 @@ describe('AnyT', () => {
 
         it('should deserialize class instance correctly', () => {
             const foo = {foo: 'bar'};
-            const result = TypedJSON.parse({
+            const result = arrayPropertyAnyHandler.parse({
                 any: [foo],
                 anyNullable: [foo],
-            }, ArrayPropertyAny);
+            });
             expect(result.any).toBeInstanceOf(Array);
             expect(result.any[0]).toEqual(foo);
             expect(result.anyNullable).toBeInstanceOf(Array);
@@ -79,7 +85,7 @@ describe('AnyT', () => {
             const arrayPropertyAny = new ArrayPropertyAny();
             arrayPropertyAny.any = [foo];
             arrayPropertyAny.anyNullable = [foo];
-            const result = TypedJSON.toPlainJson(arrayPropertyAny, ArrayPropertyAny);
+            const result = arrayPropertyAnyHandler.toPlainJson(arrayPropertyAny);
             expect(result.any[0]).toEqual(foo);
             expect(result.anyNullable[0]).toEqual(foo);
         });
@@ -98,10 +104,10 @@ describe('AnyT', () => {
 
         it('should deserialize simple object correctly', () => {
             const foo = {foo: 'bar'};
-            const result = TypedJSON.parse({
+            const result = decoratedJson.type(SetPropertyAny).parse({
                 any: [foo, foo],
                 anyNullable: [foo, foo],
-            }, SetPropertyAny);
+            });
             expect(result.any).toBeInstanceOf(Set);
             expect(result.any.size).toBe(1);
             expect(result.any.values().next().value).toEqual(foo);
@@ -112,10 +118,10 @@ describe('AnyT', () => {
 
         it('should deserialize with referential equality', () => {
             const foo = {foo: 'bar'};
-            const result = TypedJSON.parse({
+            const result = decoratedJson.type(SetPropertyAny).parse({
                 any: [foo, foo],
                 anyNullable: [foo, foo],
-            }, SetPropertyAny);
+            });
             expect(result.any).toBeInstanceOf(Set);
             expect(result.any.values().next().value).toBe(foo);
             expect(result.anyNullable).toBeInstanceOf(Set);
@@ -127,7 +133,7 @@ describe('AnyT', () => {
             const setPropertyAny = new SetPropertyAny();
             setPropertyAny.any = new Set([foo, foo]);
             setPropertyAny.anyNullable = new Set([foo, foo]);
-            const result = TypedJSON.toPlainJson(setPropertyAny, SetPropertyAny);
+            const result = decoratedJson.type(SetPropertyAny).toPlainJson(setPropertyAny);
             expect(result.any.values().next().value).toEqual(foo);
             expect(result.anyNullable.values().next().value).toEqual(foo);
         });
@@ -148,7 +154,7 @@ describe('AnyT', () => {
             events: Array<Event>;
         }
 
-        const result = TypedJSON.parse({
+        const result = decoratedJson.type(A).parse({
             events: [
                 {
                     data: {
@@ -160,7 +166,7 @@ describe('AnyT', () => {
                     },
                 },
             ],
-        }, A);
+        });
 
         expect(result.events[0].data.files[0].name).toEqual('file1');
     });

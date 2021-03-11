@@ -1,13 +1,15 @@
 import {
+    DecoratedJson,
     jsonArrayMember,
     jsonMapMember,
     jsonMember,
     jsonObject,
     jsonSetMember,
-    TypedJSON,
 } from '../../src';
 import {A} from './a.model';
 import {B} from './b.model';
+
+const decoratedJson = new DecoratedJson();
 
 describe('Lazy types', () => {
     describe('simple member', () => {
@@ -25,10 +27,10 @@ describe('Lazy types', () => {
             name: string;
         }
 
-        const typedJson = new TypedJSON(Root);
+        const rootHandler = decoratedJson.type(Root);
 
         it('should deserialize', () => {
-            const result = typedJson.parse({
+            const result = rootHandler.parse({
                 lazy: {
                     name: 'hello',
                 },
@@ -42,7 +44,7 @@ describe('Lazy types', () => {
             const root = new Root();
             root.lazy = new Lazy();
             root.lazy.name = 'hello';
-            const result = typedJson.toPlainJson(root);
+            const result = rootHandler.toPlainJson(root);
 
             expect(result.lazy.name).toBe('hello');
         });
@@ -63,10 +65,10 @@ describe('Lazy types', () => {
             name: string;
         }
 
-        const typedJson = new TypedJSON(Root);
+        const rootHandler = decoratedJson.type(Root);
 
         it('should deserialize', () => {
-            const result = typedJson.parse({
+            const result = rootHandler.parse({
                 lazy: [{name: 'hello'}],
             });
 
@@ -80,7 +82,7 @@ describe('Lazy types', () => {
             const lazy = new Lazy();
             lazy.name = 'hello';
             root.lazy = [lazy];
-            const result = typedJson.toPlainJson(root);
+            const result = rootHandler.toPlainJson(root);
 
             expect(result.lazy.length).toBe(1);
             expect(result.lazy[0].name).toBe('hello');
@@ -102,10 +104,10 @@ describe('Lazy types', () => {
             name: string;
         }
 
-        const typedJson = new TypedJSON(Root);
+        const rootHandler = decoratedJson.type(Root);
 
         it('should deserialize', () => {
-            const result = typedJson.parse({
+            const result = rootHandler.parse({
                 lazy: [{key: 'key', value: {name: 'hello'}}],
             });
 
@@ -120,7 +122,7 @@ describe('Lazy types', () => {
             const lazy = new LazyValue();
             lazy.name = 'hello';
             root.lazy = new Map<string, LazyValue>([['key', lazy]]);
-            const result = typedJson.toPlainJson(root);
+            const result = rootHandler.toPlainJson(root);
 
             expect(result.lazy.length).toBe(1);
             expect(result.lazy[0].key).toBe('key');
@@ -143,10 +145,10 @@ describe('Lazy types', () => {
             name: string;
         }
 
-        const typedJson = new TypedJSON(Root);
+        const rootHandler = decoratedJson.type(Root);
 
         it('should deserialize', () => {
-            const result = typedJson.parse({
+            const result = rootHandler.parse({
                 lazy: [{name: 'hello'}],
             });
 
@@ -161,7 +163,7 @@ describe('Lazy types', () => {
             const lazy = new Lazy();
             lazy.name = 'hello';
             root.lazy = new Set([lazy]);
-            const result = typedJson.toPlainJson(root);
+            const result = rootHandler.toPlainJson(root);
 
             expect(result.lazy.length).toBe(1);
             expect(result.lazy[0].name).toBe('hello');
@@ -169,7 +171,7 @@ describe('Lazy types', () => {
     });
 
     it('should work on multi file imports', () => {
-        const result = TypedJSON.parse({
+        const result = decoratedJson.type(A).parse({
             b: {
                 a: {
                     b: {
@@ -180,7 +182,7 @@ describe('Lazy types', () => {
                 name: 'b1',
             },
             name: 'a1',
-        }, A);
+        });
 
         expect(result).toBeInstanceOf(A);
         expect(result.name).toBe('a1');
