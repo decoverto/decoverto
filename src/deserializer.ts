@@ -553,7 +553,6 @@ reference of Set elements.`);
         );
     }
 
-    // @todo: investigate bitwise and types
     convertAsUintArray<T extends Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array>(
         {
             memberName,
@@ -562,10 +561,11 @@ reference of Set elements.`);
         }: DeserializeParamsRequired<Array<number>>,
     ): T {
         const constructor = typeDescriptor.ctor as Constructor<T>;
+
         if (Array.isArray(sourceObject) && sourceObject.every(elem => !isNaN(elem))) {
-            // eslint-disable-next-line no-bitwise
-            return new constructor(sourceObject.map(value => ~~value));
+            return new constructor(sourceObject.map(value => Math.trunc(value)));
         }
+
         return this.throwTypeMismatchError(
             typeDescriptor.ctor.name,
             'a numeric source array',
