@@ -5,13 +5,13 @@ export function isEqual<T>(a: any, b: any): boolean {
     if (typeof a === 'object') {
         if (Object.keys(a).length === Object.keys(b).length) {
             // Alphabetical iteration over object property keys.
-            return Object.keys(a).sort().reduce((acc, k) => {
+            return Object.keys(a).sort().every(k => {
                 if (typeof a[k] === 'function' && typeof b[k] === 'function') {
                     return true;
                 } else {
-                    return acc && isEqual(a[k], b[k]);
+                    return isEqual(a[k], b[k]);
                 }
-            }, true);
+            });
         } else {
             // 'b' has a different number of properties, and thus can no longer be considered equal.
             console.warn(
