@@ -37,8 +37,11 @@ export interface IJsonSetMemberOptions extends OptionsBase {
  * for Set<Date>).
  * @param options Additional options.
  */
-export function jsonSetMember(typeThunk: TypeThunk, options: IJsonSetMemberOptions = {}) {
-    return (target: Object, propKey: string | symbol) => {
+export function jsonSetMember(
+    typeThunk: TypeThunk,
+    options: IJsonSetMemberOptions = {},
+): PropertyDecorator {
+    return (target, propKey) => {
         // For error messages
         const decoratorName = `@jsonSetMember on ${nameof(target.constructor)}.${String(propKey)}`;
 

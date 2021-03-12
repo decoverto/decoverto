@@ -41,8 +41,8 @@ export function jsonMapMember(
     keyThunk: TypeThunk,
     valueThunk: TypeThunk,
     options: IJsonMapMemberOptions = {},
-) {
-    return (target: Object, propKey: string | symbol) => {
+): PropertyDecorator {
+    return (target, propKey) => {
         // For error messages
         const decoratorName = `@jsonMapMember on ${nameof(target.constructor)}.${String(propKey)}`;
 

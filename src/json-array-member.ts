@@ -45,8 +45,8 @@ export interface IJsonArrayMemberOptions extends OptionsBase {
 export function jsonArrayMember(
     typeThunk: TypeThunk,
     options: IJsonArrayMemberOptions = {},
-) {
-    return (target: Object, propKey: string | symbol) => {
+): PropertyDecorator {
+    return (target, propKey) => {
         const decoratorName =
             `@jsonArrayMember on ${nameof(target.constructor)}.${String(propKey)}`;
 
