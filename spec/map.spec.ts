@@ -3,146 +3,148 @@ import {MapShape} from '../src/type-descriptor';
 
 const decoratedJson = new DecoratedJson();
 
-describe('map dictionary shape', () => {
-    @jsonObject()
-    class Simple {
-        @jsonMember()
-        strProp: string;
+describe('map', () => {
+    describe('with dictionary shape', () => {
+        @jsonObject()
+        class Simple {
+            @jsonMember()
+            strProp: string;
 
-        @jsonMember()
-        numProp: number;
+            @jsonMember()
+            numProp: number;
 
-        constructor(init?: {strProp: string; numProp: number}) {
-            if (init !== undefined) {
-                this.strProp = init.strProp;
-                this.numProp = init.numProp;
+            constructor(init?: {strProp: string; numProp: number}) {
+                if (init !== undefined) {
+                    this.strProp = init.strProp;
+                    this.numProp = init.numProp;
+                }
+            }
+
+            foo() {
+                return `${this.strProp}-${this.numProp}`;
             }
         }
 
-        foo() {
-            return `${this.strProp}-${this.numProp}`;
-        }
-    }
+        @jsonObject()
+        class DictMap {
+            @jsonMapMember(() => String, () => Simple, {shape: MapShape.OBJECT})
+            prop: Map<String, Simple>;
 
-    @jsonObject()
-    class DictMap {
-        @jsonMapMember(() => String, () => Simple, {shape: MapShape.OBJECT})
-        prop: Map<String, Simple>;
-
-        getSetSize() {
-            return this.prop.size;
-        }
-    }
-
-    it('', () => {
-        const result = decoratedJson.type(DictMap).parse(
-            JSON.stringify(
-                {
-                    prop: {
-                        one: {strProp: 'delta', numProp: 4},
-                        two: {strProp: 'gamma', numProp: 7},
-                    },
-                },
-            ),
-        );
-
-        expect(result).toBeInstanceOf(DictMap);
-        expect(result.prop).toBeDefined();
-        expect(result.prop).toBeInstanceOf(Map);
-        expect(result.prop.size).toBe(2);
-        expect(result.getSetSize()).toBe(2);
-        expect(result.prop.get('one')?.strProp).toBe('delta');
-        expect(result.prop.get('two')?.strProp).toBe('gamma');
-    });
-
-    it('converts to JSON', () => {
-        const object = new DictMap();
-        object.prop = new Map<string, Simple>([
-            ['one', new Simple({strProp: 'delta', numProp: 4})],
-            ['two', new Simple({strProp: 'gamma', numProp: 7})],
-        ]);
-        const result = decoratedJson.type(DictMap).stringify(object);
-
-        expect(result).toBe(JSON.stringify({
-            prop: {
-                one: {strProp: 'delta', numProp: 4},
-                two: {strProp: 'gamma', numProp: 7},
-            },
-        }));
-    });
-});
-
-describe('map of array dictionary shape', () => {
-    @jsonObject()
-    class Simple {
-        @jsonMember()
-        strProp: string;
-
-        @jsonMember()
-        numProp: number;
-
-        constructor(init?: {strProp: string; numProp: number}) {
-            if (init !== undefined) {
-                this.strProp = init.strProp;
-                this.numProp = init.numProp;
+            getSetSize() {
+                return this.prop.size;
             }
         }
 
-        foo() {
-            return `${this.strProp}-${this.numProp}`;
-        }
-    }
-
-    @jsonObject()
-    class DictArrayMap {
-        @jsonMapMember(() => String, () => ArrayT(Simple), {shape: MapShape.OBJECT})
-        prop: Map<String, Array<Simple>>;
-
-        getSetSize() {
-            return this.prop.size;
-        }
-    }
-
-    it('parses', () => {
-        const result = decoratedJson.type(DictArrayMap).parse(
-            JSON.stringify(
-                {
-                    prop: {
-                        one: [{strProp: 'delta', numProp: 4}],
-                        two: [{strProp: 'gamma', numProp: 7}, {strProp: 'alpha', numProp: 2}],
+        it('parses', () => {
+            const result = decoratedJson.type(DictMap).parse(
+                JSON.stringify(
+                    {
+                        prop: {
+                            one: {strProp: 'delta', numProp: 4},
+                            two: {strProp: 'gamma', numProp: 7},
+                        },
                     },
-                },
-            ),
-        );
+                ),
+            );
 
-        expect(result).toBeInstanceOf(DictArrayMap);
-        expect(result.prop).toBeDefined();
-        expect(result.prop).toBeInstanceOf(Map);
-        expect(result.prop.size).toBe(2);
-        expect(result.getSetSize()).toBe(2);
-        expect(result.prop.get('one')?.length).toBe(1);
-        expect(result.prop.get('one')?.[0].foo()).toBe('delta-4');
-        expect(result.prop.get('two')?.length).toBe(2);
-        expect(result.prop.get('two')?.[0].foo()).toBe('gamma-7');
-        expect(result.prop.get('two')?.[1].foo()).toBe('alpha-2');
+            expect(result).toBeInstanceOf(DictMap);
+            expect(result.prop).toBeDefined();
+            expect(result.prop).toBeInstanceOf(Map);
+            expect(result.prop.size).toBe(2);
+            expect(result.getSetSize()).toBe(2);
+            expect(result.prop.get('one')?.strProp).toBe('delta');
+            expect(result.prop.get('two')?.strProp).toBe('gamma');
+        });
+
+        it('stringifies', () => {
+            const object = new DictMap();
+            object.prop = new Map<string, Simple>([
+                ['one', new Simple({strProp: 'delta', numProp: 4})],
+                ['two', new Simple({strProp: 'gamma', numProp: 7})],
+            ]);
+            const result = decoratedJson.type(DictMap).stringify(object);
+
+            expect(result).toBe(JSON.stringify({
+                prop: {
+                    one: {strProp: 'delta', numProp: 4},
+                    two: {strProp: 'gamma', numProp: 7},
+                },
+            }));
+        });
     });
 
-    it('stringifies', () => {
-        const object = new DictArrayMap();
-        object.prop = new Map<string, Array<Simple>>([
-            ['one', [new Simple({strProp: 'delta', numProp: 4})]],
-            ['two', [
-                new Simple({strProp: 'gamma', numProp: 7}),
-                new Simple({strProp: 'alpha', numProp: 2}),
-            ]],
-        ]);
-        const result = decoratedJson.type(DictArrayMap).stringify(object);
+    describe('with an array as value', () => {
+        @jsonObject()
+        class Simple {
+            @jsonMember()
+            strProp: string;
 
-        expect(result).toBe(JSON.stringify({
-            prop: {
-                one: [{strProp: 'delta', numProp: 4}],
-                two: [{strProp: 'gamma', numProp: 7}, {strProp: 'alpha', numProp: 2}],
-            },
-        }));
+            @jsonMember()
+            numProp: number;
+
+            constructor(init?: {strProp: string; numProp: number}) {
+                if (init !== undefined) {
+                    this.strProp = init.strProp;
+                    this.numProp = init.numProp;
+                }
+            }
+
+            foo() {
+                return `${this.strProp}-${this.numProp}`;
+            }
+        }
+
+        @jsonObject()
+        class DictArrayMap {
+            @jsonMapMember(() => String, () => ArrayT(Simple), {shape: MapShape.OBJECT})
+            prop: Map<String, Array<Simple>>;
+
+            getSetSize() {
+                return this.prop.size;
+            }
+        }
+
+        it('parses', () => {
+            const result = decoratedJson.type(DictArrayMap).parse(
+                JSON.stringify(
+                    {
+                        prop: {
+                            one: [{strProp: 'delta', numProp: 4}],
+                            two: [{strProp: 'gamma', numProp: 7}, {strProp: 'alpha', numProp: 2}],
+                        },
+                    },
+                ),
+            );
+
+            expect(result).toBeInstanceOf(DictArrayMap);
+            expect(result.prop).toBeDefined();
+            expect(result.prop).toBeInstanceOf(Map);
+            expect(result.prop.size).toBe(2);
+            expect(result.getSetSize()).toBe(2);
+            expect(result.prop.get('one')?.length).toBe(1);
+            expect(result.prop.get('one')?.[0].foo()).toBe('delta-4');
+            expect(result.prop.get('two')?.length).toBe(2);
+            expect(result.prop.get('two')?.[0].foo()).toBe('gamma-7');
+            expect(result.prop.get('two')?.[1].foo()).toBe('alpha-2');
+        });
+
+        it('stringifies', () => {
+            const object = new DictArrayMap();
+            object.prop = new Map<string, Array<Simple>>([
+                ['one', [new Simple({strProp: 'delta', numProp: 4})]],
+                ['two', [
+                    new Simple({strProp: 'gamma', numProp: 7}),
+                    new Simple({strProp: 'alpha', numProp: 2}),
+                ]],
+            ]);
+            const result = decoratedJson.type(DictArrayMap).stringify(object);
+
+            expect(result).toBe(JSON.stringify({
+                prop: {
+                    one: [{strProp: 'delta', numProp: 4}],
+                    two: [{strProp: 'gamma', numProp: 7}, {strProp: 'alpha', numProp: 2}],
+                },
+            }));
+        });
     });
 });
