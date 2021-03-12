@@ -1,4 +1,4 @@
-import {isDirectlySerializableNativeType, isTypeTypedArray, nameof} from './helpers';
+import {isJsonStringifyCompatible, isTypeTypedArray, nameof} from './helpers';
 import {OptionsBase} from './options-base';
 import {TypeDescriptor} from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
@@ -9,7 +9,7 @@ export interface JsonMemberMetadata {
     /** If set, a default value will be emitted for uninitialized members. */
     emitDefaultValue?: boolean | null;
 
-    /** Member name as it appears in the serialized JSON. */
+    /** Member name as it appears in JSON. */
     name: string;
 
     /** Property or field key of the json member. */
@@ -18,16 +18,20 @@ export interface JsonMemberMetadata {
     /** Type descriptor of the member. */
     type?: (() => TypeDescriptor) | null;
 
-    /** If set, indicates that the member must be present when deserializing. */
+    /** If set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     options?: OptionsBase | null;
 
-    /** Custom deserializer to use. */
-    deserializer?: ((json: any) => any) | null;
+    /**
+     * When set, this method will be used to convert the value **from** JSON.
+     */
+    fromJson?: ((json: any) => any) | null;
 
-    /** Custom serializer to use. */
-    serializer?: ((value: any) => any) | null;
+    /**
+     * When set, this method will be used to convert the value **to** JSON.
+     */
+    toJson?: ((value: any) => any) | null;
 }
 
 export class JsonObjectMetadata {
@@ -54,9 +58,9 @@ export class JsonObjectMetadata {
 
     options?: OptionsBase | null;
 
-    onDeserializedMethodName?: string | null;
+    afterFromJsonMethodName?: string | null;
 
-    beforeSerializationMethodName?: string | null;
+    beforeToJsonMethodName?: string | null;
 
     initializerCallback?: ((sourceObject: Object, rawSourceObject: Object) => Object) | null;
 
@@ -64,15 +68,6 @@ export class JsonObjectMetadata {
         classType: Function,
     ) {
         this.classType = classType;
-    }
-
-    /**
-     * Gets the name of a class as it appears in a serialized JSON string.
-     * @param ctor The constructor of a class (with or without jsonObject).
-     */
-    static getJsonObjectName(ctor: Function): string {
-        const metadata = JsonObjectMetadata.getFromConstructor(ctor);
-        return metadata === undefined ? nameof(ctor) : nameof(metadata.classType);
     }
 
     /**
@@ -130,7 +125,7 @@ export class JsonObjectMetadata {
     }
 
     private static doesHandleWithoutAnnotation(ctor: Function): boolean {
-        return isDirectlySerializableNativeType(ctor) || isTypeTypedArray(ctor)
+        return isJsonStringifyCompatible(ctor) || isTypeTypedArray(ctor)
             || ctor === DataView || ctor === ArrayBuffer;
     }
 }
@@ -153,7 +148,7 @@ export function injectMetadataInformation(
         throw new Error(`${decoratorName}: cannot use a static property.`);
     }
 
-    // Methods cannot be serialized.
+    // Methods cannot be converted JSON.
     // symbol indexing is not supported by ts
     if (typeof prototype[propKey as string] === 'function') {
         throw new Error(`${decoratorName}: cannot use a method property.`);
@@ -161,12 +156,12 @@ export function injectMetadataInformation(
 
     // @todo check if metadata is ever undefined, if so, change parameter type
     if (metadata as any == null
-        || (metadata.type === undefined && metadata.deserializer === undefined)) {
+        || (metadata.type === undefined && metadata.fromJson === undefined)) {
         throw new Error(`${decoratorName}: JsonMemberMetadata has unknown type.`);
     }
 
     // Add jsonObject metadata to 'constructor' if not yet exists ('constructor' is the prototype).
-    // NOTE: this will not fire up custom serialization, as 'constructor' must be explicitly marked
+    // NOTE: this will not fire up custom conversion, as 'constructor' must be explicitly marked
     // with '@jsonObject' as well.
     const objectMetadata = JsonObjectMetadata.ensurePresentInPrototype(prototype);
 

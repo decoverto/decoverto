@@ -24,18 +24,18 @@ describe('array of objects', () => {
         }
     }
 
-    it('deserializes empty array', () => {
+    it('should parse an empty array', () => {
         const result = decoratedJson.type(Simple).parseAsArray('[]');
         expect(result).toBeDefined();
         expect(result.length).toBe(0);
     });
 
-    it('serialized empty array', () => {
+    it('should stringify an empty array', () => {
         const result = decoratedJson.type(Simple).stringifyAsArray([]);
         expect(result).toBe('[]');
     });
 
-    it('deserialized should be of proper type', () => {
+    it('parse result should be the correct type', () => {
         const expectation = [
             {strProp: 'delta', numProp: 4},
             {strProp: 'bravo', numProp: 2},
@@ -44,15 +44,15 @@ describe('array of objects', () => {
 
         const result = decoratedJson.type(Simple).parseAsArray(JSON.stringify(expectation));
 
-        expect(result.length).toBe(3, 'Deserialized array is of wrong length');
+        expect(result.length).toBe(3, 'Parsed array is of wrong length');
         result.forEach((obj, index) => {
             expect(obj instanceof Simple).toBeTruthy(`${index} was not of type Simple`);
             expect(obj)
-                .toHaveProperties(expectation[index], '${index} was deserialized incorrectly');
+                .toHaveProperties(expectation[index], '${index} was parsed incorrectly');
         });
     });
 
-    it('serialized should contain all elements', () => {
+    it('toJson result should contain all elements', () => {
         const expectation = [
             {strProp: 'delta', numProp: 4},
             {strProp: 'bravo', numProp: 2},
@@ -154,7 +154,7 @@ describe('multidimensional arrays', () => {
         ];
     }
 
-    it('deserializes', () => {
+    it('parses', () => {
         const testArray = JSON.stringify(createTestArray(false));
         const result = decoratedJson.type(WithArrays).parseAsArray(testArray, 2);
 
@@ -168,7 +168,7 @@ describe('multidimensional arrays', () => {
         expect(result[3][0]).toEqual(createTestObject(true));
     });
 
-    it('serializes', () => {
+    it('converts to JSON', () => {
         const result = decoratedJson.type(WithArrays).stringifyAsArray(createTestArray(true), 2);
 
         expect(result).toBe(JSON.stringify(createTestArray(false)));
@@ -197,14 +197,14 @@ describe('array of raw objects', () => {
         ];
     }
 
-    it('should deserialize as is', () => {
+    it('should parse from JSON as is', () => {
         const translations = decoratedJson.type(Translations).parse({localization: localization()});
         expect(translations).toBeDefined();
         expect(translations instanceof Translations).toBeTruthy();
         expect(translations.localization).toEqual(localization());
     });
 
-    it('should serialize as is', () => {
+    it('should perform conversion to JSON as is', () => {
         const translations = new Translations();
         translations.localization = localization();
         const json = decoratedJson.type(Translations).toPlainJson(translations);

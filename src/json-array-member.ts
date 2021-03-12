@@ -13,7 +13,7 @@ declare abstract class Reflect {
 }
 
 export interface IJsonArrayMemberOptions extends OptionsBase {
-    /** When set, indicates that the member must be present when deserializing. */
+    /** When set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     /** When set, an empty array is emitted if the property is undefined/uninitialized. */
@@ -26,17 +26,18 @@ export interface IJsonArrayMemberOptions extends OptionsBase {
     name?: string | null;
 
     /**
-     * When set, this deserializer will be used to deserialize the member. The callee must assure
-     * the correct type.
+     * When set, this method will be used to convert the value **from** JSON.
      */
-    deserializer?: ((json: any) => any) | null;
+    fromJson?: ((json: any) => any) | null;
 
-    /** When set, this serializer will be used to serialize the member. */
-    serializer?: ((value: any) => any) | null;
+    /**
+     * When set, this method will be used to convert the value **to** JSON.
+     */
+    toJson?: ((value: any) => any) | null;
 }
 
 /**
- * Specifies that a property, of type array, is part of an object when serializing.
+ * Specifies that the property should be included in the JSON conversion.
  * @param typeThunk Constructor of array elements (e.g. 'Number' for 'number[]', or 'Date'
  * for 'Date[]').
  * @param options Additional options.
@@ -73,8 +74,8 @@ export function jsonArrayMember(
             options: extractOptionBase(options),
             key: propKey.toString(),
             name: options.name ?? propKey.toString(),
-            deserializer: options.deserializer,
-            serializer: options.serializer,
+            fromJson: options.fromJson,
+            toJson: options.toJson,
         });
     };
 }

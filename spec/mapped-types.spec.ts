@@ -40,13 +40,13 @@ describe('mapped types', () => {
     describe('instance', () => {
         decoratedJson = new DecoratedJson();
         decoratedJson.mapType(CustomType, {
-            deserializer: json => new CustomType(json),
-            serializer: value => value.value,
+            fromJson: json => new CustomType(json),
+            toJson: value => value.value,
         });
 
         const mappedTypesSpecHandler = decoratedJson.type(MappedTypesSpec);
 
-        it('deserializes', () => {
+        it('parses', () => {
             const result = mappedTypesSpecHandler.parse(testData);
 
             expect(result.one).toBeInstanceOf(CustomType);
@@ -55,7 +55,7 @@ describe('mapped types', () => {
             expect(result.two.hasSucceeded()).toBeTrue();
         });
 
-        it('serializes', () => {
+        it('converts to JSON', () => {
             const test = new MappedTypesSpec();
             test.one = new CustomType(1);
             test.two = new CustomType(2);
@@ -65,24 +65,24 @@ describe('mapped types', () => {
         });
     });
 
-    it('can be overwritten with deserializer/serializer prop', () => {
+    it('can be overwritten with fromJson/toJson prop', () => {
         const jsonMemberOptions = {
-            deserializer: json => new CustomType(0),
-            serializer: value => 1,
+            fromJson: json => new CustomType(0),
+            toJson: value => 1,
         };
 
         const CustomTypeMap = {
-            deserializer: json => new CustomType(json),
-            serializer: value => value.value,
+            fromJson: json => new CustomType(json),
+            toJson: value => value.value,
         };
 
-        spyOn(CustomTypeMap, 'serializer').and.callThrough();
-        spyOn(jsonMemberOptions, 'serializer').and.callThrough();
-        spyOn(CustomTypeMap, 'deserializer').and.callThrough();
-        spyOn(jsonMemberOptions, 'deserializer').and.callThrough();
+        spyOn(CustomTypeMap, 'toJson').and.callThrough();
+        spyOn(jsonMemberOptions, 'toJson').and.callThrough();
+        spyOn(CustomTypeMap, 'fromJson').and.callThrough();
+        spyOn(jsonMemberOptions, 'fromJson').and.callThrough();
 
         @jsonObject()
-        class OverriddenSerializer {
+        class OverriddenConverters {
             @jsonMember(jsonMemberOptions)
             overwritten: CustomType;
 
@@ -91,57 +91,57 @@ describe('mapped types', () => {
         }
 
         decoratedJson.mapType(CustomType, CustomTypeMap);
-        const overriddenSerializerHandler = decoratedJson.type(OverriddenSerializer);
+        const overriddenTypeHandler = decoratedJson.type(OverriddenConverters);
 
-        const parsed = overriddenSerializerHandler.parse({data: 5, simple: 5});
-        expect(CustomTypeMap.deserializer).toHaveBeenCalledTimes(1);
-        expect(jsonMemberOptions.deserializer).toHaveBeenCalledTimes(1);
+        const parsed = overriddenTypeHandler.parse({data: 5, simple: 5});
+        expect(CustomTypeMap.fromJson).toHaveBeenCalledTimes(1);
+        expect(jsonMemberOptions.fromJson).toHaveBeenCalledTimes(1);
         expect(parsed.overwritten.value).toBe(0);
         expect(parsed.simple.value).toBe(5);
 
-        const plain = overriddenSerializerHandler.toPlainJson(parsed);
-        expect(CustomTypeMap.serializer).toHaveBeenCalledTimes(1);
-        expect(jsonMemberOptions.serializer).toHaveBeenCalledTimes(1);
+        const plain = overriddenTypeHandler.toPlainJson(parsed);
+        expect(CustomTypeMap.toJson).toHaveBeenCalledTimes(1);
+        expect(jsonMemberOptions.toJson).toHaveBeenCalledTimes(1);
         expect(plain.overwritten).toBe(1);
         expect(plain.simple).toBe(5);
     });
 
-    it('should use default when only mapping deserializer', () => {
+    it('should use default when only mapping fromJson', () => {
         @jsonObject()
-        class OnlyDeSerializer {
+        class OnlyFromJson {
             @jsonMember()
             date: Date;
         }
 
         decoratedJson.mapType<Date, Date>(Date, {
-            deserializer: value => new Date(new Date(value).setFullYear(3000)),
+            fromJson: value => new Date(new Date(value).setFullYear(3000)),
         });
-        const onlyDeserializerHandler = decoratedJson.type(OnlyDeSerializer);
-        const parsed = onlyDeserializerHandler.parse({date: date2000});
+        const onlyFromJsonHandler = decoratedJson.type(OnlyFromJson);
+        const parsed = onlyFromJsonHandler.parse({date: date2000});
 
         expect(parsed.date.toISOString()).toEqual(date3000);
-        expect((onlyDeserializerHandler.toPlainJson(parsed) as any).date.toString())
+        expect((onlyFromJsonHandler.toPlainJson(parsed) as any).date.toString())
             .toEqual(new Date(date3000).toString());
     });
 
-    it('should use default when only mapping serializer', () => {
+    it('should use default when only mapping toJson', () => {
         @jsonObject()
-        class OnlySerializer {
+        class OnlyToJson {
             @jsonMember()
             date: Date;
         }
 
         decoratedJson.mapType(Date, {
-            serializer: value => new Date(value.setFullYear(3000)).toISOString(),
+            toJson: value => new Date(value.setFullYear(3000)).toISOString(),
         });
-        const OnlySerializerHandler = decoratedJson.type(OnlySerializer);
+        const OnlyToJsonHandler = decoratedJson.type(OnlyToJson);
 
-        const test = new OnlySerializer();
+        const test = new OnlyToJson();
         test.date = new Date(date2000);
-        const result = OnlySerializerHandler.toPlainJson(test);
+        const result = OnlyToJsonHandler.toPlainJson(test);
 
         expect(result).toEqual({date: date3000});
-        expect(OnlySerializerHandler.parse({date: date2000}).date.toISOString()).toEqual(date2000);
+        expect(OnlyToJsonHandler.parse({date: date2000}).date.toISOString()).toEqual(date2000);
     });
 
     it('should handle mapping arrays', () => {
@@ -153,23 +153,23 @@ describe('mapped types', () => {
         }
 
         const ArrayTypeMap = {
-            deserializer: json => ['deserialized'],
-            serializer: value => ['serialized'],
+            fromJson: json => ['object'],
+            toJson: value => ['json'],
         };
 
         decoratedJson.mapType(Array, ArrayTypeMap);
 
         const mappedTypeWithArrayHandler = decoratedJson.type(MappedTypeWithArray);
 
-        spyOn(ArrayTypeMap, 'serializer').and.callThrough();
-        spyOn(ArrayTypeMap, 'deserializer').and.callThrough();
+        spyOn(ArrayTypeMap, 'toJson').and.callThrough();
+        spyOn(ArrayTypeMap, 'fromJson').and.callThrough();
         const parsed = mappedTypeWithArrayHandler.parse({array: ['hello']});
-        expect(ArrayTypeMap.deserializer).toHaveBeenCalled();
-        expect(parsed.array).toEqual(['deserialized']);
+        expect(ArrayTypeMap.fromJson).toHaveBeenCalled();
+        expect(parsed.array).toEqual(['object']);
 
         const plain = mappedTypeWithArrayHandler.toPlainJson(parsed);
-        expect(ArrayTypeMap.serializer).toHaveBeenCalled();
-        expect(plain.array).toEqual(['serialized']);
+        expect(ArrayTypeMap.toJson).toHaveBeenCalled();
+        expect(plain.array).toEqual(['json']);
     });
 
     it('works on arrays', () => {
@@ -181,20 +181,20 @@ describe('mapped types', () => {
         }
 
         const CustomTypeMap = {
-            deserializer: json => new CustomType(json),
-            serializer: value => value.value,
+            fromJson: json => new CustomType(json),
+            toJson: value => value.value,
         };
         decoratedJson.mapType(CustomType, CustomTypeMap);
         const mappedTypeWithArrayHandler = decoratedJson.type(MappedTypeWithArray);
 
-        spyOn(CustomTypeMap, 'serializer').and.callThrough();
-        spyOn(CustomTypeMap, 'deserializer').and.callThrough();
+        spyOn(CustomTypeMap, 'toJson').and.callThrough();
+        spyOn(CustomTypeMap, 'fromJson').and.callThrough();
         const parsed = mappedTypeWithArrayHandler.parse({array: [1, 5]});
-        expect(CustomTypeMap.deserializer).toHaveBeenCalled();
+        expect(CustomTypeMap.fromJson).toHaveBeenCalled();
         expect(parsed.array.map(c => c.value)).toEqual([1, 5]);
 
         const plain = mappedTypeWithArrayHandler.toPlainJson(parsed);
-        expect(CustomTypeMap.serializer).toHaveBeenCalled();
+        expect(CustomTypeMap.toJson).toHaveBeenCalled();
         expect(plain.array).toEqual([1, 5]);
     });
 });

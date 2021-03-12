@@ -2,10 +2,10 @@ import {DecoratedJson, jsonMember, jsonObject} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('beforeSerialization', () => {
+describe('beforeToJson', () => {
     it('should call the static method', () => {
         @jsonObject({
-            beforeSerialization: 'beforeSerial',
+            beforeToJson: 'beforeToJson',
         })
         class Person {
             @jsonMember()
@@ -14,24 +14,24 @@ describe('beforeSerialization', () => {
             @jsonMember()
             isOld: boolean;
 
-            static beforeSerial() {
+            static beforeToJson() {
                 // to have been called
             }
         }
 
-        spyOn(Person, 'beforeSerial');
+        spyOn(Person, 'beforeToJson');
 
         const youngPerson = decoratedJson.type(Person).parse({age: 10});
         expect(youngPerson instanceof Person).toBeTruthy();
         expect(youngPerson.isOld).toBeUndefined();
         decoratedJson.type(Person).stringify(youngPerson);
 
-        expect(Person.beforeSerial).toHaveBeenCalled();
+        expect(Person.beforeToJson).toHaveBeenCalled();
     });
 
     it('should call the member method', () => {
         @jsonObject({
-            beforeSerialization: 'beforeSerial',
+            beforeToJson: 'beforeToJson',
         })
         class Person {
             @jsonMember()
@@ -40,7 +40,7 @@ describe('beforeSerialization', () => {
             @jsonMember()
             isOld: boolean;
 
-            beforeSerial() {
+            beforeToJson() {
                 if (this.age < 20) {
                     this.isOld = false;
                 } else {
@@ -65,7 +65,7 @@ describe('beforeSerialization', () => {
 
     it('should prefer the member method when there are both', () => {
         @jsonObject({
-            beforeSerialization: 'beforeSerial',
+            beforeToJson: 'beforeToJson',
         })
         class Person {
             @jsonMember()
@@ -75,19 +75,19 @@ describe('beforeSerialization', () => {
             isOld: boolean;
 
             constructor() {
-                spyOn<Person, 'beforeSerial'>(this, 'beforeSerial');
+                spyOn<Person, 'beforeToJson'>(this, 'beforeToJson');
             }
 
-            static beforeSerial() {
+            static beforeToJson() {
                 // should NOT call
             }
 
-            beforeSerial() {
+            beforeToJson() {
                 // should call
             }
         }
 
-        spyOn(Person, 'beforeSerial');
+        spyOn(Person, 'beforeToJson');
 
         const youngPerson = decoratedJson.type(Person).parse({age: 10});
         expect(youngPerson instanceof Person).toBeTruthy();
@@ -96,8 +96,8 @@ describe('beforeSerialization', () => {
         const youngPersionUntyped = JSON.parse(decoratedJson.type(Person).stringify(youngPerson));
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(youngPerson.beforeSerial).toHaveBeenCalled();
+        expect(youngPerson.beforeToJson).toHaveBeenCalled();
         expect(youngPersionUntyped['isOld']).toBeFalsy();
-        expect(Person.beforeSerial).not.toHaveBeenCalled();
+        expect(Person.beforeToJson).not.toHaveBeenCalled();
     });
 });

@@ -7,16 +7,14 @@ export type InitializerCallback<T> = (sourceObject: T, rawSourceObject: T) => T;
 export interface IJsonObjectOptionsBase extends OptionsBase {
 
     /**
-     * The name of a static or instance method to call when deserialization
-     * of the object is completed.
+     * The name of a static or instance method to call when conversion from JSON is completed.
      */
-    onDeserialized?: string | null;
+    afterFromJson?: string | null;
 
     /**
-     * The name of a static or instance method to call before the serialization
-     * of the typed object is started.
+     * The name of a static or instance method to call before the type is converted to JSON.
      */
-    beforeSerialization?: string | null;
+    beforeToJson?: string | null;
 
     /**
      * The name used to differentiate between different polymorphic types.
@@ -26,16 +24,16 @@ export interface IJsonObjectOptionsBase extends OptionsBase {
 
 export interface IJsonObjectOptions<T> extends IJsonObjectOptionsBase {
     /**
-     * Function to call before deserializing and initializing the object, accepting two arguments:
-     *   (1) sourceObject, an 'Object' instance with all properties already deserialized, and
-     *   (2) rawSourceObject, a raw 'Object' instance representation of the current object in
-     *       the serialized JSON (i.e. without deserialized properties).
+     * Function to call before converting from JSON to an object and initializing the object,
+     * accepting two arguments:
+     *   (1) sourceObject, an 'Object' instance with all properties already converted from JSON, and
+     *   (2) rawSourceObject, a raw 'Object' instance representation of the current object.
      */
     initializer?: InitializerCallback<T> | null;
 }
 
 /**
- * Marks that a class is serializable using DecoratedJson, with additional settings.
+ * Marks that a class is convertible using DecoratedJson, with additional settings.
  * @param options Configuration settings.
  */
 export function jsonObject<T>(
@@ -47,8 +45,8 @@ export function jsonObject<T>(
 
         // Fill JsonObjectMetadata.
         objectMetadata.isExplicitlyMarked = true;
-        objectMetadata.onDeserializedMethodName = options.onDeserialized;
-        objectMetadata.beforeSerializationMethodName = options.beforeSerialization;
+        objectMetadata.afterFromJsonMethodName = options.afterFromJson;
+        objectMetadata.beforeToJsonMethodName = options.beforeToJson;
 
         // T extend Object so it is fine
         objectMetadata.initializerCallback = options.initializer as any;

@@ -17,34 +17,33 @@ import {
 } from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
 
-interface SerializeParamsBase<
+interface ToJsonParamsBase<
     Raw,
     TDescriptor extends TypeDescriptor = TypeDescriptor,
     > {
     /**
-     * The original object that should be serialized.
+     * The original object that should converted to JSON.
      */
     sourceObject: Raw;
 }
 
-interface SerializeParams<
+interface ToJsonParams<
     Raw,
     TDescriptor extends TypeDescriptor = TypeDescriptor,
-> extends SerializeParamsBase<Raw, TDescriptor> {
+> extends ToJsonParamsBase<Raw, TDescriptor> {
     /**
-     * Name of the object being serialized, used for debugging purposes.
+     * Name of the object being converted, used for debugging purposes.
      */
     memberName?: string;
     memberOptions?: OptionsBase;
     /**
-     * Instance of TypeDescriptor containing information about expected
-     * serialization.
+     * Instance of TypeDescriptor containing information about how to perform conversion.
      */
     typeDescriptor: TDescriptor;
 }
 
-export type SerializerFn<Raw, TTypeDescriptor extends TypeDescriptor = TypeDescriptor> = (
-    params: SerializeParams<Raw, TTypeDescriptor>,
+export type ToJsonFn<Raw, TTypeDescriptor extends TypeDescriptor = TypeDescriptor> = (
+    params: ToJsonParams<Raw, TTypeDescriptor>,
 ) => any;
 
 /**
@@ -53,14 +52,14 @@ export type SerializerFn<Raw, TTypeDescriptor extends TypeDescriptor = TypeDescr
  * and emits any necessary type hints in the process (for polymorphism).
  *
  * The converted object tree is what will be given to `JSON.stringify` to convert to string as the
- * last step, the serialization is basically like:
+ * last step, the process is as follows:
  *
  * (1) typed object-tree -> (2) simple JS object-tree -> (3) JSON-string
  */
-export class Serializer {
-    private serializationStrategy = new Map<
+export class ToJson {
+    private strategy = new Map<
         Serializable<any>,
-        SerializerFn<any>
+        ToJsonFn<any>
     >([
         // primitives
         [AnyT.ctor, identity],
@@ -88,16 +87,16 @@ export class Serializer {
         [Uint32Array, this.convertAsTypedArray.bind(this)],
     ]);
 
-    setSerializationStrategy(
+    setStrategy(
         type: Serializable<any>,
-        serializer: SerializerFn<any>,
+        toJson: ToJsonFn<any>,
     ) {
-        this.serializationStrategy.set(type, serializer);
+        this.strategy.set(type, toJson);
     }
 
     /**
-     * Convert a value of any supported serializable type.
-     * The value type will be detected, and the correct serialization method will be called.
+     * Convert a value of any supported convertible type.
+     * The value type will be detected, and the correct conversion method will be called.
      */
     convertSingleValue(
         {
@@ -105,7 +104,7 @@ export class Serializer {
             memberOptions,
             sourceObject,
             typeDescriptor,
-        }: SerializeParams<any>,
+        }: ToJsonParams<any>,
     ): any {
         if (sourceObject == null) {
             return sourceObject;
@@ -116,21 +115,21 @@ export class Serializer {
             const actualName = nameof(sourceObject.constructor);
 
             throw new TypeError(
-                `Could not serialize '${memberName}': expected '${expectedName}',`
+                `Could not convert '${memberName}' to JSON: expected '${expectedName}',`
                 + ` got '${actualName}'.`,
             );
         }
 
-        const serializer = this.serializationStrategy.get(typeDescriptor.ctor);
-        if (serializer !== undefined) {
-            return serializer({
+        const toJson = this.strategy.get(typeDescriptor.ctor);
+        if (toJson !== undefined) {
+            return toJson({
                 memberName,
                 memberOptions,
                 sourceObject,
                 typeDescriptor,
             });
         }
-        // if not present in the strategy do property by property serialization
+        // if not present in the strategy do property by property conversion
         if (typeof sourceObject === 'object') {
             return this.convertAsObject({
                 memberName,
@@ -140,7 +139,7 @@ export class Serializer {
             });
         }
 
-        let error = `Could not serialize '${memberName}'; don't know how to serialize type`;
+        let error = `Could not convert '${memberName}' to JSON; don't know how to convert type`;
 
         if (typeDescriptor.hasFriendlyName()) {
             error += ` '${typeDescriptor.ctor.name}'`;
@@ -151,13 +150,13 @@ export class Serializer {
 
     /**
      * Performs the conversion of a typed object (usually a class instance) to a simple
-     * javascript object for serialization.
+     * javascript object.
      */
     private convertAsObject(
         {
             sourceObject,
             typeDescriptor,
-        }: SerializeParams<IndexedObject, ConcreteTypeDescriptor>,
+        }: ToJsonParams<IndexedObject, ConcreteTypeDescriptor>,
     ) {
         let sourceTypeMetadata: JsonObjectMetadata | undefined;
         let targetObject: IndexedObject;
@@ -172,29 +171,29 @@ export class Serializer {
         }
 
         if (sourceTypeMetadata === undefined) {
-            // Untyped serialization, "as-is", we'll just pass the object on.
+            // Untyped conversion, "as-is", we'll just pass the object on.
             // We'll clone the source object, because type hints are added to the object itself, and
             // we don't want to modify the original object.
             targetObject = {...sourceObject};
         } else {
-            const beforeSerializationMethodName = sourceTypeMetadata.beforeSerializationMethodName;
-            if (beforeSerializationMethodName != null) {
-                if (typeof sourceObject[beforeSerializationMethodName] === 'function') {
+            const beforeToJsonMethodName = sourceTypeMetadata.beforeToJsonMethodName;
+            if (beforeToJsonMethodName != null) {
+                if (typeof sourceObject[beforeToJsonMethodName] === 'function') {
                     // check for member first
-                    sourceObject[beforeSerializationMethodName]();
-                } else if (typeof (sourceObject.constructor as any)[beforeSerializationMethodName]
+                    sourceObject[beforeToJsonMethodName]();
+                } else if (typeof (sourceObject.constructor as any)[beforeToJsonMethodName]
                     === 'function') {
                     // check for static
-                (sourceObject.constructor as any)[beforeSerializationMethodName]();
+                (sourceObject.constructor as any)[beforeToJsonMethodName]();
                 } else {
-                    throw new TypeError(`beforeSerialization callback \
-'${nameof(sourceTypeMetadata.classType)}.${beforeSerializationMethodName}' is not a method.`);
+                    throw new TypeError(`beforeToJson callback \
+'${nameof(sourceTypeMetadata.classType)}.${beforeToJsonMethodName}' is not a method.`);
                 }
             }
 
             const sourceMeta = sourceTypeMetadata;
-            // Strong-typed serialization available.
-            // We'll serialize by members that have been marked with @jsonMember (including
+            // Strong-typed conversion available.
+            // We'll convert by members that have been marked with @jsonMember (including
             // array/set/map members), and perform recursive conversion on each of them. The
             // converted objects are put on the 'targetObject', which is what will be put into
             // 'JSON.stringify' finally.
@@ -204,16 +203,16 @@ export class Serializer {
 
             sourceMeta.dataMembers.forEach((objMemberMetadata) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
-                let serialized;
-                if (objMemberMetadata.serializer != null) {
-                    serialized = objMemberMetadata.serializer(sourceObject[objMemberMetadata.key]);
+                let json;
+                if (objMemberMetadata.toJson != null) {
+                    json = objMemberMetadata.toJson(sourceObject[objMemberMetadata.key]);
                 } else if (objMemberMetadata.type == null) {
                     throw new TypeError(
-                        `Could not serialize ${objMemberMetadata.name}, there is`
-                        + ` no constructor nor serialization function to use.`,
+                        `Could not convert ${objMemberMetadata.name} to JSON, there is`
+                        + ` no constructor nor toJson function to use.`,
                     );
                 } else {
-                    serialized = this.convertSingleValue({
+                    json = this.convertSingleValue({
                         memberName: `${nameof(sourceMeta.classType)}.${objMemberMetadata.key}`,
                         memberOptions: objMemberOptions,
                         sourceObject: sourceObject[objMemberMetadata.key],
@@ -221,8 +220,8 @@ export class Serializer {
                     });
                 }
 
-                if (serialized !== undefined) {
-                    targetObject[objMemberMetadata.name] = serialized;
+                if (json !== undefined) {
+                    targetObject[objMemberMetadata.name] = json;
                 }
             });
         }
@@ -232,7 +231,7 @@ export class Serializer {
 
     /**
      * Performs the conversion of an array of typed objects (or primitive values) to an array of
-     * simple javascript objects (or primitive values) for serialization.
+     * simple javascript objects (or primitive values).
      */
     private convertAsArray(
         {
@@ -240,21 +239,21 @@ export class Serializer {
             memberOptions,
             sourceObject,
             typeDescriptor,
-        }: SerializeParams<Array<any>>,
+        }: ToJsonParams<Array<any>>,
     ): Array<any> {
         if (!(typeDescriptor instanceof ArrayTypeDescriptor)) {
-            throw new TypeError(`Could not serialize ${memberName} as Array: incorrect \
-TypeDescriptor detected, please use proper annotation or function for this type`);
+            throw new TypeError(`Could not convert to JSON. Attempted to convert ${memberName} as \
+Array but an incorrect TypeDescriptor was detected. Please use the proper annotation or function \
+for this type`);
         }
         if (typeDescriptor.elementType as any == null) {
-            throw new TypeError(
-                `Could not serialize ${memberName} as Array: missing element type definition.`,
-            );
+            throw new TypeError(`Could not convert to JSON. Attempted to convert ${memberName} as \
+Array but the element type definition is missing`);
         }
 
         // Check the type of each element, individually.
         // If at least one array element type is incorrect, we return undefined, which results in no
-        // value emitted during serialization. This is so that invalid element types don't
+        // value emitted during conversion. This is so that invalid element types don't
         // unexpectedly alter the ordering of other, valid elements, and that no unexpected
         // undefined values are in the emitted array.
         sourceObject.forEach((element, i) => {
@@ -263,7 +262,7 @@ TypeDescriptor detected, please use proper annotation or function for this type`
                 const expectedTypeName = nameof(typeDescriptor.elementType.ctor);
                 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                 const actualTypeName = element && nameof(element.constructor);
-                throw new TypeError(`Could not serialize ${memberName}[${i}]:`
+                throw new TypeError(`Could not convert ${memberName}[${i}]:`
                     + ` expected '${expectedTypeName}', got '${actualTypeName}'.`);
             }
         });
@@ -281,7 +280,6 @@ TypeDescriptor detected, please use proper annotation or function for this type`
     /**
      * Performs the conversion of a set of typed objects (or primitive values) into an array
      * of simple javascript objects.
-     * @returns
      */
     private convertAsSet(
         {
@@ -289,25 +287,22 @@ TypeDescriptor detected, please use proper annotation or function for this type`
             typeDescriptor,
             memberName,
             memberOptions,
-        }: SerializeParams<Set<any>>,
+        }: ToJsonParams<Set<any>>,
     ): Array<any> {
         if (!(typeDescriptor instanceof SetTypeDescriptor)) {
-            throw new TypeError(`Could not serialize ${memberName} as Set: incorrect \
-TypeDescriptor detected, please use proper annotation or function for this type`);
+            throw new TypeError(`Could not convert ${memberName} as Set to JSON. Incorrect \
+TypeDescriptor detected, please check the supplied type`);
         }
         if (typeDescriptor.elementType as any == null) {
             throw new TypeError(
-                `Could not serialize ${memberName} as Set: missing element type definition.`,
+                `Could not convert ${memberName} as Set to JSON: missing element type definition.`,
             );
         }
 
         memberName += '[]';
         const resultArray: Array<any> = [];
 
-        // Convert each element of the set, and put it into an output array.
-        // The output array is the one serialized, as JSON.stringify does not support Set
-        // serialization.
-        // (TODO: clarification needed)
+        // Convert each element of the set, and put it into an array.
         sourceObject.forEach((element) => {
             const resultElement = this.convertSingleValue({
                 sourceObject: element,
@@ -338,21 +333,21 @@ TypeDescriptor detected, please use proper annotation or function for this type`
             memberOptions,
             sourceObject,
             typeDescriptor,
-        }: SerializeParams<Map<any, any>>,
+        }: ToJsonParams<Map<any, any>>,
     ): IndexedObject | Array<{key: any; value: any}> {
         if (!(typeDescriptor instanceof MapTypeDescriptor)) {
-            throw new TypeError(`Could not serialize ${memberName} as Map: incorrect \
-TypeDescriptor detected, please use proper annotation or function for this type`);
+            throw new TypeError(`Could not convert ${memberName} to JSON. Attempted to convert as \
+Map but an incorrect TypeDescriptor was detected, please check the supplied type`);
         }
         if (typeDescriptor.valueType as any == null) { // @todo Check type
             throw new TypeError(
-                `Could not serialize ${memberName} as Map: missing value type definition.`,
+                `Could not convert ${memberName} as Map to JSON: missing value type definition.`,
             );
         }
 
         if (typeDescriptor.keyType as any == null) { // @todo Check type
             throw new TypeError(
-                `Could not serialize ${memberName} as Map: missing key type definition.`,
+                `Could not convert ${memberName} as Map to JSON: missing key type definition.`,
             );
         }
 
@@ -396,13 +391,13 @@ TypeDescriptor detected, please use proper annotation or function for this type`
 
     /**
      * Performs the conversion of a typed javascript array to a simple untyped javascript array.
-     * This is needed because typed arrays are otherwise serialized as objects, so we'll end up
+     * This is needed because typed arrays are otherwise converted as objects, so we'll end up
      * with something like "{ 0: 0, 1: 1, ... }".
      */
     private convertAsTypedArray(
         {
             sourceObject,
-        }: SerializeParamsBase<ArrayBufferView>,
+        }: ToJsonParamsBase<ArrayBufferView>,
     ) {
         return Array.from(sourceObject as any);
     }
@@ -413,7 +408,7 @@ TypeDescriptor detected, please use proper annotation or function for this type`
     private convertAsArrayBuffer(
         {
             sourceObject,
-        }: SerializeParamsBase<ArrayBuffer>,
+        }: ToJsonParamsBase<ArrayBuffer>,
     ) {
         // ArrayBuffer -> 16-bit character codes -> character array -> joined string.
         return Array.from(new Uint16Array(sourceObject))
@@ -427,7 +422,7 @@ TypeDescriptor detected, please use proper annotation or function for this type`
     private convertAsDataView(
         {
             sourceObject,
-        }: SerializeParamsBase<DataView>,
+        }: ToJsonParamsBase<DataView>,
     ) {
         return this.convertAsArrayBuffer({
             sourceObject: sourceObject.buffer,

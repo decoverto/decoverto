@@ -2,10 +2,10 @@ import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('custom member deserializer', () => {
+describe('custom member fromJson', () => {
     @jsonObject()
     class Person {
-        @jsonMember({deserializer: (json: any) => json[0]})
+        @jsonMember({fromJson: (json: any) => json[0]})
         firstName: string;
 
         @jsonMember()
@@ -21,7 +21,7 @@ describe('custom member deserializer', () => {
             .parse('{ "firstName": ["John"], "lastName": "Doe" }');
     });
 
-    it('should properly deserialize', function () {
+    it('should properly parse', function () {
         expect(this.person.firstName).toBe('John');
         expect(this.person.lastName).toBe('Doe');
     });
@@ -35,17 +35,17 @@ describe('custom member deserializer', () => {
         expect(this.person.getFullName()).toBe('John Doe');
     });
 
-    it('should not affect serialization', function () {
+    it('should not affect toJson', function () {
         expect(decoratedJson.type(Person).stringify(this.person))
             .toBe('{"firstName":"John","lastName":"Doe"}');
     });
 });
 
-describe('custom array member deserializer', () => {
+describe('custom array member fromJson', () => {
     @jsonObject()
     class Obj {
         @jsonArrayMember(() => Number, {
-            deserializer: (json: any) => json.split(',').map((v) => parseInt(v, 10)),
+            fromJson: (json: any) => json.split(',').map((v) => parseInt(v, 10)),
         })
         nums: Array<number>;
 
@@ -61,7 +61,7 @@ describe('custom array member deserializer', () => {
         this.obj = decoratedJson.type(Obj).parse('{ "nums": "1,2,3,4,5", "str": "Some string" }');
     });
 
-    it('should properly deserialize', function () {
+    it('should properly parse', function () {
         expect(this.obj.nums).toEqual([1, 2, 3, 4, 5]);
         expect(this.obj.str).toBe('Some string');
     });
@@ -75,13 +75,13 @@ describe('custom array member deserializer', () => {
         expect(this.obj.sum()).toBe(15);
     });
 
-    it('should not affect serialization', function () {
+    it('should not affect toJson', function () {
         expect(decoratedJson.type(Obj).stringify(this.obj))
             .toBe('{"nums":[1,2,3,4,5],"str":"Some string"}');
     });
 });
 
-describe('custom delegating array member serializer', () => {
+describe('custom delegating array member toJson', () => {
     @jsonObject()
     class Inner {
         @jsonMember()
@@ -92,21 +92,21 @@ describe('custom delegating array member serializer', () => {
         }
     }
 
-    function objArrayDeserializer(
-        values: Array<{prop: string; shouldDeserialize: boolean}> | undefined,
+    function objArrayFromJson(
+        values: Array<{prop: string; shouldConvertToObject: boolean}> | undefined,
     ) {
         if (values === undefined) {
             return;
         }
 
         return decoratedJson.type(Inner).parseAsArray(
-            values.filter(value => value.shouldDeserialize),
+            values.filter(value => value.shouldConvertToObject),
         );
     }
 
     @jsonObject()
     class Obj {
-        @jsonArrayMember(() => Inner, {deserializer: objArrayDeserializer})
+        @jsonArrayMember(() => Inner, {fromJson: objArrayFromJson})
         inners: Array<Inner>;
 
         @jsonMember()
@@ -119,11 +119,11 @@ describe('custom delegating array member serializer', () => {
                 inners: [
                     {
                         prop: 'something',
-                        shouldDeserialize: false,
+                        shouldConvertToObject: false,
                     },
                     {
                         prop: 'gogo',
-                        shouldDeserialize: true,
+                        shouldConvertToObject: true,
                     },
                 ],
                 str: 'Text',
@@ -131,13 +131,13 @@ describe('custom delegating array member serializer', () => {
         );
     });
 
-    it('should properly serialize', function () {
+    it('should properly convert to JSON', function () {
         expect(this.obj).toBeDefined();
         expect(this.obj instanceof Obj).toBeTruthy();
         expect(this.obj.str).toEqual('Text');
         expect(this.obj.inners.length).toEqual(1);
         expect(this.obj.inners[0] instanceof Inner).toBeTruthy();
-        expect(this.obj.inners[0]).not.toHaveProperties(['shouldDeserialize']);
+        expect(this.obj.inners[0]).not.toHaveProperties(['shouldConvertToObject']);
         expect(this.obj.inners[0]).toHaveProperties({prop: 'gogo'});
         expect(this.obj.inners[0].woo()).toEqual('hoo');
     });

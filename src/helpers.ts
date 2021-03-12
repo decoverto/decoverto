@@ -17,12 +17,8 @@ export const MISSING_REFLECT_CONF_MSG = 'Make sure that you have both "experimen
  * @param type The constructor of the type (wrapper constructor for primitive types, e.g. `Number`
  * for `number`).
  */
-export function isDirectlySerializableNativeType(type: Function): boolean {
+export function isJsonStringifyCompatible(type: Function): boolean {
     return [Date, Number, String, Boolean].indexOf(type as any) !== -1;
-}
-
-export function isDirectlyDeserializableNativeType(type: Function): boolean {
-    return [Number, String, Boolean].indexOf(type as any) !== -1;
 }
 
 export function isTypeTypedArray(type: Function): boolean {
@@ -44,7 +40,7 @@ export function isObject(value: any): value is Object {
 }
 
 export function shouldOmitParseString(jsonStr: string, expectedType: Function): boolean {
-    const expectsTypesSerializedAsStrings = expectedType === String
+    const expectsTypesConvertedAsStrings = expectedType === String
         || expectedType === ArrayBuffer
         || expectedType === DataView;
 
@@ -58,7 +54,7 @@ export function shouldOmitParseString(jsonStr: string, expectedType: Function): 
         return !hasQuotes && !isNumber;
     }
 
-    return expectsTypesSerializedAsStrings && !hasQuotes;
+    return expectsTypesConvertedAsStrings && !hasQuotes;
 }
 
 /**

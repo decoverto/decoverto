@@ -41,10 +41,8 @@ describe('parse To Object', () => {
     });
 
     it('should parse strings with quotes, but passthrough otherwise', () => {
-        // string is obvious
         expect(toJsonObject('"I am a string"', String)).toEqual('I am a string');
         expect(toJsonObject('just a string', String)).toBe('just a string');
-        // but also the types that are serialized to string
         expect(toJsonObject('"1970-01-18T20:51:55.254Z"', Date))
             .toEqual('1970-01-18T20:51:55.254Z');
         expect(toJsonObject('1970-01-18T20:51:55.254Z', Date)).toBe('1970-01-18T20:51:55.254Z');

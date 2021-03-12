@@ -13,7 +13,7 @@ describe('AnyT', () => {
             anyNullable?: any | null;
         }
 
-        it('should deserialize simple object correctly', () => {
+        it('should parse from JSON simple object correctly', () => {
             const result = decoratedJson.type(SimplePropertyAny).parse({
                 any: {foo: 'bar'},
                 anyNullable: {foo: 'bar'},
@@ -22,7 +22,7 @@ describe('AnyT', () => {
             expect(result.anyNullable).toHaveProperties(['foo']);
         });
 
-        it('should deserialize class instance correctly', () => {
+        it('should parse from JSON class instance correctly', () => {
             const foo = {foo: 'bar'};
             const result = decoratedJson.type(SimplePropertyAny).parse({
                 any: foo,
@@ -32,7 +32,7 @@ describe('AnyT', () => {
             expect(result.anyNullable).toEqual(foo);
         });
 
-        it('should serialize with referential equality', () => {
+        it('should perform conversion to JSON with referential equality', () => {
             const foo = {foo: 'bar'};
             const simplePropertyAny = new SimplePropertyAny();
             simplePropertyAny.any = foo;
@@ -57,7 +57,7 @@ describe('AnyT', () => {
 
         const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
 
-        it('should deserialize simple object correctly', () => {
+        it('should parse from JSON simple object correctly', () => {
             const result = arrayPropertyAnyHandler.parse({
                 any: [{foo: 'bar'}],
                 anyNullable: [{foo: 'bar'}],
@@ -68,7 +68,7 @@ describe('AnyT', () => {
             expect(result.anyNullable[0].foo).toEqual('bar');
         });
 
-        it('should deserialize class instance correctly', () => {
+        it('should parse from JSON class instance correctly', () => {
             const foo = {foo: 'bar'};
             const result = arrayPropertyAnyHandler.parse({
                 any: [foo],
@@ -80,7 +80,7 @@ describe('AnyT', () => {
             expect(result.anyNullable[0]).toEqual(foo);
         });
 
-        it('should serialize with referential equality', () => {
+        it('should perform conversion to JSON with referential equality', () => {
             const foo = {foo: 'bar'};
             const arrayPropertyAny = new ArrayPropertyAny();
             arrayPropertyAny.any = [foo];
@@ -102,7 +102,7 @@ describe('AnyT', () => {
             anyNullable?: Set<any> | null;
         }
 
-        it('should deserialize simple object correctly', () => {
+        it('should parse from JSON simple object correctly', () => {
             const foo = {foo: 'bar'};
             const result = decoratedJson.type(SetPropertyAny).parse({
                 any: [foo, foo],
@@ -116,7 +116,7 @@ describe('AnyT', () => {
             expect(result.anyNullable.values().next().value).toEqual(foo);
         });
 
-        it('should deserialize with referential equality', () => {
+        it('should parse from JSON with referential equality', () => {
             const foo = {foo: 'bar'};
             const result = decoratedJson.type(SetPropertyAny).parse({
                 any: [foo, foo],
@@ -128,7 +128,7 @@ describe('AnyT', () => {
             expect(result.anyNullable.values().next().value).toBe(foo);
         });
 
-        it('should serialize with referential equality', () => {
+        it('should perform conversion to JSON with referential equality', () => {
             const foo = {foo: 'bar'};
             const setPropertyAny = new SetPropertyAny();
             setPropertyAny.any = new Set([foo, foo]);

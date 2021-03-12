@@ -10,7 +10,7 @@ declare abstract class Reflect {
 }
 
 export interface IJsonSetMemberOptions extends OptionsBase {
-    /** When set, indicates that the member must be present when deserializing. */
+    /** When set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     /** When set, a default value is emitted for each uninitialized json member. */
@@ -20,17 +20,18 @@ export interface IJsonSetMemberOptions extends OptionsBase {
     name?: string | null;
 
     /**
-     * When set, this deserializer will be used to deserialize the member. The callee must assure
-     * the correct type.
+     * When set, this method will be used to convert the value **from** JSON.
      */
-    deserializer?: ((json: any) => any) | null;
+    fromJson?: ((json: any) => any) | null;
 
-    /** When set, this serializer will be used to serialize the member. */
-    serializer?: ((value: any) => any) | null;
+    /**
+     * When set, this method will be used to convert the value **to** JSON.
+     */
+    toJson?: ((value: any) => any) | null;
 }
 
 /**
- * Specifies that the property is part of the object when serializing.
+ * Specifies that the property should be included in the JSON conversion.
  * Use this decorator on properties of type Set<T>.
  * @param typeThunk Constructor of set elements (e.g. 'Number' for Set<number> or 'Date'
  * for Set<Date>).
@@ -58,8 +59,8 @@ export function jsonSetMember(typeThunk: TypeThunk, options: IJsonSetMemberOptio
             options: extractOptionBase(options),
             key: propKey.toString(),
             name: options.name ?? propKey.toString(),
-            deserializer: options.deserializer,
-            serializer: options.serializer,
+            fromJson: options.fromJson,
+            toJson: options.toJson,
         });
     };
 }

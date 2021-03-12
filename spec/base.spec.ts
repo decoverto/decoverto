@@ -3,9 +3,9 @@ import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
 
-describe('basic serialization of', () => {
+describe('basic conversion of', () => {
     describe('builtins', () => {
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             expect(decoratedJson.type(String).parse('"str"')).toEqual('str');
             expect(decoratedJson.type(Number).parse('45834')).toEqual(45834);
             expect(decoratedJson.type(Boolean).parse('true')).toEqual(true);
@@ -20,7 +20,7 @@ describe('basic serialization of', () => {
             expect(decoratedJson.type(Uint8Array).parse('[100,117,112,97]')).toEqual(dataBuffer);
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             expect(decoratedJson.type(String).stringify('str')).toEqual('"str"');
             expect(decoratedJson.type(Number).stringify(45834)).toEqual('45834');
             expect(decoratedJson.type(Boolean).stringify(true)).toEqual('true');
@@ -58,7 +58,7 @@ describe('basic serialization of', () => {
             }
         }
 
-        describe('deserialized', () => {
+        describe('parsed', () => {
             beforeAll(function () {
                 this.person = decoratedJson
                     .type(Person)
@@ -75,7 +75,7 @@ describe('basic serialization of', () => {
             });
         });
 
-        describe('serialized', () => {
+        describe('converted to JSON', () => {
             it('should contain all data', () => {
                 const person = new Person();
                 person.firstName = 'John';
@@ -87,20 +87,20 @@ describe('basic serialization of', () => {
     });
 
     describe('all types', () => {
-        it('should deserialized', () => {
+        it('should parse from JSON', () => {
             const everything = Everything.create();
 
-            const deserialized = decoratedJson.type(Everything).parse(JSON.stringify(everything));
+            const object = decoratedJson.type(Everything).parse(JSON.stringify(everything));
 
-            expect(deserialized).toEqual(Everything.expected());
+            expect(object).toEqual(Everything.expected());
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             const everything = Everything.create();
 
-            const serialized = decoratedJson.type(Everything).stringify(new Everything(everything));
+            const json = decoratedJson.type(Everything).stringify(new Everything(everything));
 
-            expect(serialized).toBe(JSON.stringify(everything));
+            expect(json).toBe(JSON.stringify(everything));
         });
     });
 
@@ -125,10 +125,10 @@ describe('basic serialization of', () => {
             }
 
             it('should use defaults when missing', () => {
-                const deserialized = decoratedJson.type(WithDefaults).parse('{"present":5}');
+                const parsed = decoratedJson.type(WithDefaults).parse('{"present":5}');
                 const expected = new WithDefaults();
                 expected.present = 5;
-                expect(deserialized).toEqual(expected);
+                expect(parsed).toEqual(expected);
             });
         });
 
@@ -160,10 +160,10 @@ describe('basic serialization of', () => {
             }
 
             it('should use defaults when missing', () => {
-                const deserialized = decoratedJson.type(WithCtr).parse('{"present":5}');
+                const parsed = decoratedJson.type(WithCtr).parse('{"present":5}');
                 const expected = new WithCtr();
                 expected.present = 5;
-                expect(deserialized).toEqual(expected);
+                expect(parsed).toEqual(expected);
             });
         });
     });
@@ -196,32 +196,32 @@ describe('basic serialization of', () => {
             }
         }
 
-        it('should serialize', () => {
-            const serialized = decoratedJson.type(SomeClass).stringify(new SomeClass());
-            expect(serialized).toBe('{"prop":"value","getterOnly":"getter"}');
+        it('should perform conversion to JSON', () => {
+            const json = decoratedJson.type(SomeClass).stringify(new SomeClass());
+            expect(json).toBe('{"prop":"value","getterOnly":"getter"}');
         });
 
-        it('should deserialize', () => {
-            const deserialized = decoratedJson.type(SomeClass).parse(
+        it('should parse from JSON', () => {
+            const parsed = decoratedJson.type(SomeClass).parse(
                 '{"prop":"other value","setterOnly":"ok"}',
             );
 
             const expected = new SomeClass();
             expected.prop = 'other value';
             expected.setterOnly = 'ok';
-            expect(deserialized).toEqual(expected);
+            expect(parsed).toEqual(expected);
         });
 
-        it('should deserialize ignoring readonly properties', () => {
+        it('should parse from JSON ignoring readonly properties', () => {
             pending('this is not supported as of now');
-            const deserialized = decoratedJson.type(SomeClass).parse(
+            const parsed = decoratedJson.type(SomeClass).parse(
                 '{"prop":"other value","getterOnly":"ignored","setterOnly":"ok"}',
             );
 
             const expected = new SomeClass();
             expected.prop = 'other value';
             expected.setterOnly = 'ok';
-            expect(deserialized).toEqual(expected);
+            expect(parsed).toEqual(expected);
         });
     });
 
@@ -240,7 +240,7 @@ describe('basic serialization of', () => {
             expect(decoratedJson.type(Child).parse('{}')).toEqual(new Child());
         });
 
-        it('should throw when using passing base for serialization/deserialization', () => {
+        it('should throw when using passing base for conversion', () => {
             expect(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()))
                 .toThrow();
             expect(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}')).toThrow();

@@ -2,10 +2,10 @@ import {DecoratedJson, jsonMember, jsonObject} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('onDeserialized', () => {
+describe('afterFromJson', () => {
     it('should call the static method', () => {
         @jsonObject({
-            onDeserialized: 'afterDeser',
+            afterFromJson: 'afterDeser',
         })
         class Person {
             @jsonMember()
@@ -33,7 +33,7 @@ describe('onDeserialized', () => {
 
     it('should call the member method', () => {
         @jsonObject({
-            onDeserialized: 'afterDeser',
+            afterFromJson: 'afterDeser',
         })
         class Person {
             @jsonMember()
@@ -64,7 +64,7 @@ describe('onDeserialized', () => {
 
     it('should prefer the member method when there are both', () => {
         @jsonObject({
-            onDeserialized: 'afterDeser',
+            afterFromJson: 'afterDeser',
         })
         class Person {
             @jsonMember()

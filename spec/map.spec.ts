@@ -34,7 +34,7 @@ describe('map dictionary shape', () => {
         }
     }
 
-    it('deserializes', () => {
+    it('', () => {
         const result = decoratedJson.type(DictMap).parse(
             JSON.stringify(
                 {
@@ -55,7 +55,7 @@ describe('map dictionary shape', () => {
         expect(result.prop.get('two').strProp).toBe('gamma');
     });
 
-    it('serializes', () => {
+    it('converts to JSON', () => {
         const object = new DictMap();
         object.prop = new Map<string, Simple>([
             ['one', new Simple({strProp: 'delta', numProp: 4})],
@@ -103,7 +103,7 @@ describe('map of array dictionary shape', () => {
         }
     }
 
-    it('deserializes', () => {
+    it('parses', () => {
         const result = decoratedJson.type(DictArrayMap).parse(
             JSON.stringify(
                 {
@@ -127,7 +127,7 @@ describe('map of array dictionary shape', () => {
         expect(result.prop.get('two')[1].foo()).toBe('alpha-2');
     });
 
-    it('serializes', () => {
+    it('stringifies', () => {
         const object = new DictArrayMap();
         object.prop = new Map<string, Array<Simple>>([
             ['one', [new Simple({strProp: 'delta', numProp: 4})]],

@@ -1,10 +1,10 @@
 import {MappedTypeConverters} from './decorated-json.interface';
-import {Deserializer} from './deserializer';
+import {FromJson} from './from-json';
 import {shouldOmitParseString} from './helpers';
 import {createArrayType} from './json-array-member';
 import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
-import {Serializer} from './serializer';
+import {ToJson} from './to-json';
 import {ensureTypeDescriptor, MapT, SetT} from './type-descriptor';
 import {IndexedObject, Serializable} from './types';
 
@@ -19,13 +19,13 @@ export interface DecoratedJsonTypeHandlerSettings {
 
 export class DecoratedJsonTypeHandler<RootType> {
 
-    private deserializer: Deserializer<RootType> = new Deserializer<RootType>();
-    private serializer: Serializer = new Serializer();
+    private fromJson = new FromJson<RootType>();
+    private toJson = new ToJson();
     private settings!: DecoratedJsonTypeHandlerSettings;
 
     /**
-     * Creates a new DecoratedJson instance to serialize (stringify) and deserialize (parse) object
-     *     instances of the specified root class type.
+     * Creates a new DecoratedJson instance to perform conversion to and from JSON for the given
+     * root class type.
      * @param rootConstructor The constructor of the root class type.
      * @param settings Additional configuration settings.
      */
@@ -59,7 +59,7 @@ export class DecoratedJsonTypeHandler<RootType> {
     parse(object: any): RootType {
         const json = this.toJsonObject(object, this.rootConstructor);
 
-        return this.deserializer.convertSingleValue({
+        return this.fromJson.convertSingleValue({
             sourceObject: json,
             typeDescriptor: ensureTypeDescriptor(this.rootConstructor),
         });
@@ -73,7 +73,7 @@ export class DecoratedJsonTypeHandler<RootType> {
     parseAsArray(object: any, dimensions: number): Array<any>;
     parseAsArray(object: any, dimensions: number = 1): Array<any> {
         const json = this.toJsonObject(object, Array);
-        return this.deserializer.convertSingleValue({
+        return this.fromJson.convertSingleValue({
             sourceObject: json,
             typeDescriptor: createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
         });
@@ -81,7 +81,7 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     parseAsSet(object: any): Set<RootType> {
         const json = this.toJsonObject(object, Set);
-        return this.deserializer.convertSingleValue({
+        return this.fromJson.convertSingleValue({
             sourceObject: json,
             typeDescriptor: SetT(this.rootConstructor),
         });
@@ -89,7 +89,7 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     parseAsMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, RootType> {
         const json = this.toJsonObject(object, Map);
-        return this.deserializer.convertSingleValue({
+        return this.fromJson.convertSingleValue({
             sourceObject: json,
             typeDescriptor: MapT(keyConstructor, this.rootConstructor),
         });
@@ -97,11 +97,9 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     /**
      * Converts an instance of the specified class type to a plain JSON object.
-     * @param object The instance to convert to a JSON string.
-     * @returns Serialized object.
      */
     toPlainJson(object: RootType): ToPlainResult<RootType> {
-        return this.serializer.convertSingleValue({
+        return this.toJson.convertSingleValue({
             sourceObject: object,
             typeDescriptor: ensureTypeDescriptor(this.rootConstructor),
         });
@@ -128,14 +126,14 @@ export class DecoratedJsonTypeHandler<RootType> {
         dimensions: 5,
     ): Array<Array<Array<Array<Array<ToPlainResult<RootType>>>>>>;
     toPlainArray(object: Array<any>, dimensions: number = 1) {
-        return this.serializer.convertSingleValue({
+        return this.toJson.convertSingleValue({
             sourceObject: object,
             typeDescriptor: createArrayType(ensureTypeDescriptor(this.rootConstructor), dimensions),
         });
     }
 
     toPlainSet(object: Set<RootType>): Array<ToPlainResult<RootType>> {
-        return this.serializer.convertSingleValue({
+        return this.toJson.convertSingleValue({
             sourceObject: object,
             typeDescriptor: SetT(this.rootConstructor),
         });
@@ -145,7 +143,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         object: Map<K, RootType>,
         keyConstructor: Serializable<K>,
     ): IndexedObject | Array<{key: any; value: ToPlainResult<RootType>}> {
-        return this.serializer.convertSingleValue({
+        return this.toJson.convertSingleValue({
             sourceObject: object,
             typeDescriptor: MapT(keyConstructor, this.rootConstructor),
         });
@@ -178,19 +176,19 @@ export class DecoratedJsonTypeHandler<RootType> {
         return this.settings.jsonHandler.stringify(this.toPlainMap(object, keyConstructor));
     }
 
-    setSerializationStrategies<T, R = T>(
+    setConversionStrategy<T, R = T>(
         type: Serializable<T>,
         converters: MappedTypeConverters<R>,
     ): void {
-        if (converters.deserializer != null) {
-            this.deserializer.setDeserializationStrategy(type, ({sourceObject}) => {
-                return converters.deserializer!(sourceObject);
+        if (converters.fromJson != null) {
+            this.fromJson.setStrategy(type, ({sourceObject}) => {
+                return converters.fromJson!(sourceObject);
             });
         }
 
-        if (converters.serializer != null) {
-            this.serializer.setSerializationStrategy(type, ({sourceObject}) => {
-                return converters.serializer!(sourceObject);
+        if (converters.toJson != null) {
+            this.toJson.setStrategy(type, ({sourceObject}) => {
+                return converters.toJson!(sourceObject);
             });
         }
     }

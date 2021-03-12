@@ -60,19 +60,19 @@ export function SetT(elementType: Typelike): SetTypeDescriptor {
 
 export const enum MapShape {
     /**
-     * A map will be serialized as an array of {key: ..., value: ...} objects.
+     * A map will be converted as an array of {key: ..., value: ...} objects.
      */
     ARRAY = 'ARRAY',
 
     /**
-     * A map will be serialized as a JSON object.
+     * A map will be converted as a JSON object.
      */
     OBJECT = 'OBJECT',
 }
 
 export interface MapOptions {
     /**
-     * How the map should be serialized. Default is ARRAY.
+     * How the map should be converted. Default is ARRAY.
      */
     shape: MapShape;
 }

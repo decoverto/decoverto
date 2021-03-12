@@ -4,17 +4,17 @@ const decoratedJson = new DecoratedJson();
 
 describe('json (without automatic stringify)', () => {
     describe('string', () => {
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             expect(() => decoratedJson.type(String).parse('"sdfs"fdsf"')).toThrow();
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             expect(decoratedJson.type(String).toPlainJson('str')).toEqual('str');
         });
     });
 
     describe('rest of primitives', () => {
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             expect(decoratedJson.type(Number).parse(45834)).toEqual(45834);
             expect(decoratedJson.type(Boolean).parse(true)).toEqual(true);
             expect(decoratedJson.type(Date).parse(1543915254)).toEqual(new Date(1543915254));
@@ -27,7 +27,7 @@ describe('json (without automatic stringify)', () => {
             expect(decoratedJson.type(Uint8Array).parse([100, 117, 112, 97])).toEqual(dataBuffer);
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             expect(decoratedJson.type(Number).toPlainJson(45834)).toEqual(45834);
             expect(decoratedJson.type(Boolean).toPlainJson(true)).toEqual(true);
             const dateMs = new Date(1543915254);
@@ -70,13 +70,13 @@ describe('json (without automatic stringify)', () => {
 
         const somethingHandler = decoratedJson.type(SomeThing);
 
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             expect(somethingHandler.parse(json)).toEqual(Object.assign(new SomeThing(), json));
             expect(somethingHandler.parseAsArray([json]))
                 .toEqual([Object.assign(new SomeThing(), json)]);
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             expect(somethingHandler.toPlainJson(Object.assign(new SomeThing(), json)))
                 .toEqual(json);
             expect(somethingHandler.toPlainArray([Object.assign(new SomeThing(), json)]))
@@ -85,12 +85,12 @@ describe('json (without automatic stringify)', () => {
     });
 
     describe('array', () => {
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             expect(decoratedJson.type(String).parseAsArray(['alas', 'dfsd']))
                 .toEqual(['alas', 'dfsd']);
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             expect(decoratedJson.type(String).toPlainArray(['alas', 'dfsd']))
                 .toEqual(['alas', 'dfsd']);
         });

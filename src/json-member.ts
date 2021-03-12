@@ -26,7 +26,7 @@ declare abstract class Reflect {
 
 export interface IJsonMemberOptions extends OptionsBase {
 
-    /** When set, indicates that the member must be present when deserializing. */
+    /** When set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     /** When set, a default value is emitted if the property is uninitialized/undefined. */
@@ -36,24 +36,25 @@ export interface IJsonMemberOptions extends OptionsBase {
     name?: string | null;
 
     /**
-     * When set, this deserializer will be used to deserialize the member. The callee must assure
-     * the correct type.
+     * When set, this method will be used to convert the value **from** JSON.
      */
-    deserializer?: ((json: any) => any) | null;
+    fromJson?: ((json: any) => any) | null;
 
-    /** When set, this serializer will be used to serialize the member. */
-    serializer?: ((value: any) => any) | null;
+    /**
+     * When set, this method will be used to convert the value **to** JSON.
+     */
+    toJson?: ((value: any) => any) | null;
 }
 
 /**
- * Specifies that a property is part of the object when serializing, with additional options.
+ * Specifies that the property should be included in the JSON conversion, with additional options.
  * Requires ReflectDecorators.
  */
 export function jsonMember(options: IJsonMemberOptions): PropertyDecorator;
 
 /**
- * Specifies that a property is part of the object when serializing, with a defined type and extra
- * options.
+ * Specifies that a property should be included in the JSON conversion, with a defined type and
+ * extra options.
  */
 export function jsonMember(
     type?: TypeThunk,
@@ -115,7 +116,7 @@ at runtime. ${LAZY_TYPE_EXPLANATION}`);
 runtime. ${LAZY_TYPE_EXPLANATION}`);
             }
             typeThunk = () => ensureTypeDescriptor(reflectCtor);
-        } else if (options.deserializer === undefined) {
+        } else if (options.fromJson === undefined) {
             throw new Error(`${decoratorName}: Cannot determine type`);
         }
 
@@ -134,8 +135,8 @@ runtime. ${LAZY_TYPE_EXPLANATION}`);
             options: extractOptionBase(options),
             key: property.toString(),
             name: options.name ?? property.toString(),
-            deserializer: options.deserializer,
-            serializer: options.serializer,
+            fromJson: options.fromJson,
+            toJson: options.toJson,
         });
     };
 }
@@ -148,16 +149,16 @@ function throwIfSpecialProperty(decoratorName: string, typeDescriptor: Typelike)
     if (!(typeDescriptor instanceof ArrayTypeDescriptor)
         && isConstructorEqual(typeDescriptor, Array)) {
         throw new Error(`${decoratorName}: property is an Array. Use the jsonArrayMember decorator \
-to serialize this property.`);
+instead.`);
     }
 
     if (!(typeDescriptor instanceof SetTypeDescriptor) && isConstructorEqual(typeDescriptor, Set)) {
-        throw new Error(`${decoratorName}: property is a Set. Use the jsonSetMember decorator to \
-serialize this property.`);
+        throw new Error(`${decoratorName}: property is a Set. Use the jsonSetMember decorator \
+instead.`);
     }
 
     if (!(typeDescriptor instanceof MapTypeDescriptor) && isConstructorEqual(typeDescriptor, Map)) {
-        throw new Error(`${decoratorName}: property is a Map. Use the jsonMapMember decorator to \`
-serialize this property.`);
+        throw new Error(`${decoratorName}: property is a Map. Use the jsonMapMember decorator \`
+instead.`);
     }
 }

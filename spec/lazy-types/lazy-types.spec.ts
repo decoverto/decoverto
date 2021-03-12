@@ -29,7 +29,7 @@ describe('Lazy types', () => {
 
         const rootHandler = decoratedJson.type(Root);
 
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             const result = rootHandler.parse({
                 lazy: {
                     name: 'hello',
@@ -40,7 +40,7 @@ describe('Lazy types', () => {
             expect(result.lazy.name).toBe('hello');
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             const root = new Root();
             root.lazy = new Lazy();
             root.lazy.name = 'hello';
@@ -67,7 +67,7 @@ describe('Lazy types', () => {
 
         const rootHandler = decoratedJson.type(Root);
 
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             const result = rootHandler.parse({
                 lazy: [{name: 'hello'}],
             });
@@ -77,7 +77,7 @@ describe('Lazy types', () => {
             expect(result.lazy[0].name).toBe('hello');
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             const root = new Root();
             const lazy = new Lazy();
             lazy.name = 'hello';
@@ -106,7 +106,7 @@ describe('Lazy types', () => {
 
         const rootHandler = decoratedJson.type(Root);
 
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             const result = rootHandler.parse({
                 lazy: [{key: 'key', value: {name: 'hello'}}],
             });
@@ -117,7 +117,7 @@ describe('Lazy types', () => {
             expect(result.lazy.get('key').name).toBe('hello');
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             const root = new Root();
             const lazy = new LazyValue();
             lazy.name = 'hello';
@@ -147,7 +147,7 @@ describe('Lazy types', () => {
 
         const rootHandler = decoratedJson.type(Root);
 
-        it('should deserialize', () => {
+        it('should parse from JSON', () => {
             const result = rootHandler.parse({
                 lazy: [{name: 'hello'}],
             });
@@ -158,7 +158,7 @@ describe('Lazy types', () => {
             expect(result.lazy.values().next().value.name).toBe('hello');
         });
 
-        it('should serialize', () => {
+        it('should perform conversion to JSON', () => {
             const root = new Root();
             const lazy = new Lazy();
             lazy.name = 'hello';

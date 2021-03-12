@@ -12,7 +12,7 @@ import {
 } from './type-descriptor';
 import {Constructor, IndexedObject, Serializable} from './types';
 
-interface DeserializeParams<
+interface FromJsonParams<
     Raw,
     TDescriptor extends TypeDescriptor = TypeDescriptor,
 > {
@@ -22,34 +22,34 @@ interface DeserializeParams<
     typeDescriptor: TDescriptor;
 }
 
-interface DeserializeParamsRequired<
+interface FromJsonParamsRequired<
     Raw,
     TDescriptor extends TypeDescriptor = TypeDescriptor,
-> extends DeserializeParams<Raw, TDescriptor> {
+> extends FromJsonParams<Raw, TDescriptor> {
     memberName: string;
 }
 
-export type DeserializerFn<Raw, TTypeDescriptor extends TypeDescriptor, T> = (
-    params: DeserializeParamsRequired<Raw, TTypeDescriptor>,
+export type FromJsonFn<Raw, TTypeDescriptor extends TypeDescriptor, T> = (
+    params: FromJsonParamsRequired<Raw, TTypeDescriptor>,
 ) => T;
 
 /**
  * Utility class, converts a simple/untyped javascript object-tree to a typed object-tree.
  * It is used after parsing a JSON-string.
  */
-export class Deserializer<RootType> {
+export class FromJson<RootType> {
 
-    private deserializationStrategy: Map<
+    private strategy: Map<
         Serializable<any>,
-        DeserializerFn<any, TypeDescriptor, any>
+        FromJsonFn<any, TypeDescriptor, any>
     > = new Map([
         // primitives
         [AnyT.ctor, identity],
-        [Number, this.deserializeDirectly.bind(this)],
-        [String, this.deserializeDirectly.bind(this)],
-        [Boolean, this.deserializeDirectly.bind(this)],
+        [Number, this.convertDirectly.bind(this)],
+        [String, this.convertDirectly.bind(this)],
+        [Boolean, this.convertDirectly.bind(this)],
 
-        [Date, this.deserializeDate.bind(this)],
+        [Date, this.convertDate.bind(this)],
         [ArrayBuffer, this.stringToArrayBuffer.bind(this)],
         [DataView, this.stringToDataView.bind(this)],
 
@@ -66,11 +66,11 @@ export class Deserializer<RootType> {
         [Uint32Array, this.convertAsUintArray.bind(this)],
     ]);
 
-    setDeserializationStrategy(
+    setStrategy(
         type: Serializable<any>,
-        deserializer: DeserializerFn<any, TypeDescriptor, any>,
+        fromJson: FromJsonFn<any, TypeDescriptor, any>,
     ) {
-        this.deserializationStrategy.set(type, deserializer);
+        this.strategy.set(type, fromJson);
     }
 
     convertSingleValue(
@@ -79,15 +79,15 @@ export class Deserializer<RootType> {
             typeDescriptor,
             memberName = 'object',
             memberOptions,
-        }: DeserializeParams<any>,
+        }: FromJsonParams<any>,
     ): any {
         if (sourceObject == null) {
             return sourceObject;
         }
 
-        const deserializer = this.deserializationStrategy.get(typeDescriptor.ctor);
-        if (deserializer !== undefined) {
-            return deserializer({
+        const fromJson = this.strategy.get(typeDescriptor.ctor);
+        if (fromJson !== undefined) {
+            return fromJson({
                 memberName,
                 memberOptions,
                 sourceObject,
@@ -103,7 +103,7 @@ export class Deserializer<RootType> {
             });
         }
 
-        let error = `Could not deserialize '${memberName}'; don't know how to deserialize type`;
+        let error = `Could not determine how to convert '${memberName}' to object`;
 
         if (typeDescriptor.hasFriendlyName()) {
             error += ` '${typeDescriptor.ctor.name}'`;
@@ -122,10 +122,8 @@ export class Deserializer<RootType> {
         actualSourceType: string,
         memberName: string,
     ): never {
-        throw new TypeError(
-            `Could not deserialize ${memberName} as ${targetType}:`
-            + ` expected ${expectedSourceType}, got ${actualSourceType}.`,
-        );
+        throw new TypeError(`Conversion to object failed, could not convert ${memberName} as \
+${targetType}. Expected ${expectedSourceType}, got ${actualSourceType}.`);
     }
 
     makeTypeErrorMessage(
@@ -138,20 +136,20 @@ export class Deserializer<RootType> {
             : expectedType;
         const actualTypeName = typeof actualType === 'function' ? nameof(actualType) : actualType;
 
-        return `Could not deserialize ${memberName}: expected '${expectedTypeName}',`
-            + ` got '${actualTypeName}'.`;
+        return `Could not convert ${memberName} to object. Expected '${expectedTypeName}', got '${
+            actualTypeName}'.`;
     }
 
     srcTypeNameForDebug(sourceObject: any) {
         return sourceObject == null ? 'undefined' : nameof(sourceObject.constructor);
     }
 
-    deserializeDirectly<T extends string | number | boolean>(
+    convertDirectly<T extends string | number | boolean>(
         {
             memberName,
             sourceObject,
             typeDescriptor,
-        }: DeserializeParamsRequired<T>,
+        }: FromJsonParamsRequired<T>,
     ): T {
         if (sourceObject.constructor !== typeDescriptor.ctor) {
             throw new TypeError(this.makeTypeErrorMessage(
@@ -168,11 +166,11 @@ export class Deserializer<RootType> {
             memberName,
             sourceObject,
             typeDescriptor,
-        }: DeserializeParamsRequired<IndexedObject, ConcreteTypeDescriptor>,
+        }: FromJsonParamsRequired<IndexedObject, ConcreteTypeDescriptor>,
     ): IndexedObject | T | undefined {
         if (typeof sourceObject as any !== 'object' || sourceObject as any === null) {
             throw new TypeError(
-                `Cannot deserialize ${memberName}: 'sourceObject' must be a defined object.`,
+                `Cannot convert ${memberName} to object: 'sourceObject' must be a defined object.`,
             );
         }
 
@@ -181,24 +179,22 @@ export class Deserializer<RootType> {
 
         if (sourceObjectMetadata?.isExplicitlyMarked === true) {
             const sourceMetadata = sourceObjectMetadata;
-            // Strong-typed deserialization available, get to it.
-            // First deserialize properties into a temporary object.
-            const sourceObjectWithDeserializedProperties = {} as IndexedObject;
+            // Strong-typed conversion available, get to it.
+            // First convert properties into a temporary object.
+            const sourceObjectWithConvertedProperties = {} as IndexedObject;
 
-            // Deserialize by expected properties.
+            // Convert by expected properties.
             sourceMetadata.dataMembers.forEach((objMemberMetadata, propKey) => {
                 const objMemberValue = sourceObject[propKey];
                 const objMemberDebugName = `${nameof(sourceMetadata.classType)}.${propKey}`;
                 const objMemberOptions = {};
 
                 let revivedValue;
-                if (objMemberMetadata.deserializer != null) {
-                    revivedValue = objMemberMetadata.deserializer(objMemberValue);
+                if (objMemberMetadata.fromJson != null) {
+                    revivedValue = objMemberMetadata.fromJson(objMemberValue);
                 } else if (objMemberMetadata.type == null) {
-                    throw new TypeError(
-                        `Cannot deserialize ${objMemberDebugName} there is`
-                        + ` no constructor nor deserialization function to use.`,
-                    );
+                    throw new TypeError(`Cannot convert ${objMemberDebugName} to object there is \
+no constructor nor fromJson function to use.`);
                 } else {
                     revivedValue = this.convertSingleValue({
                         memberName: objMemberDebugName,
@@ -209,7 +205,7 @@ export class Deserializer<RootType> {
                 }
 
                 if (revivedValue !== undefined) {
-                    sourceObjectWithDeserializedProperties[objMemberMetadata.key] = revivedValue;
+                    sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
                     throw new TypeError(
                         `Missing required member '${objMemberDebugName}'.`,
@@ -222,20 +218,20 @@ export class Deserializer<RootType> {
 
             if (typeof sourceObjectMetadata.initializerCallback === 'function') {
                 targetObject = sourceObjectMetadata.initializerCallback(
-                    sourceObjectWithDeserializedProperties,
+                    sourceObjectWithConvertedProperties,
                     sourceObject,
                 );
 
                 // Check the validity of user-defined initializer callback.
                 if (targetObject as any == null) {
                     throw new TypeError(
-                        `Cannot deserialize ${memberName}:`
+                        `Cannot convert ${memberName} to object:`
                         + ` 'initializer' function returned undefined/null`
                         + `, but '${nameof(sourceObjectMetadata.classType)}' was expected.`,
                     );
                 } else if (!(targetObject instanceof sourceObjectMetadata.classType)) {
                     throw new TypeError(
-                        `Cannot deserialize ${memberName}:`
+                        `Cannot convert ${memberName} to object:`
                         + `'initializer' returned '${nameof(targetObject.constructor)}'`
                         + `, but '${nameof(sourceObjectMetadata.classType)}' was expected`
                         + `, and '${nameof(targetObject.constructor)}' is not a subtype of`
@@ -246,11 +242,11 @@ export class Deserializer<RootType> {
                 targetObject = this.instantiateType(expectedSelfType);
             }
 
-            // Finally, assign deserialized properties to target object.
-            Object.assign(targetObject, sourceObjectWithDeserializedProperties);
+            // Finally, assign converted properties to target object.
+            Object.assign(targetObject, sourceObjectWithConvertedProperties);
 
-            // Call onDeserialized method (if any).
-            const methodName = sourceObjectMetadata.onDeserializedMethodName;
+            // Call afterFromJson method (if any).
+            const methodName = sourceObjectMetadata.afterFromJsonMethodName;
             if (methodName != null) {
                 if (typeof (targetObject as any)[methodName] === 'function') {
                     // check for member first
@@ -259,14 +255,14 @@ export class Deserializer<RootType> {
                     // check for static
                     (targetObject.constructor as any)[methodName]();
                 } else {
-                    throw new TypeError(`onDeserialized callback '${
+                    throw new TypeError(`afterFromJson callback '${
 nameof(sourceObjectMetadata.classType)}.${methodName}' is not a method.`);
                 }
             }
 
             return targetObject;
         } else {
-            // Untyped deserialization into Object instance.
+            // Untyped conversion into Object instance.
             const targetObject = {} as IndexedObject;
 
             Object.keys(sourceObject).forEach(sourceKey => {
@@ -287,13 +283,11 @@ nameof(sourceObjectMetadata.classType)}.${methodName}' is not a method.`);
             memberOptions,
             sourceObject,
             typeDescriptor,
-        }: DeserializeParamsRequired<any>,
+        }: FromJsonParamsRequired<any>,
     ): Array<any> {
         if (!(typeDescriptor instanceof ArrayTypeDescriptor)) {
-            throw new TypeError(
-                `Could not deserialize ${memberName} as Array: incorrect TypeDescriptor detected,`
-                + ' please use proper annotation or function for this type',
-            );
+            throw new TypeError(`Could not convert ${memberName} to object. Attempted to convert \
+as an Array but an incorrect TypeDescriptor was detected. Please check the supplied type.`);
         }
         if (!Array.isArray(sourceObject)) {
             throw new TypeError(this.makeTypeErrorMessage(
@@ -304,8 +298,8 @@ nameof(sourceObjectMetadata.classType)}.${methodName}' is not a method.`);
         }
 
         if (typeDescriptor.elementType as any == null) {
-            throw new TypeError(`Could not deserialize ${memberName} as Array: missing constructor \
-reference of Array elements.`);
+            throw new TypeError(`Could not convert from JSON. Attempted to convert ${memberName} \
+as Array: but missing constructor reference of Array elements.`);
         }
 
         return sourceObject.map((element, i) => {
@@ -326,13 +320,11 @@ reference of Array elements.`);
             memberOptions,
             sourceObject,
             typeDescriptor,
-        }: DeserializeParamsRequired<any>,
+        }: FromJsonParamsRequired<any>,
     ): Set<any> {
         if (!(typeDescriptor instanceof SetTypeDescriptor)) {
-            throw new TypeError(
-                `Could not deserialize ${memberName} as Set: incorrect TypeDescriptor detected,`
-                + ` please use proper annotation or for this type`,
-            );
+            throw new TypeError(`Could not convert ${memberName} to object. Attempted to parse as \
+Set but an incorrect TypeDescriptor was detected. Please check supplied type.`);
         }
         if (!Array.isArray(sourceObject)) {
             throw new TypeError(this.makeTypeErrorMessage(
@@ -343,8 +335,8 @@ reference of Array elements.`);
         }
 
         if (typeDescriptor.elementType as any == null) {
-            throw new TypeError(`Could not deserialize ${memberName} as Set: missing constructor \
-reference of Set elements.`);
+            throw new TypeError(`Could not convert ${memberName} to object. Attempted to parse as \
+Set but a constructor is missing.`);
         }
 
         const resultSet = new Set<any>();
@@ -374,13 +366,11 @@ reference of Set elements.`);
             memberOptions,
             sourceObject,
             typeDescriptor,
-        }: DeserializeParamsRequired<any>,
+        }: FromJsonParamsRequired<any>,
     ): Map<any, any> {
         if (!(typeDescriptor instanceof MapTypeDescriptor)) {
-            throw new TypeError(
-                `Could not deserialize ${memberName} as Map: incorrect TypeDescriptor detected,`
-                + 'please use proper annotation or for this type',
-            );
+            throw new TypeError(`Could not convert ${memberName} to object. Attempted to parse as \
+Map but an incorrect TypeDescriptor was detected. Please check supplied type.`);
         }
         const expectedShape = typeDescriptor.getCompleteOptions().shape;
         if (!this.isExpectedMapShape(sourceObject, expectedShape)) {
@@ -393,15 +383,13 @@ reference of Set elements.`);
         }
 
         if (typeDescriptor.keyType as any == null) {
-            throw new TypeError(
-                `Could not deserialize ${memberName} as Map: missing key constructor.`,
-            );
+            throw new TypeError(`Could not convert to object. Attempted to parse ${memberName} as \
+Map but the key constructor is missing.`);
         }
 
         if (typeDescriptor.valueType as any == null) {
-            throw new TypeError(
-                `Could not deserialize ${memberName} as Map: missing value constructor.`,
-            );
+            throw new TypeError(`Could not convert to object. Attempted to parse ${memberName} as \
+Map but the value constructor is missing.`);
         }
 
         const keyMemberName = `${memberName}[].key`;
@@ -455,11 +443,11 @@ reference of Set elements.`);
         return resultMap;
     }
 
-    deserializeDate(
+    convertDate(
         {
             memberName,
             sourceObject,
-        }: DeserializeParamsRequired<string | number | Date>,
+        }: FromJsonParamsRequired<string | number | Date>,
     ): Date {
         // Support for Date with ISO 8601 format, or with numeric timestamp (milliseconds elapsed
         // since the Epoch).
@@ -468,10 +456,8 @@ reference of Set elements.`);
         if (typeof sourceObject === 'number') {
             const isInteger = sourceObject % 1 === 0;
             if (!isInteger) {
-                throw new TypeError(
-                    `Could not deserialize ${memberName} as Date:`
-                    + ` expected an integer, got a number with decimal places.`,
-                );
+                throw new TypeError(`Could not parse ${memberName} as Date. Expected an integer, \
+got a number with decimal places.`);
             }
 
             return new Date(sourceObject);
@@ -493,7 +479,7 @@ reference of Set elements.`);
         {
             memberName,
             sourceObject,
-        }: DeserializeParamsRequired<string | any>,
+        }: FromJsonParamsRequired<string | any>,
     ) {
         if (typeof sourceObject !== 'string') {
             this.throwTypeMismatchError(
@@ -510,7 +496,7 @@ reference of Set elements.`);
         {
             memberName,
             sourceObject,
-        }: DeserializeParamsRequired<string | any>,
+        }: FromJsonParamsRequired<string | any>,
     ) {
         if (typeof sourceObject !== 'string') {
             this.throwTypeMismatchError(
@@ -539,7 +525,7 @@ reference of Set elements.`);
             memberName,
             typeDescriptor,
             sourceObject,
-        }: DeserializeParamsRequired<Array<number>>,
+        }: FromJsonParamsRequired<Array<number>>,
     ): T {
         const constructor = typeDescriptor.ctor as Constructor<T>;
         if (Array.isArray(sourceObject) && sourceObject.every(elem => !isNaN(elem))) {
@@ -558,7 +544,7 @@ reference of Set elements.`);
             memberName,
             typeDescriptor,
             sourceObject,
-        }: DeserializeParamsRequired<Array<number>>,
+        }: FromJsonParamsRequired<Array<number>>,
     ): T {
         const constructor = typeDescriptor.ctor as Constructor<T>;
 

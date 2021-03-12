@@ -21,7 +21,7 @@ interface DecoratedJsonSettings {
 
 export class DecoratedJson {
 
-    private readonly customSerializationStrategies = new Map<Serializable<any>,
+    private readonly mappedConversions = new Map<Serializable<any>,
         MappedTypeConverters<any>>();
 
     constructor(
@@ -30,15 +30,15 @@ export class DecoratedJson {
     }
 
     mapType<T, R = T>(type: Serializable<T>, converters: MappedTypeConverters<R>): void {
-        this.customSerializationStrategies.set(type, converters);
+        this.mappedConversions.set(type, converters);
     }
 
     type<T>(type: Serializable<T>): DecoratedJsonTypeHandler<T> {
         const handler = new DecoratedJsonTypeHandler<T>(type, {
             jsonHandler: this.settings.jsonHandler,
         });
-        this.customSerializationStrategies.forEach((converters, serializationType) => {
-            handler.setSerializationStrategies(serializationType, converters);
+        this.mappedConversions.forEach((converters, conversionType) => {
+            handler.setConversionStrategy(conversionType, converters);
         });
 
         return handler;

@@ -33,7 +33,7 @@ TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMeta
 
 ### Simple class
 
-The following example demonstrates how to annotate a basic, non-nested class for serialization, and how to serialize to JSON and back:
+The following example demonstrates how to annotate a basic, non-nested, class and how to convert to JSON and back:
 
 ```typescript
 import {DecoratedJson, jsonObject, jsonMember} from 'decorated-json';
@@ -62,7 +62,7 @@ _Note: this example assumes you are using ReflectDecorators. Without it, `@jsonM
 
 ### Mapping types
 
-At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. In this case, `mapType` can be used to define serialization and deserialization functions. Example:
+At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. In this case, `mapType` can be used to define conversion functions. Example:
 
 ```typescript
 import {DecoratedJson, jsonObject, jsonMember} from 'decorated-json';
@@ -71,13 +71,13 @@ import * as Decimal from 'decimal.js'; // Or any other library your type origina
 const decoratedJson = new DecoratedJson(); 
 
 decoratedJson.mapType(BigInt, {
-    deserializer: json => json == null ? json : BigInt(json),
-    serializer: value => value == null ? value : value.toString(),
+    fromJson: json => json == null ? json : BigInt(json),
+    toJson: value => value == null ? value : value.toString(),
 });
 
 decoratedJson.mapType(Decimal, {
-    deserializer: json => json == null ? json : new Decimal(json),
-    serializer: value => value == null ? value : value.toString(),
+    fromJson: json => json == null ? json : new Decimal(json),
+    toJson: value => value == null ? value : value.toString(),
 });
 
 @jsonObject()
@@ -117,7 +117,7 @@ class MyDataClass {
 }
 ```
 
-Sets are serialized as arrays, maps are serialized as arrays objects, each object having a `key` and a `value` property.
+Sets are converted to JSON as arrays. Maps are converted as arrays objects, each object having a `key` and a `value` property.
 
 Multidimensional arrays require additional configuration, see Limitations below.
 
@@ -185,19 +185,19 @@ Without ReflectDecorators, `@jsonMember` requires an additional type argument, b
 
 ### Using js objects instead of strings
 
-Sometimes instead of serializing your data to a string you might want to get a normal javascript object. This can be especially useful when working with a framework like angular which does the stringification for you or when you want to stringify using a different library then a builtin `JSON.stringify`.
+Sometimes instead of stringifying data you might want to get a normal javascript object. This can be especially useful when working with a framework like angular which does the stringification for you or when you want to stringify using a different library then a builtin `JSON.stringify`.
 
-To do that DecoratedJSON exposes `toPlainJson` and friends. The return value is the one that is normally passed to stringification. For deserialization all `parse` methods apart from strings also accept javascript objects.
+To do that DecoratedJSON exposes `toPlainJson` and friends. The return value is the one that is normally passed to stringification. For conversion from JSON; all `parse` methods apart from strings also accept javascript objects.
 
 ### Options
 
-#### onDeserialized and beforeSerialization
+#### afterFromJson and beforeToJson
 
-On `@jsonObject` you can specify name of methods to be called before serializing the object or after it was deserialized. This method can be a static method or instance member. In case you have static and member with the same name - the member method is preferred.
+On `@jsonObject` you can specify name of methods to be called before converting the object to JSON and after it was converted from JSON. This method can be a static method or instance member. In case you have static and member with the same name - the member method is preferred.
 
-#### serializer and deserializer
+#### toJson and fromJson
 
-On `@jsonMember` decorator family you can provide your own functions to perform custom serialization and deserialization. This is similar to
+On `@jsonMember` decorator family you can provide your own functions to perform custom conversion. This is similar to
 [mapped types](#mapping-types) but only applies to the property on which it is declared. The example below is used to fix up data on parsing.
 
 ```typescript
@@ -206,24 +206,24 @@ import {jsonObject, jsonMember} from 'decorated-json';
 @jsonObject()
 class OverrideExample {
     @jsonMember({
-        deserializer: json => {
+        fromJson: json => {
             if (json == null) {
                 return json;
             }
 
             return json === 'incorrect-data' ? 'correct' : json;
         },
-        serializer: value => value,
+        toJson: value => value,
     })
     data: string;
 }
 ```
 
-It is possible to only specify one of the functions. In this example, the `serializer` could be removed, and it would still work.
+It is possible to only specify one of the functions. In this example, the `toJson` could be removed, and it would still work.
 
 #### Different property name in JSON and class
 
-You can provide a name for a property if it differs between a serialized JSON and your class definition.
+You can provide a name for a property if it differs between the JSON property and your class definition.
 
 ```typescript
 import {jsonObject, jsonMember} from 'decorated-json';
