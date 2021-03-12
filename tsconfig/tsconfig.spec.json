@@ -3,7 +3,8 @@
     "compilerOptions": {
         "module": "CommonJS",
         "noEmit": true,
-        "strict": false
+        "strict": true,
+        "strictPropertyInitialization": false
     },
     "include": [
         "../spec/**/*.ts"

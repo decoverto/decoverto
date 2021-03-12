@@ -114,7 +114,7 @@ describe('Lazy types', () => {
             expect(result.lazy.size).toBe(1);
             expect(result.lazy).toBeInstanceOf(Map);
             expect(result.lazy.get('key')).toBeInstanceOf(LazyValue);
-            expect(result.lazy.get('key').name).toBe('hello');
+            expect(result.lazy.get('key')?.name).toBe('hello');
         });
 
         it('should perform conversion to JSON', () => {

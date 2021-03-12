@@ -16,26 +16,25 @@ describe('custom member fromJson', () => {
         }
     }
 
-    beforeAll(function () {
+    beforeAll(function (this: {person: Person}) {
         this.person = decoratedJson.type(Person)
             .parse('{ "firstName": ["John"], "lastName": "Doe" }');
     });
 
-    it('should properly parse', function () {
+    it('should properly parse', function (this: {person: Person}) {
         expect(this.person.firstName).toBe('John');
         expect(this.person.lastName).toBe('Doe');
     });
 
-    it('should return object of proper type', function () {
+    it('should return object of proper type', function (this: {person: Person}) {
         expect(this.person instanceof Person).toBeTruthy();
     });
 
-    it('should return object with callable functions', function () {
-        expect(this.person.getFullName).toBeDefined();
-        expect(this.person.getFullName()).toBe('John Doe');
+    it('should return object with callable functions', function (this: {person: Person}) {
+        expect(this.person.getFullName?.()).toBe('John Doe');
     });
 
-    it('should not affect toJson', function () {
+    it('should not affect toJson', function (this: {person: Person}) {
         expect(decoratedJson.type(Person).stringify(this.person))
             .toBe('{"firstName":"John","lastName":"Doe"}');
     });
@@ -45,7 +44,7 @@ describe('custom array member fromJson', () => {
     @jsonObject()
     class Obj {
         @jsonArrayMember(() => Number, {
-            fromJson: (json: any) => json.split(',').map((v) => parseInt(v, 10)),
+            fromJson: (json: string) => json.split(',').map((v) => parseInt(v, 10)),
         })
         nums: Array<number>;
 
@@ -57,25 +56,24 @@ describe('custom array member fromJson', () => {
         }
     }
 
-    beforeAll(function () {
+    beforeAll(function (this: {obj: Obj}) {
         this.obj = decoratedJson.type(Obj).parse('{ "nums": "1,2,3,4,5", "str": "Some string" }');
     });
 
-    it('should properly parse', function () {
+    it('should properly parse', function (this: {obj: Obj}) {
         expect(this.obj.nums).toEqual([1, 2, 3, 4, 5]);
         expect(this.obj.str).toBe('Some string');
     });
 
-    it('should obj object of proper type', function () {
+    it('should obj object of proper type', function (this: {obj: Obj}) {
         expect(this.obj instanceof Obj).toBeTruthy();
     });
 
-    it('should return object with callable functions', function () {
-        expect(this.obj.sum).toBeDefined();
-        expect(this.obj.sum()).toBe(15);
+    it('should return object with callable functions', function (this: {obj: Obj}) {
+        expect(this.obj.sum?.()).toBe(15);
     });
 
-    it('should not affect toJson', function () {
+    it('should not affect toJson', function (this: {obj: Obj}) {
         expect(decoratedJson.type(Obj).stringify(this.obj))
             .toBe('{"nums":[1,2,3,4,5],"str":"Some string"}');
     });
@@ -113,7 +111,7 @@ describe('custom delegating array member toJson', () => {
         str: string;
     }
 
-    beforeAll(function () {
+    beforeAll(function (this: {obj: Obj}) {
         this.obj = decoratedJson.type(Obj).parse(
             JSON.stringify({
                 inners: [
@@ -131,13 +129,13 @@ describe('custom delegating array member toJson', () => {
         );
     });
 
-    it('should properly convert to JSON', function () {
+    it('should properly convert to JSON', function (this: {obj: Obj}) {
         expect(this.obj).toBeDefined();
         expect(this.obj instanceof Obj).toBeTruthy();
         expect(this.obj.str).toEqual('Text');
         expect(this.obj.inners.length).toEqual(1);
         expect(this.obj.inners[0] instanceof Inner).toBeTruthy();
-        expect(this.obj.inners[0]).not.toHaveProperties(['shouldConvertToObject']);
+        expect(this.obj.inners[0]).not.toHaveProperties(['shouldConvertToObject'] as any);
         expect(this.obj.inners[0]).toHaveProperties({prop: 'gogo'});
         expect(this.obj.inners[0].woo()).toEqual('hoo');
     });

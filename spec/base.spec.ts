@@ -59,18 +59,18 @@ describe('basic conversion of', () => {
         }
 
         describe('parsed', () => {
-            beforeAll(function () {
+            beforeAll(function (this: {person: Person}) {
                 this.person = decoratedJson
                     .type(Person)
                     .parse('{ "firstName": "John", "lastName": "Doe" }');
             });
 
-            it('should be of proper type', function () {
+            it('should be of proper type', function (this: {person: Person}) {
                 expect(this.person instanceof Person).toBeTruthy();
             });
 
-            it('should have functions', function () {
-                expect(this.person.getFullName).toBeDefined();
+            it('should have functions', function (this: {person: Person}) {
+                expect(this.person.getFullName.bind(this.person)).toBeDefined();
                 expect(this.person.getFullName()).toBe('John Doe');
             });
         });

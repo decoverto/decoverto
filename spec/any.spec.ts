@@ -65,7 +65,7 @@ describe('AnyT', () => {
             expect(result.any).toBeInstanceOf(Array);
             expect(result.any[0].foo).toEqual('bar');
             expect(result.anyNullable).toBeInstanceOf(Array);
-            expect(result.anyNullable[0].foo).toEqual('bar');
+            expect(result.anyNullable?.[0].foo).toEqual('bar');
         });
 
         it('should parse from JSON class instance correctly', () => {
@@ -77,7 +77,7 @@ describe('AnyT', () => {
             expect(result.any).toBeInstanceOf(Array);
             expect(result.any[0]).toEqual(foo);
             expect(result.anyNullable).toBeInstanceOf(Array);
-            expect(result.anyNullable[0]).toEqual(foo);
+            expect(result.anyNullable?.[0]).toEqual(foo);
         });
 
         it('should perform conversion to JSON with referential equality', () => {
@@ -112,8 +112,8 @@ describe('AnyT', () => {
             expect(result.any.size).toBe(1);
             expect(result.any.values().next().value).toEqual(foo);
             expect(result.anyNullable).toBeInstanceOf(Set);
-            expect(result.anyNullable.size).toBe(1);
-            expect(result.anyNullable.values().next().value).toEqual(foo);
+            expect(result.anyNullable?.size).toBe(1);
+            expect(result.anyNullable?.values().next().value).toEqual(foo);
         });
 
         it('should parse from JSON with referential equality', () => {
@@ -125,7 +125,7 @@ describe('AnyT', () => {
             expect(result.any).toBeInstanceOf(Set);
             expect(result.any.values().next().value).toBe(foo);
             expect(result.anyNullable).toBeInstanceOf(Set);
-            expect(result.anyNullable.values().next().value).toBe(foo);
+            expect(result.anyNullable?.values().next().value).toBe(foo);
         });
 
         it('should perform conversion to JSON with referential equality', () => {
@@ -168,6 +168,6 @@ describe('AnyT', () => {
             ],
         });
 
-        expect(result.events[0].data.files[0].name).toEqual('file1');
+        expect(result.events[0].data?.files[0].name).toEqual('file1');
     });
 });

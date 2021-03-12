@@ -41,7 +41,7 @@ describe('mapped types', () => {
         decoratedJson = new DecoratedJson();
         decoratedJson.mapType(CustomType, {
             fromJson: json => new CustomType(json),
-            toJson: value => value.value,
+            toJson: value => value?.value,
         });
 
         const mappedTypesSpecHandler = decoratedJson.type(MappedTypesSpec);
@@ -67,13 +67,13 @@ describe('mapped types', () => {
 
     it('can be overwritten with fromJson/toJson prop', () => {
         const jsonMemberOptions = {
-            fromJson: json => new CustomType(0),
-            toJson: value => 1,
+            fromJson: () => new CustomType(0),
+            toJson: () => 1,
         };
 
         const CustomTypeMap = {
-            fromJson: json => new CustomType(json),
-            toJson: value => value.value,
+            fromJson: (json: any) => new CustomType(json),
+            toJson: (value: any) => value.value,
         };
 
         spyOn(CustomTypeMap, 'toJson').and.callThrough();
@@ -132,7 +132,7 @@ describe('mapped types', () => {
         }
 
         decoratedJson.mapType(Date, {
-            toJson: value => new Date(value.setFullYear(3000)).toISOString(),
+            toJson: value => new Date(value!.setFullYear(3000)).toISOString(),
         });
         const OnlyToJsonHandler = decoratedJson.type(OnlyToJson);
 
@@ -153,8 +153,8 @@ describe('mapped types', () => {
         }
 
         const ArrayTypeMap = {
-            fromJson: json => ['object'],
-            toJson: value => ['json'],
+            fromJson: () => ['object'],
+            toJson: () => ['json'],
         };
 
         decoratedJson.mapType(Array, ArrayTypeMap);
@@ -181,8 +181,8 @@ describe('mapped types', () => {
         }
 
         const CustomTypeMap = {
-            fromJson: json => new CustomType(json),
-            toJson: value => value.value,
+            fromJson: (json: any) => new CustomType(json),
+            toJson: (value: any) => value.value,
         };
         decoratedJson.mapType(CustomType, CustomTypeMap);
         const mappedTypeWithArrayHandler = decoratedJson.type(MappedTypeWithArray);

@@ -16,14 +16,14 @@ describe('custom member toJson', () => {
         }
     }
 
-    beforeAll(function () {
+    beforeAll(function (this: {json: any; person: Person}) {
         this.person = new Person();
         this.person.firstName = 'Mulit term name';
         this.person.lastName = 'Surname';
         this.json = JSON.parse(decoratedJson.type(Person).stringify(this.person));
     });
 
-    it('should properly convert to JSON', function () {
+    it('should properly convert to JSON', function (this: {json: any; person: Person}) {
         expect(this.json).toEqual(
             {
                 firstName: ['Mulit', 'term', 'name'],
@@ -52,14 +52,14 @@ describe('custom array member toJson', () => {
         }
     }
 
-    beforeAll(function () {
+    beforeAll(function (this: {json: any; obj: Obj}) {
         this.obj = new Obj();
         this.obj.nums = [3, 45, 34];
         this.obj.str = 'Text';
         this.json = JSON.parse(decoratedJson.type(Obj).stringify(this.obj));
     });
 
-    it('should properly convert to JSON', function () {
+    it('should properly convert to JSON', function (this: {json: any; obj: Obj}) {
         expect(this.json).toEqual(
             {
                 nums: '3,45,34',
@@ -82,9 +82,7 @@ describe('custom delegating array member toJson', () => {
 
         shouldConvertToJson: boolean;
 
-        constructor();
-        constructor(prop: string, shouldConvertToJSon: boolean);
-        constructor(prop?: string, shouldConvertToJSon?: boolean) {
+        constructor(prop: string, shouldConvertToJSon: boolean) {
             this.prop = prop;
             this.shouldConvertToJson = shouldConvertToJSon;
         }
@@ -105,7 +103,7 @@ describe('custom delegating array member toJson', () => {
         str: string;
     }
 
-    beforeAll(function () {
+    beforeAll(function (this: {json: any; obj: Obj}) {
         this.obj = new Obj();
         this.obj.inners = [
             new Inner('valval', false),
@@ -115,7 +113,7 @@ describe('custom delegating array member toJson', () => {
         this.json = JSON.parse(decoratedJson.type(Obj).stringify(this.obj));
     });
 
-    it('should properly convert to JSON', function () {
+    it('should properly convert to JSON', function (this: {json: any; obj: Obj}) {
         expect(this.json).toEqual(
             {
                 inners: [

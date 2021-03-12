@@ -51,8 +51,8 @@ describe('map dictionary shape', () => {
         expect(result.prop).toBeInstanceOf(Map);
         expect(result.prop.size).toBe(2);
         expect(result.getSetSize()).toBe(2);
-        expect(result.prop.get('one').strProp).toBe('delta');
-        expect(result.prop.get('two').strProp).toBe('gamma');
+        expect(result.prop.get('one')?.strProp).toBe('delta');
+        expect(result.prop.get('two')?.strProp).toBe('gamma');
     });
 
     it('converts to JSON', () => {
@@ -120,11 +120,11 @@ describe('map of array dictionary shape', () => {
         expect(result.prop).toBeInstanceOf(Map);
         expect(result.prop.size).toBe(2);
         expect(result.getSetSize()).toBe(2);
-        expect(result.prop.get('one').length).toBe(1);
-        expect(result.prop.get('one')[0].foo()).toBe('delta-4');
-        expect(result.prop.get('two').length).toBe(2);
-        expect(result.prop.get('two')[0].foo()).toBe('gamma-7');
-        expect(result.prop.get('two')[1].foo()).toBe('alpha-2');
+        expect(result.prop.get('one')?.length).toBe(1);
+        expect(result.prop.get('one')?.[0].foo()).toBe('delta-4');
+        expect(result.prop.get('two')?.length).toBe(2);
+        expect(result.prop.get('two')?.[0].foo()).toBe('gamma-7');
+        expect(result.prop.get('two')?.[1].foo()).toBe('alpha-2');
     });
 
     it('stringifies', () => {

@@ -45,10 +45,9 @@ describe('set of objects', () => {
         const result = decoratedJson.type(Simple).parseAsSet(JSON.stringify(expectation));
 
         expect(result.size).toBe(3, 'Parsed set is of wrong size');
-        result.forEach((obj) => {
+        result.forEach(obj => {
             expect(obj).toBeInstanceOf(Simple);
-            expect(obj)
-                .toHaveProperties(expectation.find((expected) => expected.strProp === obj.strProp));
+            expect(expectation.find(expected => expected.strProp === obj.strProp)).toBeDefined();
         });
     });
 
