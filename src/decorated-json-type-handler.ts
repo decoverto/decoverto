@@ -198,7 +198,7 @@ export class DecoratedJsonTypeHandler<RootType> {
      * returned unchanged.
      * @internal
      */
-    toJsonObject<T>(json: any, expectedType: Serializable<T>): IndexedObject {
+    toJsonObject<T>(json: any, expectedType: Serializable<T>): any {
         if (typeof json !== 'string' || shouldOmitParseString(json, expectedType)) {
             return json;
         }
