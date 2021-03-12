@@ -131,7 +131,7 @@ export class JsonObjectMetadata {
 }
 
 export function injectMetadataInformation(
-    prototype: IndexedObject,
+    prototype: Record<string, any> | Function,
     propKey: string | symbol,
     metadata: JsonMemberMetadata,
 ) {
@@ -144,7 +144,7 @@ export function injectMetadataInformation(
     // eslint-disable-next-line max-len
     // https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
     // ... and static members are not supported here, so abort.
-    if (typeof prototype as any === 'function') {
+    if (typeof prototype === 'function') {
         throw new Error(`${decoratorName}: cannot use a static property.`);
     }
 
