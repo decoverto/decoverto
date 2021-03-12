@@ -36,7 +36,7 @@ export function isTypeTypedArray(type: Function): boolean {
 }
 
 export function isObject(value: any): value is Object {
-    return typeof value === 'object';
+    return value !== null && typeof value === 'object';
 }
 
 export function shouldOmitParseString(jsonStr: string, expectedType: Function): boolean {
