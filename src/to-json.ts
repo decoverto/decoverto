@@ -15,7 +15,7 @@ import {
     SetTypeDescriptor,
     TypeDescriptor,
 } from './type-descriptor';
-import {IndexedObject, Serializable} from './types';
+import {Serializable} from './types';
 
 interface ToJsonParamsBase<
     Raw,
@@ -156,10 +156,10 @@ export class ToJson {
         {
             sourceObject,
             typeDescriptor,
-        }: ToJsonParams<IndexedObject, ConcreteTypeDescriptor>,
+        }: ToJsonParams<Record<string, unknown>, ConcreteTypeDescriptor>,
     ) {
         let sourceTypeMetadata: JsonObjectMetadata | undefined;
-        let targetObject: IndexedObject;
+        let targetObject: Record<string, unknown>;
 
         if (sourceObject.constructor !== typeDescriptor.ctor
             && sourceObject instanceof typeDescriptor.ctor) {
@@ -178,13 +178,14 @@ export class ToJson {
         } else {
             const beforeToJsonMethodName = sourceTypeMetadata.beforeToJsonMethodName;
             if (beforeToJsonMethodName != null) {
-                if (typeof sourceObject[beforeToJsonMethodName] === 'function') {
-                    // check for member first
-                    sourceObject[beforeToJsonMethodName]();
+                const beforeToJsonMethod = sourceObject[beforeToJsonMethodName];
+                if (typeof beforeToJsonMethod === 'function') {
+                    // instance method
+                    beforeToJsonMethod.bind(sourceObject)();
                 } else if (typeof (sourceObject.constructor as any)[beforeToJsonMethodName]
                     === 'function') {
                     // check for static
-                (sourceObject.constructor as any)[beforeToJsonMethodName]();
+                    (sourceObject.constructor as any)[beforeToJsonMethodName]();
                 } else {
                     throw new TypeError(`beforeToJson callback \
 '${nameof(sourceTypeMetadata.classType)}.${beforeToJsonMethodName}' is not a method.`);
@@ -334,7 +335,7 @@ TypeDescriptor detected, please check the supplied type`);
             sourceObject,
             typeDescriptor,
         }: ToJsonParams<Map<any, any>>,
-    ): IndexedObject | Array<{key: any; value: any}> {
+    ): Record<string, unknown> | Array<{key: any; value: any}> {
         if (!(typeDescriptor instanceof MapTypeDescriptor)) {
             throw new TypeError(`Could not convert ${memberName} to JSON. Attempted to convert as \
 Map but an incorrect TypeDescriptor was detected, please check the supplied type`);
@@ -354,7 +355,8 @@ Map but an incorrect TypeDescriptor was detected, please check the supplied type
         const keyMemberName = `${memberName}[].key`;
         const valueMemberName = `${memberName}[].value`;
         const resultShape = typeDescriptor.getCompleteOptions().shape;
-        const result = resultShape === MapShape.OBJECT ? ({} as IndexedObject) : [];
+        const result: Array<{key: any; value: any}> | Record<string, any> =
+            resultShape === MapShape.OBJECT ? {} : [];
 
         // Convert each *entry* in the map to a simple javascript object with key and value
         // properties.
@@ -378,10 +380,10 @@ Map but an incorrect TypeDescriptor was detected, please check the supplied type
             const keyDefined = isValueDefined(resultKeyValuePairObj.key);
             const valueDefined = resultKeyValuePairObj.value !== undefined;
             if (keyDefined && valueDefined) {
-                if (resultShape === MapShape.OBJECT) {
-                    result[resultKeyValuePairObj.key] = resultKeyValuePairObj.value;
-                } else {
+                if (Array.isArray(result)) {
                     result.push(resultKeyValuePairObj);
+                } else {
+                    result[resultKeyValuePairObj.key] = resultKeyValuePairObj.value;
                 }
             }
         });

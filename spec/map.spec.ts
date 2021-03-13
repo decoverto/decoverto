@@ -28,7 +28,7 @@ describe('map', () => {
         @jsonObject()
         class DictMap {
             @jsonMapMember(() => String, () => Simple, {shape: MapShape.OBJECT})
-            prop: Map<String, Simple>;
+            prop: Map<string, Simple>;
 
             getSetSize() {
                 return this.prop.size;
@@ -97,7 +97,7 @@ describe('map', () => {
         @jsonObject()
         class DictArrayMap {
             @jsonMapMember(() => String, () => ArrayT(Simple), {shape: MapShape.OBJECT})
-            prop: Map<String, Array<Simple>>;
+            prop: Map<string, Array<Simple>>;
 
             getSetSize() {
                 return this.prop.size;

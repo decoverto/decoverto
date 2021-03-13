@@ -1,7 +1,7 @@
 import {isJsonStringifyCompatible, isTypeTypedArray, nameof} from './helpers';
 import {OptionsBase} from './options-base';
 import {TypeDescriptor} from './type-descriptor';
-import {IndexedObject, Serializable} from './types';
+import {Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decoratedJsonMetadata');
 
@@ -62,7 +62,10 @@ export class JsonObjectMetadata {
 
     beforeToJsonMethodName?: string | null;
 
-    initializerCallback?: ((sourceObject: Object, rawSourceObject: Object) => Object) | null;
+    initializerCallback?: (<T>(
+        sourceObject: Record<string, unknown>,
+        rawSourceObject: Record<string, unknown>,
+    ) => T) | null;
 
     constructor(
         classType: Function,
@@ -100,7 +103,7 @@ export class JsonObjectMetadata {
         }
     }
 
-    static ensurePresentInPrototype(prototype: IndexedObject): JsonObjectMetadata {
+    static ensurePresentInPrototype(prototype: Record<string, any>): JsonObjectMetadata {
         if (Object.prototype.hasOwnProperty.call(prototype, metadataFieldKey)) {
             return prototype[metadataFieldKey as any];
         }

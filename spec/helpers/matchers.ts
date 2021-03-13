@@ -1,7 +1,7 @@
 beforeEach(() => {
     jasmine.addMatchers({
         toHaveProperties(util, customEqualityMatchers): jasmine.CustomMatcher {
-            function equalOnPropNames<T extends Object>(
+            function equalOnPropNames<T extends Record<string, unknown>>(
                 actual: T,
                 expected: Array<keyof T>,
             ): boolean {
@@ -20,7 +20,7 @@ beforeEach(() => {
             }
 
             return {
-                compare<T extends Object>(
+                compare<T extends Record<string, unknown>>(
                     actual: T,
                     expected: Partial<T> | Array<keyof T>,
                     ...customMsgs: Array<any>

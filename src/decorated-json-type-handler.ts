@@ -6,10 +6,10 @@ import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
 import {ToJson} from './to-json';
 import {ensureTypeDescriptor, MapT, SetT} from './type-descriptor';
-import {IndexedObject, Serializable} from './types';
+import {Serializable} from './types';
 
 export type ToPlainResult<T> =
-    T extends Object
+    T extends Record<string, unknown>
         ? {[k in keyof T]?: T[k]} | {[k: string]: any}
         : any;
 
@@ -142,7 +142,7 @@ export class DecoratedJsonTypeHandler<RootType> {
     toPlainMap<K>(
         object: Map<K, RootType>,
         keyConstructor: Serializable<K>,
-    ): IndexedObject | Array<{key: any; value: ToPlainResult<RootType>}> {
+    ): Record<string, unknown> | Array<{key: any; value: ToPlainResult<RootType>}> {
         return this.toJson.convertSingleValue({
             sourceObject: object,
             typeDescriptor: MapT(keyConstructor, this.rootConstructor),

@@ -120,7 +120,7 @@ describe('mapped types', () => {
         const parsed = onlyFromJsonHandler.parse({date: date2000});
 
         expect(parsed.date.toISOString()).toEqual(date3000);
-        expect((onlyFromJsonHandler.toPlainJson(parsed) as any).date.toString())
+        expect(onlyFromJsonHandler.toPlainJson(parsed).date.toString())
             .toEqual(new Date(date3000).toString());
     });
 

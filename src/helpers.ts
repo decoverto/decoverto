@@ -35,7 +35,7 @@ export function isTypeTypedArray(type: Function): boolean {
     ].indexOf(type as any) !== -1;
 }
 
-export function isObject(value: any): value is Object {
+export function isObject(value: any): value is Record<string, unknown> {
     return value !== null && typeof value === 'object';
 }
 

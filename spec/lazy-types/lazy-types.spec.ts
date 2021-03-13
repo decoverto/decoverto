@@ -94,7 +94,7 @@ describe('Lazy types', () => {
         class Root {
 
             @jsonMapMember(() => String, () => LazyValue)
-            lazy: Map<String, LazyValue>;
+            lazy: Map<string, LazyValue>;
         }
 
         @jsonObject()

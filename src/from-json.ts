@@ -10,7 +10,7 @@ import {
     SetTypeDescriptor,
     TypeDescriptor,
 } from './type-descriptor';
-import {Constructor, IndexedObject, Serializable} from './types';
+import {Constructor, Serializable} from './types';
 
 interface FromJsonParams<
     Raw,
@@ -161,13 +161,13 @@ ${targetType}. Expected ${expectedSourceType}, got ${actualSourceType}.`);
         return sourceObject;
     }
 
-    convertAsObject<T>(
+    convertAsObject<T extends Record<string, unknown>>(
         {
             memberName,
             sourceObject,
             typeDescriptor,
-        }: FromJsonParamsRequired<IndexedObject, ConcreteTypeDescriptor>,
-    ): IndexedObject | T | undefined {
+        }: FromJsonParamsRequired<Record<string, unknown>, ConcreteTypeDescriptor>,
+    ): T | Record<string, unknown> {
         if (typeof sourceObject as any !== 'object' || sourceObject as any === null) {
             throw new TypeError(
                 `Cannot convert ${memberName} to object: 'sourceObject' must be a defined object.`,
@@ -181,7 +181,7 @@ ${targetType}. Expected ${expectedSourceType}, got ${actualSourceType}.`);
             const sourceMetadata = sourceObjectMetadata;
             // Strong-typed conversion available, get to it.
             // First convert properties into a temporary object.
-            const sourceObjectWithConvertedProperties = {} as IndexedObject;
+            const sourceObjectWithConvertedProperties: Record<string, unknown> = {};
 
             // Convert by expected properties.
             sourceMetadata.dataMembers.forEach((objMemberMetadata, propKey) => {
@@ -214,10 +214,10 @@ no constructor nor fromJson function to use.`);
             });
 
             // Next, instantiate target object.
-            let targetObject: IndexedObject;
+            let targetObject: T;
 
             if (typeof sourceObjectMetadata.initializerCallback === 'function') {
-                targetObject = sourceObjectMetadata.initializerCallback(
+                targetObject = sourceObjectMetadata.initializerCallback<T>(
                     sourceObjectWithConvertedProperties,
                     sourceObject,
                 );
@@ -262,13 +262,16 @@ nameof(sourceObjectMetadata.classType)}.${methodName}' is not a method.`);
 
             return targetObject;
         } else {
-            // Untyped conversion into Object instance.
-            const targetObject = {} as IndexedObject;
+            // @todo investigate whether isExplicitlyMarked is needed at all
+            const targetObject: Record<string, unknown> = {};
 
             Object.keys(sourceObject).forEach(sourceKey => {
                 targetObject[sourceKey] = this.convertSingleValue({
                     sourceObject: sourceObject[sourceKey],
-                    typeDescriptor: new ConcreteTypeDescriptor(sourceObject[sourceKey].constructor),
+                    typeDescriptor: new ConcreteTypeDescriptor(
+                        // @todo investigate any
+                        (sourceObject[sourceKey] as any).constructor,
+                    ),
                     memberName: sourceKey,
                 });
             });

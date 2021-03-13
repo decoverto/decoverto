@@ -1,4 +1,4 @@
-export function isEqual<T>(a: Object, b: Object): boolean;
+export function isEqual<T>(a: Record<string, unknown>, b: Record<string, unknown>): boolean;
 export function isEqual<T>(a: T, b: T): boolean;
 export function isEqual<T>(a: Array<T>, b: Array<T>): boolean;
 export function isEqual<T>(a: any, b: any): boolean {

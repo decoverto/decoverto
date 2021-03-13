@@ -45,8 +45,8 @@ export interface IEverything {
     dateProp: Date;
     // nullable is not supported, use optional instead
     // nullable: {}|null;
-    optional?: {};
-    undefinable: {} | undefined;
+    optional?: Record<string, unknown>;
+    undefinable: Record<string, unknown> | undefined;
     enum: JustEnum;
     constEnum: ConstEnum;
     strEnum: StrEnum;
@@ -75,8 +75,10 @@ export class Everything implements IEverything {
     // @jsonMember()
     // nullable: {}|null;
     @jsonMember()
+    // eslint-disable-next-line @typescript-eslint/ban-types
     optional?: {};
     @jsonMember()
+    // eslint-disable-next-line @typescript-eslint/ban-types
     undefinable: {} | undefined;
     @jsonMember()
     enum: JustEnum;

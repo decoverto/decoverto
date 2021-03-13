@@ -41,7 +41,7 @@
     },
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.1",
-        "@matthiaskunnen/eslint-config-typescript": "^3.0.0",
+        "@matthiaskunnen/eslint-config-typescript": "^3.1.0",
         "@size-limit/preset-small-lib": "^4.5.7",
         "@types/jasmine": "^3.5.3",
         "eslint-plugin-jasmine": "^4.1.1",

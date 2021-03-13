@@ -434,10 +434,10 @@
     eslint-plugin-import "^2.22.1"
     eslint-plugin-unicorn "^28.0.2"
 
-"@matthiaskunnen/eslint-config-typescript@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@matthiaskunnen/eslint-config-typescript/-/eslint-config-typescript-3.0.0.tgz#bbc7536c08edf8ee3fa9dae823c778b3e2af7dd8"
-  integrity sha512-Rx4It6r60jDFcLCQwXgz0/AJNxUSa3y0OfuK08QcvBkneUiOTqhqxdfiRLt/i1aZRS2wB/6PNjZ6BQmiYr6VAw==
+"@matthiaskunnen/eslint-config-typescript@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@matthiaskunnen/eslint-config-typescript/-/eslint-config-typescript-3.1.0.tgz#28943b1a962e0022732c7d58618c8cb03224002c"
+  integrity sha512-aSTbZbV42RUlV5q+sT0UWv3AwImnAkbRRem+dLJXhnV4lwrs0l0jX48w7LUATNJ0XK7obJcX3a2HtmCoCYrHzg==
   dependencies:
     "@matthiaskunnen/eslint-config-base" "^2.0.0"
     "@typescript-eslint/eslint-plugin" "~4.16.1"
