@@ -5,7 +5,7 @@ import {createArrayType} from './json-array-member';
 import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
 import {ToJson} from './to-json';
-import {ensureTypeDescriptor, MapOptions, MapT, SetT} from './type-descriptor';
+import {ensureTypeDescriptor, SetT} from './type-descriptor';
 import {Serializable} from './types';
 
 export type ToPlainResult<T> =
@@ -87,18 +87,6 @@ export class DecoratedJsonTypeHandler<RootType> {
         });
     }
 
-    parseMap<K>(
-        object: any,
-        keyConstructor: Serializable<K>,
-        options: MapOptions,
-    ): Map<K, RootType> {
-        const json = this.toJsonObject(object, Map);
-        return this.fromJson.convertSingleValue({
-            sourceObject: json,
-            typeDescriptor: MapT(keyConstructor, this.rootConstructor, options),
-        });
-    }
-
     /**
      * Converts an instance of the specified class type to a plain JSON object.
      */
@@ -143,17 +131,6 @@ export class DecoratedJsonTypeHandler<RootType> {
         });
     }
 
-    toPlainMap<K>(
-        object: Map<K, RootType>,
-        keyConstructor: Serializable<K>,
-        options: MapOptions,
-    ): Record<string, unknown> | Array<{key: any; value: ToPlainResult<RootType>}> {
-        return this.toJson.convertSingleValue({
-            sourceObject: object,
-            typeDescriptor: MapT(keyConstructor, this.rootConstructor, options),
-        });
-    }
-
     /**
      * Converts an instance of the specified class type to a JSON string.
      * @param object The instance to convert to a JSON string.
@@ -175,18 +152,6 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     stringifySet(object: Set<RootType>): string {
         return this.settings.jsonHandler.stringify(this.toPlainSet(object));
-    }
-
-    stringifyMap<K>(
-        object: Map<K, RootType>,
-        keyConstructor: Serializable<K>,
-        options: MapOptions,
-    ): string {
-        return this.settings.jsonHandler.stringify(this.toPlainMap(
-            object,
-            keyConstructor,
-            options,
-        ));
     }
 
     setConversionStrategy<T, R = T>(
