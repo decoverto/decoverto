@@ -356,7 +356,7 @@ Map but an incorrect TypeDescriptor was detected, please check the supplied type
         const valueMemberName = `${memberName}[].value`;
         const resultShape = typeDescriptor.getCompleteOptions().shape;
         const result: Array<{key: any; value: any}> | Record<string, any> =
-            resultShape === MapShape.OBJECT ? {} : [];
+            resultShape === MapShape.Object ? {} : [];
 
         // Convert each *entry* in the map to a simple javascript object with key and value
         // properties.

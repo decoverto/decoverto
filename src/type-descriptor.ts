@@ -73,7 +73,7 @@ export const enum MapShape {
      * }
      * ```
      */
-    ARRAY = 'ARRAY',
+    Array = 'Array',
 
     /**
      * A map will be converted as a JSON object.
@@ -86,12 +86,12 @@ export const enum MapShape {
      * }
      * ```
      */
-    OBJECT = 'OBJECT',
+    Object = 'Object',
 }
 
 export interface MapOptions {
     /**
-     * How the map should be converted. Default is ARRAY.
+     * How the map should be converted. Default is Array.
      */
     shape: MapShape;
 }
@@ -111,7 +111,7 @@ export class MapTypeDescriptor extends GenericTypeDescriptor {
 
     getCompleteOptions(): MapOptions {
         return {
-            shape: this.options?.shape ?? MapShape.ARRAY,
+            shape: this.options?.shape ?? MapShape.Array,
         };
     }
 }

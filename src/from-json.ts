@@ -332,8 +332,8 @@ Set but a constructor is missing.`);
     }
 
     isExpectedMapShape(source: any, expectedShape: MapShape): boolean {
-        return (expectedShape === MapShape.ARRAY && Array.isArray(source))
-            || (expectedShape === MapShape.OBJECT && typeof source === 'object');
+        return (expectedShape === MapShape.Array && Array.isArray(source))
+            || (expectedShape === MapShape.Object && typeof source === 'object');
     }
 
     convertAsMap(
@@ -350,7 +350,7 @@ Map but an incorrect TypeDescriptor was detected. Please check supplied type.`);
         }
         const expectedShape = typeDescriptor.getCompleteOptions().shape;
         if (!this.isExpectedMapShape(sourceObject, expectedShape)) {
-            const expectedType = expectedShape === MapShape.ARRAY ? Array : Object;
+            const expectedType = expectedShape === MapShape.Array ? Array : Object;
             throw new TypeError(this.makeTypeErrorMessage(
                 expectedType,
                 sourceObject.constructor,
@@ -372,7 +372,7 @@ Map but the value constructor is missing.`);
         const valueMemberName = `${memberName}[].value`;
         const resultMap = new Map<any, any>();
 
-        if (expectedShape === MapShape.OBJECT) {
+        if (expectedShape === MapShape.Object) {
             Object.keys(sourceObject).forEach(key => {
                 const resultKey = this.convertSingleValue({
                     memberName: keyMemberName,
