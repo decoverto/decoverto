@@ -97,7 +97,7 @@ describe('custom delegating array member toJson', () => {
             return;
         }
 
-        return decoratedJson.type(Inner).parseAsArray(
+        return decoratedJson.type(Inner).parseArray(
             values.filter(value => value.shouldConvertToObject),
         );
     }

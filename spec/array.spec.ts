@@ -25,13 +25,13 @@ describe('array of objects', () => {
     }
 
     it('should parse an empty array', () => {
-        const result = decoratedJson.type(Simple).parseAsArray('[]');
+        const result = decoratedJson.type(Simple).parseArray('[]');
         expect(result).toBeDefined();
         expect(result.length).toBe(0);
     });
 
     it('should stringify an empty array', () => {
-        const result = decoratedJson.type(Simple).stringifyAsArray([]);
+        const result = decoratedJson.type(Simple).stringifyArray([]);
         expect(result).toBe('[]');
     });
 
@@ -42,7 +42,7 @@ describe('array of objects', () => {
             {strProp: 'gamma', numProp: 0},
         ];
 
-        const result = decoratedJson.type(Simple).parseAsArray(JSON.stringify(expectation));
+        const result = decoratedJson.type(Simple).parseArray(JSON.stringify(expectation));
 
         expect(result.length).toBe(3, 'Parsed array is of wrong length');
         result.forEach((obj, index) => {
@@ -61,7 +61,7 @@ describe('array of objects', () => {
 
         const result = decoratedJson
             .type(Simple)
-            .stringifyAsArray(expectation.map(obj => new Simple(obj)));
+            .stringifyArray(expectation.map(obj => new Simple(obj)));
 
         expect(result).toBe(JSON.stringify(expectation));
     });
@@ -156,7 +156,7 @@ describe('multidimensional arrays', () => {
 
     it('parses', () => {
         const testArray = JSON.stringify(createTestArray(false));
-        const result = decoratedJson.type(WithArrays).parseAsArray(testArray, 2);
+        const result = decoratedJson.type(WithArrays).parseArray(testArray, 2);
 
         expect(result).toBeOfLength(4);
         expect(result[0]).toBeOfLength(0);
@@ -169,7 +169,7 @@ describe('multidimensional arrays', () => {
     });
 
     it('converts to JSON', () => {
-        const result = decoratedJson.type(WithArrays).stringifyAsArray(createTestArray(true), 2);
+        const result = decoratedJson.type(WithArrays).stringifyArray(createTestArray(true), 2);
 
         expect(result).toBe(JSON.stringify(createTestArray(false)));
     });

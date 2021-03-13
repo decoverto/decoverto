@@ -65,13 +65,13 @@ export class DecoratedJsonTypeHandler<RootType> {
         });
     }
 
-    parseAsArray(object: any, dimensions?: 1): Array<RootType>;
-    parseAsArray(object: any, dimensions: 2): Array<Array<RootType>>;
-    parseAsArray(object: any, dimensions: 3): Array<Array<Array<RootType>>>;
-    parseAsArray(object: any, dimensions: 4): Array<Array<Array<Array<RootType>>>>;
-    parseAsArray(object: any, dimensions: 5): Array<Array<Array<Array<Array<RootType>>>>>;
-    parseAsArray(object: any, dimensions: number): Array<any>;
-    parseAsArray(object: any, dimensions: number = 1): Array<any> {
+    parseArray(object: any, dimensions?: 1): Array<RootType>;
+    parseArray(object: any, dimensions: 2): Array<Array<RootType>>;
+    parseArray(object: any, dimensions: 3): Array<Array<Array<RootType>>>;
+    parseArray(object: any, dimensions: 4): Array<Array<Array<Array<RootType>>>>;
+    parseArray(object: any, dimensions: 5): Array<Array<Array<Array<Array<RootType>>>>>;
+    parseArray(object: any, dimensions: number): Array<any>;
+    parseArray(object: any, dimensions: number = 1): Array<any> {
         const json = this.toJsonObject(object, Array);
         return this.fromJson.convertSingleValue({
             sourceObject: json,
@@ -79,7 +79,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         });
     }
 
-    parseAsSet(object: any): Set<RootType> {
+    parseSet(object: any): Set<RootType> {
         const json = this.toJsonObject(object, Set);
         return this.fromJson.convertSingleValue({
             sourceObject: json,
@@ -87,7 +87,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         });
     }
 
-    parseAsMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, RootType> {
+    parseMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, RootType> {
         const json = this.toJsonObject(object, Map);
         return this.fromJson.convertSingleValue({
             sourceObject: json,
@@ -159,20 +159,20 @@ export class DecoratedJsonTypeHandler<RootType> {
         return this.settings.jsonHandler.stringify(result);
     }
 
-    stringifyAsArray(object: Array<RootType>, dimensions?: 1): string;
-    stringifyAsArray(object: Array<Array<RootType>>, dimensions: 2): string;
-    stringifyAsArray(object: Array<Array<Array<RootType>>>, dimensions: 3): string;
-    stringifyAsArray(object: Array<Array<Array<Array<RootType>>>>, dimensions: 4): string;
-    stringifyAsArray(object: Array<Array<Array<Array<Array<RootType>>>>>, dimensions: 5): string;
-    stringifyAsArray(object: Array<any>, dimensions: any): string {
+    stringifyArray(object: Array<RootType>, dimensions?: 1): string;
+    stringifyArray(object: Array<Array<RootType>>, dimensions: 2): string;
+    stringifyArray(object: Array<Array<Array<RootType>>>, dimensions: 3): string;
+    stringifyArray(object: Array<Array<Array<Array<RootType>>>>, dimensions: 4): string;
+    stringifyArray(object: Array<Array<Array<Array<Array<RootType>>>>>, dimensions: 5): string;
+    stringifyArray(object: Array<any>, dimensions: any): string {
         return this.settings.jsonHandler.stringify(this.toPlainArray(object, dimensions));
     }
 
-    stringifyAsSet(object: Set<RootType>): string {
+    stringifySet(object: Set<RootType>): string {
         return this.settings.jsonHandler.stringify(this.toPlainSet(object));
     }
 
-    stringifyAsMap<K>(object: Map<K, RootType>, keyConstructor: Serializable<K>): string {
+    stringifyMap<K>(object: Map<K, RootType>, keyConstructor: Serializable<K>): string {
         return this.settings.jsonHandler.stringify(this.toPlainMap(object, keyConstructor));
     }
 

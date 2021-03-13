@@ -72,7 +72,7 @@ describe('json (without automatic stringify)', () => {
 
         it('should parse from JSON', () => {
             expect(somethingHandler.parse(json)).toEqual(Object.assign(new SomeThing(), json));
-            expect(somethingHandler.parseAsArray([json]))
+            expect(somethingHandler.parseArray([json]))
                 .toEqual([Object.assign(new SomeThing(), json)]);
         });
 
@@ -86,7 +86,7 @@ describe('json (without automatic stringify)', () => {
 
     describe('array', () => {
         it('should parse from JSON', () => {
-            expect(decoratedJson.type(String).parseAsArray(['alas', 'dfsd']))
+            expect(decoratedJson.type(String).parseArray(['alas', 'dfsd']))
                 .toEqual(['alas', 'dfsd']);
         });
 

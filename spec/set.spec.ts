@@ -25,13 +25,13 @@ describe('set of objects', () => {
     }
 
     it('parses an empty set', () => {
-        const result = decoratedJson.type(Simple).parseAsSet('[]');
+        const result = decoratedJson.type(Simple).parseSet('[]');
         expect(result).toBeDefined();
         expect(result.size).toBe(0);
     });
 
     it('stringifies an empty set', () => {
-        const result = decoratedJson.type(Simple).stringifyAsSet(new Set<Simple>());
+        const result = decoratedJson.type(Simple).stringifySet(new Set<Simple>());
         expect(result).toBe('[]');
     });
 
@@ -42,7 +42,7 @@ describe('set of objects', () => {
             {strProp: 'gamma', numProp: 0},
         ];
 
-        const result = decoratedJson.type(Simple).parseAsSet(JSON.stringify(expectation));
+        const result = decoratedJson.type(Simple).parseSet(JSON.stringify(expectation));
 
         expect(result.size).toBe(3, 'Parsed set is of wrong size');
         result.forEach(obj => {
@@ -59,7 +59,7 @@ describe('set of objects', () => {
         ];
 
         const set = new Set<Simple>(expectation.map(obj => new Simple(obj)));
-        const result = decoratedJson.type(Simple).stringifyAsSet(set);
+        const result = decoratedJson.type(Simple).stringifySet(set);
 
         expect(result).toBe(JSON.stringify(expectation));
     });
