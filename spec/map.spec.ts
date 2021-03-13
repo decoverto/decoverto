@@ -73,6 +73,50 @@ describe('map', () => {
         });
     });
 
+    describe('with array shape', () => {
+        @jsonObject()
+        class Simple {
+            @jsonMember()
+            foo: string;
+
+            constructor(foo?: string) {
+                if (foo !== undefined) {
+                    this.foo = foo;
+                }
+            }
+        }
+
+        @jsonObject()
+        class DictionaryArrayShape {
+            @jsonMapMember(() => String, () => Simple, {shape: MapShape.ARRAY})
+            map: Map<string, Simple>;
+        }
+
+        const typeHandler = decoratedJson.type(DictionaryArrayShape);
+
+        it('should parse', () => {
+            const result = typeHandler.parse({
+                map: [
+                    {key: 'one', value: {foo: 'value1'}},
+                ],
+            });
+
+            expect(result.map).toBeInstanceOf(Map);
+            expect(result.map.get('one')?.foo).toBe('value1');
+        });
+
+        it('should convert to JSON', () => {
+            const object = new DictionaryArrayShape();
+            object.map = new Map<string, Simple>([
+                ['one', new Simple('foo')],
+            ]);
+            const result = typeHandler.toPlainJson(object);
+            expect(result.map).toBeInstanceOf(Array);
+            expect(result.map[0].key).toBe('one');
+            expect(result.map[0].value.foo).toBe('foo');
+        });
+    });
+
     describe('with an array as value', () => {
         @jsonObject()
         class Simple {
