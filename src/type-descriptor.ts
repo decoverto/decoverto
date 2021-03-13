@@ -60,12 +60,31 @@ export function SetT(elementType: Typelike): SetTypeDescriptor {
 
 export const enum MapShape {
     /**
-     * A map will be converted as an array of {key: ..., value: ...} objects.
+     * A map will be converted as an array of key-value objects.
+     * E.g. `map: Map<string, string>` is represented in JSON as:
+     * ```json
+     * {
+     *     "map": [
+     *         {
+     *             "key": "one",
+     *             "value": "value",
+     *         }
+     *     ]
+     * }
+     * ```
      */
     ARRAY = 'ARRAY',
 
     /**
      * A map will be converted as a JSON object.
+     * E.g. `map: Map<string, string>` is represented in JSON as:
+     * ```json
+     * {
+     *     "map": {
+     *         "key": "value"
+     *     }
+     * }
+     * ```
      */
     OBJECT = 'OBJECT',
 }
