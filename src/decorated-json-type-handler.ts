@@ -5,7 +5,7 @@ import {createArrayType} from './json-array-member';
 import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
 import {ToJson} from './to-json';
-import {ensureTypeDescriptor, MapT, SetT} from './type-descriptor';
+import {ensureTypeDescriptor, MapOptions, MapT, SetT} from './type-descriptor';
 import {Serializable} from './types';
 
 export type ToPlainResult<T> =
@@ -87,11 +87,15 @@ export class DecoratedJsonTypeHandler<RootType> {
         });
     }
 
-    parseMap<K>(object: any, keyConstructor: Serializable<K>): Map<K, RootType> {
+    parseMap<K>(
+        object: any,
+        keyConstructor: Serializable<K>,
+        options: MapOptions,
+    ): Map<K, RootType> {
         const json = this.toJsonObject(object, Map);
         return this.fromJson.convertSingleValue({
             sourceObject: json,
-            typeDescriptor: MapT(keyConstructor, this.rootConstructor),
+            typeDescriptor: MapT(keyConstructor, this.rootConstructor, options),
         });
     }
 
@@ -142,10 +146,11 @@ export class DecoratedJsonTypeHandler<RootType> {
     toPlainMap<K>(
         object: Map<K, RootType>,
         keyConstructor: Serializable<K>,
+        options: MapOptions,
     ): Record<string, unknown> | Array<{key: any; value: ToPlainResult<RootType>}> {
         return this.toJson.convertSingleValue({
             sourceObject: object,
-            typeDescriptor: MapT(keyConstructor, this.rootConstructor),
+            typeDescriptor: MapT(keyConstructor, this.rootConstructor, options),
         });
     }
 
@@ -172,8 +177,16 @@ export class DecoratedJsonTypeHandler<RootType> {
         return this.settings.jsonHandler.stringify(this.toPlainSet(object));
     }
 
-    stringifyMap<K>(object: Map<K, RootType>, keyConstructor: Serializable<K>): string {
-        return this.settings.jsonHandler.stringify(this.toPlainMap(object, keyConstructor));
+    stringifyMap<K>(
+        object: Map<K, RootType>,
+        keyConstructor: Serializable<K>,
+        options: MapOptions,
+    ): string {
+        return this.settings.jsonHandler.stringify(this.toPlainMap(
+            object,
+            keyConstructor,
+            options,
+        ));
     }
 
     setConversionStrategy<T, R = T>(
