@@ -9,7 +9,7 @@ declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
 }
 
-export interface IJsonMapMemberOptions extends OptionsBase, Partial<MapOptions> {
+export interface IJsonMapMemberOptions extends OptionsBase, MapOptions {
     /** When set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;
 
@@ -40,7 +40,7 @@ export interface IJsonMapMemberOptions extends OptionsBase, Partial<MapOptions> 
 export function jsonMapMember(
     keyThunk: TypeThunk,
     valueThunk: TypeThunk,
-    options: IJsonMapMemberOptions = {},
+    options: IJsonMapMemberOptions,
 ): PropertyDecorator {
     return (target, propKey) => {
         // For error messages

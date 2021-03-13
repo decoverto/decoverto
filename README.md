@@ -102,7 +102,7 @@ Do note that in order to prevent the values from being parsed as `Number`, losin
 Properties which are of type Array, Set, or Map require the special `@jsonArrayMember`, `@jsonSetMember` and `@jsonMapMember` property decorators (respectively), which require a type argument for members (and keys in case of Maps). For primitive types, the type arguments are the corresponding wrapper types, which the following example showcases. Everything else works the same way:
 
 ```typescript
-import {jsonObject, jsonArrayMember, jsonSetMember, jsonMapMember} from 'decorated-json';
+import {jsonObject, jsonArrayMember, jsonSetMember, jsonMapMember, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
@@ -111,8 +111,8 @@ class MyDataClass {
 
     @jsonSetMember(() => String)
     prop2: Set<string>;
-    
-    @jsonMapMember(() => Number, () => MySecondDataClass)
+
+    @jsonMapMember(() => Number, () => MySecondDataClass, {shape: MapShape.Object})
     prop3: Map<number, MySecondDataClass>;
 }
 ```

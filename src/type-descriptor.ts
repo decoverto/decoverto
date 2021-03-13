@@ -91,7 +91,7 @@ export const enum MapShape {
 
 export interface MapOptions {
     /**
-     * How the map should be converted. Default is Array.
+     * How the map should be converted.
      */
     shape: MapShape;
 }
@@ -100,7 +100,7 @@ export class MapTypeDescriptor extends GenericTypeDescriptor {
     constructor(
         readonly keyType: TypeDescriptor,
         readonly valueType: TypeDescriptor,
-        readonly options?: Partial<MapOptions>,
+        readonly options: MapOptions,
     ) {
         super(Map);
     }
@@ -111,7 +111,7 @@ export class MapTypeDescriptor extends GenericTypeDescriptor {
 
     getCompleteOptions(): MapOptions {
         return {
-            shape: this.options?.shape ?? MapShape.Array,
+            shape: this.options.shape,
         };
     }
 }
@@ -120,7 +120,7 @@ export class MapTypeDescriptor extends GenericTypeDescriptor {
 export function MapT(
     keyType: Typelike,
     valueType: Typelike,
-    options?: Partial<MapOptions>,
+    options: MapOptions,
 ): MapTypeDescriptor {
     return new MapTypeDescriptor(
         ensureTypeDescriptor(keyType),

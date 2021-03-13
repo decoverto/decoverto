@@ -6,6 +6,7 @@ import {
     jsonObject,
     jsonSetMember,
 } from '../../src';
+import {MapShape} from '../../src/type-descriptor';
 import {A} from './a.model';
 import {B} from './b.model';
 
@@ -93,7 +94,7 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonMapMember(() => String, () => LazyValue)
+            @jsonMapMember(() => String, () => LazyValue, {shape: MapShape.Array})
             lazy: Map<string, LazyValue>;
         }
 
