@@ -32,6 +32,7 @@ describe('json (without automatic stringify)', () => {
             expect(decoratedJson.type(Boolean).toPlainJson(true)).toEqual(true);
             const dateMs = new Date(1543915254);
             expect(decoratedJson.type(Date).toPlainJson(dateMs)).toEqual(dateMs);
+            expect(decoratedJson.type(Date).toPlainJson(dateMs)).toBeInstanceOf(Date);
             const dateStr = new Date('2018-12-04T09:20:54');
             expect(decoratedJson.type(Date).toPlainJson(dateStr)).toEqual(dateStr);
 
