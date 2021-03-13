@@ -213,34 +213,7 @@ no constructor nor fromJson function to use.`);
                 }
             });
 
-            // Next, instantiate target object.
-            let targetObject: T;
-
-            if (typeof sourceObjectMetadata.initializerCallback === 'function') {
-                targetObject = sourceObjectMetadata.initializerCallback<T>(
-                    sourceObjectWithConvertedProperties,
-                    sourceObject,
-                );
-
-                // Check the validity of user-defined initializer callback.
-                if (targetObject as any == null) {
-                    throw new TypeError(
-                        `Cannot convert ${memberName} to object:`
-                        + ` 'initializer' function returned undefined/null`
-                        + `, but '${nameof(sourceObjectMetadata.classType)}' was expected.`,
-                    );
-                } else if (!(targetObject instanceof sourceObjectMetadata.classType)) {
-                    throw new TypeError(
-                        `Cannot convert ${memberName} to object:`
-                        + `'initializer' returned '${nameof(targetObject.constructor)}'`
-                        + `, but '${nameof(sourceObjectMetadata.classType)}' was expected`
-                        + `, and '${nameof(targetObject.constructor)}' is not a subtype of`
-                        + ` '${nameof(sourceObjectMetadata.classType)}'`,
-                    );
-                }
-            } else {
-                targetObject = this.instantiateType(expectedSelfType);
-            }
+            const targetObject: T = this.instantiateType(expectedSelfType);
 
             // Finally, assign converted properties to target object.
             Object.assign(targetObject, sourceObjectWithConvertedProperties);

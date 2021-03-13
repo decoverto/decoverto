@@ -62,11 +62,6 @@ export class JsonObjectMetadata {
 
     beforeToJsonMethodName?: string | null;
 
-    initializerCallback?: (<T>(
-        sourceObject: Record<string, unknown>,
-        rawSourceObject: Record<string, unknown>,
-    ) => T) | null;
-
     constructor(
         classType: Function,
     ) {

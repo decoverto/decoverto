@@ -22,15 +22,7 @@ export interface IJsonObjectOptionsBase extends OptionsBase {
     name?: string | null;
 }
 
-export interface IJsonObjectOptions<T> extends IJsonObjectOptionsBase {
-    /**
-     * Function to call before converting from JSON to an object and initializing the object,
-     * accepting two arguments:
-     *   (1) sourceObject, an 'Object' instance with all properties already converted from JSON, and
-     *   (2) rawSourceObject, a raw 'Object' instance representation of the current object.
-     */
-    initializer?: InitializerCallback<T> | null;
-}
+export type IJsonObjectOptions<T> = IJsonObjectOptionsBase;
 
 /**
  * Marks that a class is convertible using DecoratedJson, with additional settings.
@@ -49,7 +41,6 @@ export function jsonObject<T>(
         objectMetadata.beforeToJsonMethodName = options.beforeToJson;
 
         // T extend Object so it is fine
-        objectMetadata.initializerCallback = options.initializer as any;
         if (options.name != null) {
             objectMetadata.name = options.name;
         }
