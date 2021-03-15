@@ -15,13 +15,6 @@ export interface ConversionContext<Raw> {
     typeMap: Map<Serializable<any>, TypeDescriptor>;
 }
 
-export interface ConversionContextWithDescriptor<
-    Raw,
-    TDescriptor extends TypeDescriptor = TypeDescriptor,
-> extends ConversionContext<Raw>{
-    typeDescriptor: TDescriptor;
-}
-
 export abstract class TypeDescriptor<Class extends Object = any, Json = any> {
     abstract fromJson(
         context: ConversionContext<Json | null | undefined>,
