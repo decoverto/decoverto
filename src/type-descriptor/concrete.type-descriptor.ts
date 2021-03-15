@@ -12,27 +12,27 @@ export class ConcreteTypeDescriptor<Class extends Object = any, Json = any>
     extends SimpleTypeDescriptor<Class, Json> {
 
     fromJson(context: ConversionContext<Json | null | undefined>): Class | null | undefined {
-        const {sourceObject, path} = context;
+        const {source, path} = context;
 
-        if (sourceObject === null) {
+        if (source === null) {
             return null;
-        } else if (sourceObject === undefined) {
+        } else if (source === undefined) {
             return undefined;
         }
 
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
-            if (typeof sourceObject !== 'object') {
+            if (typeof source !== 'object') {
                 throw new TypeError(`Could not determine how to convert '${path}' from JSON. Type: \
 ${this.getFriendlyName()}.`);
             }
 
             // Some unfortunate 'as any' casts are required. We don't quite know whether
-            // sourceObject has the correct type, but it __should__ be.
+            // source has the correct type, but it __should__ be.
             return this.fromJsonObject({
                 ...context,
-                sourceObject: sourceObject as any,
+                source: source as any,
             }) as unknown as any;
         } else {
             return converter.fromJson(context);
@@ -42,9 +42,9 @@ ${this.getFriendlyName()}.`);
     fromJsonObject(
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
-        const {path, sourceObject} = context;
+        const {path, source} = context;
 
-        if (typeof sourceObject as any !== 'object' || sourceObject as any === null) {
+        if (typeof source as any !== 'object' || source as any === null) {
             throw new TypeError(
                 `Cannot convert ${path} to object: 'sourceObject' must be a defined object.`,
             );
@@ -60,7 +60,7 @@ ${this.getFriendlyName()}.`);
 
             // Convert by expected properties.
             sourceMetadata.dataMembers.forEach((objMemberMetadata, propKey) => {
-                const objMemberValue = sourceObject[propKey];
+                const objMemberValue = source[propKey];
                 const objMemberDebugName = `${nameof(sourceMetadata.classType)}.${propKey}`;
                 const objMemberOptions = {};
 
@@ -75,7 +75,7 @@ no constructor nor fromJson function to use.`);
                         ...context,
                         memberOptions: objMemberOptions,
                         path: objMemberDebugName,
-                        sourceObject: objMemberValue,
+                        source: objMemberValue,
                     });
                 }
 
@@ -113,13 +113,13 @@ no constructor nor fromJson function to use.`);
             // @todo investigate whether isExplicitlyMarked is needed at all
             const targetObject: Record<string, unknown> = {};
 
-            Object.keys(sourceObject).forEach(sourceKey => {
+            Object.keys(source).forEach(sourceKey => {
                 targetObject[sourceKey] = new ConcreteTypeDescriptor(
                     // @todo investigate any
-                    (sourceObject[sourceKey] as any).constructor,
+                    (source[sourceKey] as any).constructor,
                 ).fromJson({
                     ...context,
-                    sourceObject: sourceObject[sourceKey],
+                    source: source[sourceKey],
                     path: sourceKey,
                 });
             });
@@ -129,25 +129,25 @@ no constructor nor fromJson function to use.`);
     }
 
     toJson(context: ConversionContext<Class | null | undefined>): Json | null | undefined {
-        const {sourceObject, path} = context;
+        const {source, path} = context;
 
-        if (sourceObject === null) {
+        if (source === null) {
             return null;
-        } else if (sourceObject === undefined) {
+        } else if (source === undefined) {
             return undefined;
         }
 
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
-            if (typeof sourceObject !== 'object') {
+            if (typeof source !== 'object') {
                 throw new TypeError(`Could not determine how to convert '${path}' to JSON. Type: \
 ${this.getFriendlyName()}.`);
             }
 
             return this.toJsonObject({
                 ...context,
-                sourceObject: sourceObject,
+                source: source,
             }) as any; // Cast to any since generic Json parameter could be anything
         } else {
             return converter.toJson(context);
@@ -159,16 +159,16 @@ ${this.getFriendlyName()}.`);
      * javascript object.
      */
     toJsonObject(context: ConversionContext<any>) {
-        const {sourceObject} = context;
+        const {source} = context;
         let sourceTypeMetadata: JsonObjectMetadata | undefined;
         let targetObject: Record<string, unknown>;
 
-        if (sourceObject.constructor !== this.type
-            && sourceObject instanceof this.type) {
+        if (source.constructor !== this.type
+            && source instanceof this.type) {
             // The source object is not of the expected type, but it is a valid subtype.
             // This is OK, and we'll proceed to gather object metadata from the subtype instead.
             sourceTypeMetadata = JsonObjectMetadata.getFromConstructor(
-                sourceObject.constructor as Constructor<Class>,
+                source.constructor as Constructor<Class>,
             );
         } else {
             sourceTypeMetadata = JsonObjectMetadata.getFromConstructor(this.type);
@@ -178,17 +178,17 @@ ${this.getFriendlyName()}.`);
             // Untyped conversion, "as-is", we'll just pass the object on.
             // We'll clone the source object, because type hints are added to the object itself, and
             // we don't want to modify the original object.
-            targetObject = {...sourceObject};
+            targetObject = {...source};
         } else {
             const beforeToJsonMethodName = sourceTypeMetadata.beforeToJsonMethodName;
             if (beforeToJsonMethodName != null) {
-                const beforeToJsonMethod = sourceObject[beforeToJsonMethodName];
+                const beforeToJsonMethod = source[beforeToJsonMethodName];
                 if (typeof beforeToJsonMethod === 'function') {
                     // instance method
-                    beforeToJsonMethod.bind(sourceObject)();
-                } else if (typeof sourceObject.constructor[beforeToJsonMethodName] === 'function') {
+                    beforeToJsonMethod.bind(source)();
+                } else if (typeof source.constructor[beforeToJsonMethodName] === 'function') {
                     // check for static
-                    sourceObject.constructor[beforeToJsonMethodName]();
+                    source.constructor[beforeToJsonMethodName]();
                 } else {
                     throw new TypeError(`beforeToJson callback \
 '${nameof(sourceTypeMetadata.classType)}.${beforeToJsonMethodName}' is not a method.`);
@@ -209,7 +209,7 @@ ${this.getFriendlyName()}.`);
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
                 let json;
                 if (objMemberMetadata.toJson != null) {
-                    json = objMemberMetadata.toJson(sourceObject[objMemberMetadata.key]);
+                    json = objMemberMetadata.toJson(source[objMemberMetadata.key]);
                 } else if (objMemberMetadata.type === undefined) {
                     throw new TypeError(
                         `Could not convert ${objMemberMetadata.name} to JSON, there is`
@@ -220,7 +220,7 @@ ${this.getFriendlyName()}.`);
                         ...context,
                         path: `${nameof(sourceMeta.classType)}.${objMemberMetadata.key}`,
                         memberOptions: objMemberOptions,
-                        sourceObject: sourceObject[objMemberMetadata.key],
+                        source: source[objMemberMetadata.key],
                     });
                 }
 

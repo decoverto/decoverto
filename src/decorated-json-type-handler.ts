@@ -127,14 +127,14 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     private toJsonSingleValue(object: any, typeDescriptor: TypeDescriptor) {
         return typeDescriptor.toJson({
-            sourceObject: object,
+            source: object,
             typeMap: this.settings.conversionMap,
         });
     }
 
     private toObjectSingleValue(object: any, typeDescriptor: TypeDescriptor) {
         return typeDescriptor.fromJson({
-            sourceObject: object,
+            source: object,
             typeMap: this.settings.conversionMap,
         });
     }

@@ -66,13 +66,13 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
     fromJson(
         context: ConversionContext<MapJson | null | undefined>,
     ): Map<any, any> | null | undefined {
-        const {sourceObject, path} = context;
+        const {source, path} = context;
 
-        if (sourceObject == null) {
-            return sourceObject;
+        if (source == null) {
+            return source;
         }
 
-        if (!this.isExpectedMapShape(sourceObject)) {
+        if (!this.isExpectedMapShape(source)) {
             const expectedType = this.shape === MapShape.Array ? Array : Object;
             throw new TypeError(this.throwTypeMismatchError({
                 expectedSourceType: expectedType.name,
@@ -82,12 +82,12 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
 
         const resultMap = new Map<any, any>();
 
-        if (Array.isArray(sourceObject)) {
-            sourceObject.forEach((element, index) => {
+        if (Array.isArray(source)) {
+            source.forEach((element, index) => {
                 const key = this.keyType.fromJson({
                     ...context,
                     path: `${path}[${index}].key`,
-                    sourceObject: element.key,
+                    source: element.key,
                 });
 
                 // Undefined/null keys not supported, skip if so.
@@ -97,17 +97,17 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
                         this.valueType.fromJson({
                             ...context,
                             path: `${path}[${index}].value`,
-                            sourceObject: element.value,
+                            source: element.value,
                         }),
                     );
                 }
             });
         } else {
-            Object.keys(sourceObject).forEach((key, index) => {
+            Object.keys(source).forEach((key, index) => {
                 const resultKey = this.keyType.fromJson({
                     ...context,
                     path: `${path}[${index}].key`,
-                    sourceObject: key,
+                    source: key,
                 });
                 if (isValueDefined(resultKey)) {
                     resultMap.set(
@@ -115,7 +115,7 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
                         this.valueType.fromJson({
                             ...context,
                             path: `${path}[${index}].value`,
-                            sourceObject: sourceObject[key],
+                            source: source[key],
                         }),
                     );
                 }
@@ -132,8 +132,8 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
     toJson(
         context: ConversionContext<Map<any, any> | null | undefined>,
     ): MapJson | null | undefined {
-        if (context.sourceObject == null) {
-            return context.sourceObject;
+        if (context.source == null) {
+            return context.source;
         }
 
         const result: Array<{key: any; value: any}> | Record<string, any> =
@@ -141,17 +141,17 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
 
         // Convert each *entry* in the map to a simple javascript object with key and value
         // properties.
-        context.sourceObject.forEach((value, key) => {
+        context.source.forEach((value, key) => {
             const resultKeyValuePairObj = {
                 key: this.keyType.toJson({
                     ...context,
                     path: `${context.path}[].value`,
-                    sourceObject: key,
+                    source: key,
                 }),
                 value: this.valueType.toJson({
                     ...context,
                     path: `${context.path}[].value`,
-                    sourceObject: value,
+                    source: value,
                 }),
             };
 

@@ -10,11 +10,11 @@ export class SetTypeDescriptor<Class extends Object> extends ListTypeDescriptor<
     fromJson(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Set<Class | null | undefined> | null | undefined {
-        if (context.sourceObject == null) {
+        if (context.source == null) {
             return null;
         }
 
-        if (!Array.isArray(context.sourceObject)) {
+        if (!Array.isArray(context.source)) {
             throw new TypeError(this.throwTypeMismatchError({
                 context,
                 expectedSourceType: 'an array',
@@ -23,11 +23,11 @@ export class SetTypeDescriptor<Class extends Object> extends ListTypeDescriptor<
 
         const resultSet = new Set<Class | null | undefined>();
 
-        context.sourceObject.forEach((element, i) => {
+        context.source.forEach((element, i) => {
             resultSet.add(this.type.fromJson({
                 ...context,
                 path: `${context.path}[${i}]`,
-                sourceObject: element,
+                source: element,
             }));
         });
 
@@ -39,7 +39,7 @@ export class SetTypeDescriptor<Class extends Object> extends ListTypeDescriptor<
      * of simple javascript objects.
      */
     toJson(context: ConversionContext<Array<Class | null | undefined> | null | undefined>) {
-        if (context.sourceObject == null) {
+        if (context.source == null) {
             return null;
         }
 
@@ -47,10 +47,10 @@ export class SetTypeDescriptor<Class extends Object> extends ListTypeDescriptor<
         const resultArray: Array<any> = [];
 
         // Convert each element of the set, and put it into an array.
-        context.sourceObject.forEach((element) => {
+        context.source.forEach((element) => {
             const resultElement = this.type.toJson({
                 ...context,
-                sourceObject: element,
+                source: element,
             });
 
             // Add to output if the source element was undefined, OR the converted element is

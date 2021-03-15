@@ -10,23 +10,23 @@ export class ArrayTypeDescriptor<Class extends Object> extends ListTypeDescripto
     fromJson(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Array<Class | null | undefined> | null | undefined {
-        if (context.sourceObject == null) {
-            return context.sourceObject;
+        if (context.source == null) {
+            return context.source;
         }
 
-        if (!Array.isArray(context.sourceObject)) {
+        if (!Array.isArray(context.source)) {
             this.throwTypeMismatchError({
                 context,
                 expectedSourceType: 'an array',
             });
         }
 
-        return context.sourceObject.map((element, i) => {
+        return context.source.map((element, i) => {
             return this.type.fromJson(
                 {
                     ...context,
                     path: `${context.path}[${i}]`,
-                    sourceObject: element,
+                    source: element,
                 },
             );
         });
@@ -39,15 +39,15 @@ export class ArrayTypeDescriptor<Class extends Object> extends ListTypeDescripto
     toJson(
         context: ConversionContext<Array<Class | null | undefined> | null | undefined>,
     ): Array<any> | null | undefined {
-        if (context.sourceObject == null) {
-            return context.sourceObject;
+        if (context.source == null) {
+            return context.source;
         }
 
-        return context.sourceObject.map((element, i) => {
+        return context.source.map((element, i) => {
             return this.type.toJson({
                 ...context,
                 path: `${context.path}[${i}]`,
-                sourceObject: element,
+                source: element,
             });
         });
     }

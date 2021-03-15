@@ -3,11 +3,11 @@ import {ConversionContext, TypeDescriptor} from './type-descriptor';
 export class AnyTypeDescriptor extends TypeDescriptor {
 
     fromJson(params: ConversionContext<any>): any {
-        return params.sourceObject;
+        return params.source;
     }
 
     toJson(params: ConversionContext<any>): any {
-        return params.sourceObject;
+        return params.source;
     }
 
     getFriendlyName(): string {

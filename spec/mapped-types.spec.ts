@@ -46,13 +46,13 @@ describe('mapped types', () => {
             fromJson(
                 context: ConversionContext<any | null | undefined>,
             ): CustomType | null | undefined {
-                return new CustomType(context.sourceObject);
+                return new CustomType(context.source);
             }
 
             toJson(
                 context: ConversionContext<CustomType | null | undefined>,
             ): any | null | undefined {
-                return context.sourceObject?.value;
+                return context.source?.value;
             }
 
             getFriendlyName(): string {
@@ -94,13 +94,13 @@ describe('mapped types', () => {
             fromJson(
                 context: ConversionContext<any | null | undefined>,
             ): CustomType | null | undefined {
-                return new CustomType(context.sourceObject);
+                return new CustomType(context.source);
             }
 
             toJson(
                 context: ConversionContext<CustomType | null | undefined>,
             ): any | null | undefined {
-                return context.sourceObject?.value;
+                return context.source?.value;
             }
 
             getFriendlyName(): string {
@@ -154,13 +154,13 @@ describe('mapped types', () => {
             fromJson(
                 context: ConversionContext<any | null | undefined>,
             ): CustomType | null | undefined {
-                return new CustomType(context.sourceObject);
+                return new CustomType(context.source);
             }
 
             toJson(
                 context: ConversionContext<CustomType | null | undefined>,
             ): any | null | undefined {
-                return context.sourceObject?.value;
+                return context.source?.value;
             }
 
             getFriendlyName(): string {

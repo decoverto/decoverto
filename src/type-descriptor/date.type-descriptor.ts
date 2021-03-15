@@ -8,23 +8,23 @@ export class DateTypeDescriptor extends SimpleTypeDescriptor<Date | string | num
     }
 
     fromJson(context: ConversionContext<Date | string | number | null | undefined>) {
-        const {path, sourceObject} = context;
+        const {path, source} = context;
 
-        if (sourceObject === null) {
+        if (source === null) {
             return null;
-        } else if (typeof sourceObject === 'number') {
-            const isInteger = sourceObject % 1 === 0;
+        } else if (typeof source === 'number') {
+            const isInteger = source % 1 === 0;
 
             if (!isInteger) {
                 throw new TypeError(`Could not parse ${path} as Date. Expected an integer, \
 got a number with decimal places.`);
             }
 
-            return new Date(sourceObject);
-        } else if (typeof sourceObject === 'string') {
-            return new Date(sourceObject);
-        } else if (sourceObject instanceof Date) {
-            return sourceObject;
+            return new Date(source);
+        } else if (typeof source === 'string') {
+            return new Date(source);
+        } else if (source instanceof Date) {
+            return source;
         } else {
             this.throwTypeMismatchError({
                 context,
@@ -34,6 +34,6 @@ got a number with decimal places.`);
     }
 
     toJson(context: ConversionContext<Date | null | undefined>): Date | null | undefined {
-        return context.sourceObject;
+        return context.source;
     }
 }

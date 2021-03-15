@@ -11,24 +11,24 @@ export class ArrayBufferTypeDescriptor extends SimpleTypeDescriptor<ArrayBuffer,
     fromJson(
         context: ConversionContext<string | any | null | undefined>,
     ): ArrayBuffer | null | undefined {
-        if (context.sourceObject == null) {
-            return context.sourceObject;
+        if (context.source == null) {
+            return context.source;
         }
 
-        if (typeof context.sourceObject !== 'string') {
+        if (typeof context.source !== 'string') {
             this.throwTypeMismatchError({
                 context,
                 expectedSourceType: 'a string',
             });
         }
-        return createArrayBufferFromString(context.sourceObject);
+        return createArrayBufferFromString(context.source);
     }
 
     toJson(context: ConversionContext<ArrayBuffer | null | undefined>): string | null | undefined {
-        if (context.sourceObject == null) {
-            return context.sourceObject;
+        if (context.source == null) {
+            return context.source;
         }
 
-        return arrayBufferToString(context.sourceObject);
+        return arrayBufferToString(context.source);
     }
 }

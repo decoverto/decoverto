@@ -3,26 +3,26 @@ import {ConversionContext} from './type-descriptor';
 
 /**
  * Passes types without modification for both fromJson and toJson but errors if the type of the
- * sourceObject does not match the expected type. E.g. a number was expected but a string received.
+ * source does not match the expected type. E.g. a number was expected but a string received.
  */
 export class DirectTypeDescriptor extends SimpleTypeDescriptor {
 
     fromJson(context: ConversionContext<any>): any {
         this.errorOnTypeMismatch(context);
-        return context.sourceObject;
+        return context.source;
     }
 
     toJson(context: ConversionContext<any>): any {
         this.errorOnTypeMismatch(context);
-        return context.sourceObject;
+        return context.source;
     }
 
     private errorOnTypeMismatch(context: ConversionContext<any>) {
-        if (context.sourceObject == null) {
+        if (context.source == null) {
             return null;
         }
 
-        if (context.sourceObject.constructor !== this.type) {
+        if (context.source.constructor !== this.type) {
             this.throwTypeMismatchError({
                 context,
                 expectedSourceType: this.getFriendlyName(),

@@ -11,24 +11,24 @@ export class DataViewTypeDescriptor extends SimpleTypeDescriptor<DataView, strin
     fromJson(
         context: ConversionContext<string | any | null | undefined>,
     ): DataView | null | undefined {
-        if (context.sourceObject == null) {
+        if (context.source == null) {
             return null;
         }
 
-        if (typeof context.sourceObject !== 'string') {
+        if (typeof context.source !== 'string') {
             this.throwTypeMismatchError({
                 context,
                 expectedSourceType: 'a string',
             });
         }
-        return new DataView(createArrayBufferFromString(context.sourceObject));
+        return new DataView(createArrayBufferFromString(context.source));
     }
 
     toJson(context: ConversionContext<DataView | null | undefined>): string | null | undefined {
-        if (context.sourceObject == null) {
-            return context.sourceObject;
+        if (context.source == null) {
+            return context.source;
         }
 
-        return arrayBufferToString(context.sourceObject.buffer);
+        return arrayBufferToString(context.source.buffer);
     }
 }

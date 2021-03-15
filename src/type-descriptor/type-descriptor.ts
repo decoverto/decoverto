@@ -11,7 +11,7 @@ export interface ConversionContext<Raw> {
      */
     path?: string;
     memberOptions?: OptionsBase;
-    sourceObject: Raw;
+    source: Raw;
     typeMap: Map<Serializable<any>, TypeDescriptor>;
 }
 
@@ -38,7 +38,7 @@ export abstract class TypeDescriptor<Class extends Object = any, Json = any> {
     ): never {
         throw new TypeError(`Conversion to object failed, could not convert ${context.path} as \
 ${this.getFriendlyName()}. Expected ${expectedSourceType}, got \
-${nameof(context.sourceObject.constructor)}.`);
+${nameof(context.source.constructor)}.`);
     }
 }
 
