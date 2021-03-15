@@ -1,5 +1,3 @@
-import {AnyT} from './type-descriptor';
-
 declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
 }
@@ -107,9 +105,7 @@ export function isNotUndefined<T>(value: T): value is NotUndefined<T> {
 }
 
 export function isInstanceOf<T>(value: any, constructor: Function): boolean {
-    if (constructor === AnyT.ctor) {
-        return true;
-    } else if (typeof value === 'number') {
+    if (typeof value === 'number') {
         return constructor === Number;
     } else if (typeof value === 'string') {
         return constructor === String;
@@ -134,8 +130,4 @@ export function nameof(fn: Function & {name?: string}) {
         return fn.name;
     }
     return 'undefined';
-}
-
-export function identity<T>({sourceObject}: {sourceObject: T}): T {
-    return sourceObject;
 }

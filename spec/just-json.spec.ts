@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
+import {array, DecoratedJson, jsonMember, jsonObject} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -56,7 +56,7 @@ describe('json (without automatic stringify)', () => {
             propStr: string;
             @jsonMember()
             propNum: number;
-            @jsonArrayMember(() => String)
+            @jsonMember(array(() => String))
             propArr: Array<string>;
             @jsonMember()
             propDate: Date;

@@ -27,7 +27,7 @@ npm install decorated-json
 
 ## How to use
 
-DecoratedJSON uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonMember` (or the specific `@jsonArrayMember`, `@jsonSetMember`, and `@jsonMapMember` decorators for collections, see below). Properties which are not annotated will not be serialized or deserialized.
+DecoratedJSON uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonMember`. Properties which are not annotated will not be serialized or deserialized.
 
 TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMetadata` options enabled.
 
@@ -62,23 +62,37 @@ _Note: this example assumes you are using ReflectDecorators. Without it, `@jsonM
 
 ### Mapping types
 
-At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. In this case, `mapType` can be used to define conversion functions. Example:
+At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. To tackle this use case, DecoratedJson allows mapping a type to a custom converter. Example:
 
 ```typescript
-import {DecoratedJson, jsonObject, jsonMember} from 'decorated-json';
+import {ConversionContext, DecoratedJson, jsonObject, jsonMember, SimpleTypeDescriptor} from 'decorated-json';
 import * as Decimal from 'decimal.js'; // Or any other library your type originates from
 
-const decoratedJson = new DecoratedJson(); 
 
-decoratedJson.mapType(BigInt, {
-    fromJson: json => json == null ? json : BigInt(json),
-    toJson: value => value == null ? value : value.toString(),
-});
+class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string> {
+    fromJson({source}: ConversionContext<string | null | undefined>): bigint | null | undefined {
+        return source == null ? source : BigInt(source);
+    }
 
-decoratedJson.mapType(Decimal, {
-    fromJson: json => json == null ? json : new Decimal(json),
-    toJson: value => value == null ? value : value.toString(),
-});
+    toJson({source}: ConversionContext<bigint | null | undefined>): string | null | undefined {
+        return source == null ? source : source.toString();
+    }
+}
+
+class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string> {
+    fromJson({source}: ConversionContext<string | null | undefined>): Decimal | null | undefined {
+        return source == null ? source : new Decimal(source);
+    }
+
+    toJson({source}: ConversionContext<Decimal | null | undefined>): string | null | undefined {
+        return source == null ? source : source.toString();
+    }
+}
+
+const decoratedJson = new DecoratedJson();
+
+decoratedJson.converterMap.set(BigInt, new BigIntTypeDescriptor());
+decoratedJson.converterMap.set(Decimal, new DecimalTypeDescriptor());
 
 @jsonObject()
 class MappedTypes {
@@ -90,43 +104,44 @@ class MappedTypes {
     money: Decimal;
 }
 
-const result = decoratedJson.type(MappedTypes).parse({cryptoKey: '1234567890123456789', money: '12345.67'});
-console.log(result.money instanceof Decimal); // true 
+const result = decoratedJson.type(MappedTypes).parse({
+    cryptoKey: '1234567890123456789',
+    money: '12345.67',
+});
 console.log(typeof result.cryptoKey === 'bigint'); // true 
+console.log(result.money instanceof Decimal); // true 
 ```
 
 Do note that in order to prevent the values from being parsed as `Number`, losing precision in the process, they have to be strings. This is a limitation of the `JSON.parse` and `JSON.stringify` functions.
 
 ### Collections
 
-Properties which are of type Array, Set, or Map require the special `@jsonArrayMember`, `@jsonSetMember` and `@jsonMapMember` property decorators (respectively), which require a type argument for members (and keys in case of Maps). For primitive types, the type arguments are the corresponding wrapper types, which the following example showcases. Everything else works the same way:
+Creating collections such as `Array`, `Map`, an `Set` can be accomplished by their respective descriptors. Example:
 
 ```typescript
-import {jsonObject, jsonArrayMember, jsonSetMember, jsonMapMember, MapShape} from 'decorated-json';
+import {jsonObject, array, map, set, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonArrayMember(() => Number)
+    @jsonMember(array(() => Number))
     prop1: Array<number>;
 
-    @jsonSetMember(() => String)
+    @jsonMember(set(() => String))
     prop2: Set<string>;
 
-    @jsonMapMember(() => Number, () => MySecondDataClass, {shape: MapShape.Object})
+    @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     prop3: Map<number, MySecondDataClass>;
 }
 ```
 
 Sets are converted to JSON as arrays. Maps are converted as arrays objects, each object having a `key` and a `value` property.
 
-Multidimensional arrays require additional configuration, see Limitations below.
-
 ### Complex, nested object tree
 
-DecoratedJSON works through your objects recursively, and can consume massively complex, nested object trees (except for some limitations with uncommon, untyped structures, see below in the limitations section).
+DecoratedJSON works through your objects recursively, and can consume massively complex, nested object trees.
 
 ```typescript
-import {jsonObject, jsonMember, jsonArrayMember, jsonMapMember} from 'decorated-json';
+import {jsonObject, jsonMember, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MySecondDataClass {
@@ -139,26 +154,27 @@ class MySecondDataClass {
 
 @jsonObject()
 class MyDataClass {
-    @jsonMember()
-    prop1: MySecondDataClass;
-    
-    @jsonArrayMember(() => MySecondDataClass)
-    arrayProp: MySecondDataClass[];
 
-    @jsonMapMember(() => Number, MySecondDataClass)
+    @jsonMember(array(array(() => MySecondDataClass)))
+    multiDimension: Array<Array<MySecondDataClass>>;
+
+    @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     mapProp: Map<number, MySecondDataClass>;
+
+    @jsonMember(array(map(() => Date, array(array(() => MySecondDataClass)), {shape: MapShape.Object})))
+    overlyComplex: Array<Map<Date, Array<Array<MySecondDataClass>>>>;
 }
 ```
 
 ### Any type
-In case you don't want DecoratedJSON to make any conversion, the `AnyT` type can be used. 
+In case you don't want DecoratedJSON to make any conversion, the `Any` type can be used. 
 
 ```typescript
-import {AnyT, jsonObject, jsonMember} from 'decorated-json';
+import {Any, jsonObject, jsonMember} from 'decorated-json';
 
 @jsonObject()
 class Something {
-    @jsonMember(() => AnyT)
+    @jsonMember(Any)
     anythingGoes: any;
 }
 ```
@@ -252,23 +268,6 @@ class MyDataClass {
 ```
 
 Instead, prefer creating the necessary class-structure for your object tree.
-
-### Multi-dimensional arrays
-
-DecoratedJSON only supports multi-dimensional arrays of a single type (can be polymorphic), and requires specifying the array dimension to do so:
-
-```typescript
-import {jsonObject, jsonArrayMember} from 'decorated-json';
-
-@jsonObject()
-class MyDataClass {
-    @jsonArrayMember(Number, {dimensions: 2})
-    public prop1: number[][];
-
-    @jsonArrayMember(Number, {dimensions: 3})
-    public prop2: number[][][];
-}
-```
 
 ### No inferred property types
 

@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
+import {array, DecoratedJson, jsonMember, jsonObject} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -41,7 +41,7 @@ describe('custom member toJson', () => {
 describe('custom array member toJson', () => {
     @jsonObject()
     class Obj {
-        @jsonArrayMember(() => Number, {toJson: (values: Array<number>) => values.join(',')})
+        @jsonMember(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
         nums: Array<number>;
 
         @jsonMember()
@@ -96,7 +96,7 @@ describe('custom delegating array member toJson', () => {
 
     @jsonObject()
     class Obj {
-        @jsonArrayMember(() => Inner, {toJson: objArrayToJson})
+        @jsonMember(array(() => Inner), {toJson: objArrayToJson})
         inners: Array<Inner>;
 
         @jsonMember()

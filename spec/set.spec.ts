@@ -1,4 +1,4 @@
-import {AnyT, ArrayT, DecoratedJson, jsonMember, jsonObject, jsonSetMember, SetT} from '../src';
+import {Any, array, DecoratedJson, jsonMember, jsonObject, set} from '../src';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -58,8 +58,8 @@ describe('set of objects', () => {
             {strProp: 'gamma', numProp: 0},
         ];
 
-        const set = new Set<Simple>(expectation.map(obj => new Simple(obj)));
-        const result = decoratedJson.type(Simple).stringifySet(set);
+        const input = new Set<Simple>(expectation.map(obj => new Simple(obj)));
+        const result = decoratedJson.type(Simple).stringifySet(input);
 
         expect(result).toBe(JSON.stringify(expectation));
     });
@@ -68,7 +68,7 @@ describe('set of objects', () => {
 describe('set member', () => {
     @jsonObject()
     class WithSet {
-        @jsonSetMember(() => Everything)
+        @jsonMember(set(() => Everything))
         prop: Set<Everything>;
 
         getSetSize() {
@@ -120,7 +120,7 @@ describe('set array member', () => {
 
     @jsonObject()
     class WithSet {
-        @jsonMember(() => SetT(ArrayT(Simple)))
+        @jsonMember(set(array(() => Simple)))
         prop: Set<Array<Simple>>;
 
         getSetSize() {
@@ -202,7 +202,7 @@ describe('set array member', () => {
 describe('set of raw objects', () => {
     @jsonObject()
     class WithRawSet {
-        @jsonSetMember(() => AnyT)
+        @jsonMember(set(Any))
         rawSet: Set<any>;
     }
 

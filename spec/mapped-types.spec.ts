@@ -1,7 +1,11 @@
-import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
-
-const date2000 = '2000-01-01T00:00:00.000Z';
-const date3000 = '3000-01-01T00:00:00.000Z';
+import {
+    array,
+    ConversionContext,
+    DecoratedJson,
+    jsonMember,
+    jsonObject,
+    TypeDescriptor,
+} from '../src';
 
 describe('mapped types', () => {
     class CustomType {
@@ -38,11 +42,26 @@ describe('mapped types', () => {
     });
 
     describe('instance', () => {
+        class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
+            fromJson(
+                context: ConversionContext<any | null | undefined>,
+            ): CustomType | null | undefined {
+                return new CustomType(context.source);
+            }
+
+            toJson(
+                context: ConversionContext<CustomType | null | undefined>,
+            ): any | null | undefined {
+                return context.source?.value;
+            }
+
+            getFriendlyName(): string {
+                return 'CustomType';
+            }
+        }
+
         decoratedJson = new DecoratedJson();
-        decoratedJson.mapType(CustomType, {
-            fromJson: json => new CustomType(json),
-            toJson: value => value?.value,
-        });
+        decoratedJson.converterMap.set(CustomType, new CustomTypeDescriptor());
 
         const mappedTypesSpecHandler = decoratedJson.type(MappedTypesSpec);
 
@@ -71,14 +90,29 @@ describe('mapped types', () => {
             toJson: () => 1,
         };
 
-        const CustomTypeMap = {
-            fromJson: (json: any) => new CustomType(json),
-            toJson: (value: any) => value.value,
-        };
+        class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
+            fromJson(
+                context: ConversionContext<any | null | undefined>,
+            ): CustomType | null | undefined {
+                return new CustomType(context.source);
+            }
 
-        spyOn(CustomTypeMap, 'toJson').and.callThrough();
+            toJson(
+                context: ConversionContext<CustomType | null | undefined>,
+            ): any | null | undefined {
+                return context.source?.value;
+            }
+
+            getFriendlyName(): string {
+                return 'CustomType';
+            }
+        }
+
+        const customTypeDescriptor = new CustomTypeDescriptor();
+
+        spyOn(customTypeDescriptor, 'toJson').and.callThrough();
         spyOn(jsonMemberOptions, 'toJson').and.callThrough();
-        spyOn(CustomTypeMap, 'fromJson').and.callThrough();
+        spyOn(customTypeDescriptor, 'fromJson').and.callThrough();
         spyOn(jsonMemberOptions, 'fromJson').and.callThrough();
 
         @jsonObject()
@@ -90,111 +124,64 @@ describe('mapped types', () => {
             simple: CustomType;
         }
 
-        decoratedJson.mapType(CustomType, CustomTypeMap);
+        decoratedJson.converterMap.set(CustomType, customTypeDescriptor);
         const overriddenTypeHandler = decoratedJson.type(OverriddenConverters);
 
         const parsed = overriddenTypeHandler.parse({data: 5, simple: 5});
-        expect(CustomTypeMap.fromJson).toHaveBeenCalledTimes(1);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(customTypeDescriptor.fromJson).toHaveBeenCalledTimes(1);
         expect(jsonMemberOptions.fromJson).toHaveBeenCalledTimes(1);
         expect(parsed.overwritten.value).toBe(0);
         expect(parsed.simple.value).toBe(5);
 
         const plain = overriddenTypeHandler.toPlainJson(parsed);
-        expect(CustomTypeMap.toJson).toHaveBeenCalledTimes(1);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(customTypeDescriptor.toJson).toHaveBeenCalledTimes(1);
         expect(jsonMemberOptions.toJson).toHaveBeenCalledTimes(1);
         expect(plain.overwritten).toBe(1);
         expect(plain.simple).toBe(5);
-    });
-
-    it('should use default when only mapping fromJson', () => {
-        @jsonObject()
-        class OnlyFromJson {
-            @jsonMember()
-            date: Date;
-        }
-
-        decoratedJson.mapType<Date, Date>(Date, {
-            fromJson: value => new Date(new Date(value).setFullYear(3000)),
-        });
-        const onlyFromJsonHandler = decoratedJson.type(OnlyFromJson);
-        const parsed = onlyFromJsonHandler.parse({date: date2000});
-
-        expect(parsed.date.toISOString()).toEqual(date3000);
-        expect(onlyFromJsonHandler.toPlainJson(parsed).date.toString())
-            .toEqual(new Date(date3000).toString());
-    });
-
-    it('should use default when only mapping toJson', () => {
-        @jsonObject()
-        class OnlyToJson {
-            @jsonMember()
-            date: Date;
-        }
-
-        decoratedJson.mapType(Date, {
-            toJson: value => new Date(value!.setFullYear(3000)).toISOString(),
-        });
-        const OnlyToJsonHandler = decoratedJson.type(OnlyToJson);
-
-        const test = new OnlyToJson();
-        test.date = new Date(date2000);
-        const result = OnlyToJsonHandler.toPlainJson(test);
-
-        expect(result).toEqual({date: date3000});
-        expect(OnlyToJsonHandler.parse({date: date2000}).date.toISOString()).toEqual(date2000);
-    });
-
-    it('should handle mapping arrays', () => {
-        @jsonObject()
-        class MappedTypeWithArray {
-
-            @jsonArrayMember(() => String)
-            array: Array<string>;
-        }
-
-        const ArrayTypeMap = {
-            fromJson: () => ['object'],
-            toJson: () => ['json'],
-        };
-
-        decoratedJson.mapType(Array, ArrayTypeMap);
-
-        const mappedTypeWithArrayHandler = decoratedJson.type(MappedTypeWithArray);
-
-        spyOn(ArrayTypeMap, 'toJson').and.callThrough();
-        spyOn(ArrayTypeMap, 'fromJson').and.callThrough();
-        const parsed = mappedTypeWithArrayHandler.parse({array: ['hello']});
-        expect(ArrayTypeMap.fromJson).toHaveBeenCalled();
-        expect(parsed.array).toEqual(['object']);
-
-        const plain = mappedTypeWithArrayHandler.toPlainJson(parsed);
-        expect(ArrayTypeMap.toJson).toHaveBeenCalled();
-        expect(plain.array).toEqual(['json']);
     });
 
     it('works on arrays', () => {
         @jsonObject()
         class MappedTypeWithArray {
 
-            @jsonArrayMember(() => CustomType)
+            @jsonMember(array(() => CustomType))
             array: Array<CustomType>;
         }
 
-        const CustomTypeMap = {
-            fromJson: (json: any) => new CustomType(json),
-            toJson: (value: any) => value.value,
-        };
-        decoratedJson.mapType(CustomType, CustomTypeMap);
+        class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
+            fromJson(
+                context: ConversionContext<any | null | undefined>,
+            ): CustomType | null | undefined {
+                return new CustomType(context.source);
+            }
+
+            toJson(
+                context: ConversionContext<CustomType | null | undefined>,
+            ): any | null | undefined {
+                return context.source?.value;
+            }
+
+            getFriendlyName(): string {
+                return 'CustomType';
+            }
+        }
+
+        const customTypeDescriptor = new CustomTypeDescriptor();
+        decoratedJson.converterMap.set(CustomType, customTypeDescriptor);
         const mappedTypeWithArrayHandler = decoratedJson.type(MappedTypeWithArray);
 
-        spyOn(CustomTypeMap, 'toJson').and.callThrough();
-        spyOn(CustomTypeMap, 'fromJson').and.callThrough();
+        spyOn(customTypeDescriptor, 'toJson').and.callThrough();
+        spyOn(customTypeDescriptor, 'fromJson').and.callThrough();
         const parsed = mappedTypeWithArrayHandler.parse({array: [1, 5]});
-        expect(CustomTypeMap.fromJson).toHaveBeenCalled();
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(customTypeDescriptor.fromJson).toHaveBeenCalled();
         expect(parsed.array.map(c => c.value)).toEqual([1, 5]);
 
         const plain = mappedTypeWithArrayHandler.toPlainJson(parsed);
-        expect(CustomTypeMap.toJson).toHaveBeenCalled();
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(customTypeDescriptor.toJson).toHaveBeenCalled();
         expect(plain.array).toEqual([1, 5]);
     });
 });

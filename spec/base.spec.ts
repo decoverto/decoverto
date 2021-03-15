@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
+import {array, DecoratedJson, jsonMember, jsonObject} from '../src';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -117,7 +117,7 @@ describe('basic conversion of', () => {
                 @jsonMember()
                 bool: boolean = true;
 
-                @jsonArrayMember(() => String)
+                @jsonMember(array(() => String))
                 arr: Array<string> = [];
 
                 @jsonMember()
@@ -144,7 +144,7 @@ describe('basic conversion of', () => {
                 @jsonMember()
                 bool: boolean;
 
-                @jsonArrayMember(() => String)
+                @jsonMember(array(() => String))
                 arr: Array<string>;
 
                 @jsonMember()

@@ -1,5 +1,4 @@
-import {ArrayT, DecoratedJson, jsonMapMember, jsonMember, jsonObject} from '../src';
-import {MapShape} from '../src/type-descriptor';
+import {array, DecoratedJson, jsonMember, jsonObject, map, MapShape} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -27,7 +26,7 @@ describe('map', () => {
 
         @jsonObject()
         class DictMap {
-            @jsonMapMember(() => String, () => Simple, {shape: MapShape.Object})
+            @jsonMember(map(() => String, () => Simple, {shape: MapShape.Object}))
             prop: Map<string, Simple>;
 
             getSetSize() {
@@ -88,7 +87,7 @@ describe('map', () => {
 
         @jsonObject()
         class DictionaryArrayShape {
-            @jsonMapMember(() => String, () => Simple, {shape: MapShape.Array})
+            @jsonMember(map(() => String, () => Simple, {shape: MapShape.Array}))
             map: Map<string, Simple>;
         }
 
@@ -140,7 +139,7 @@ describe('map', () => {
 
         @jsonObject()
         class DictArrayMap {
-            @jsonMapMember(() => String, () => ArrayT(Simple), {shape: MapShape.Object})
+            @jsonMember(map(() => String, array(() => Simple), {shape: MapShape.Object}))
             prop: Map<string, Array<Simple>>;
 
             getSetSize() {

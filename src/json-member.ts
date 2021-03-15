@@ -5,16 +5,14 @@ import {
 } from './helpers';
 import {injectMetadataInformation} from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
+import {ConcreteTypeDescriptor} from './type-descriptor/concrete.type-descriptor';
 import {
-    ArrayTypeDescriptor,
-    ensureTypeDescriptor,
-    isTypeThunk,
-    MapTypeDescriptor,
-    SetTypeDescriptor,
+    isTypeLike,
     TypeDescriptor,
     Typelike,
     TypeThunk,
-} from './type-descriptor';
+} from './type-descriptor/type-descriptor';
+import {ensureTypeDescriptor} from './type-descriptor/type-descriptor.utils';
 import {Constructor} from './types';
 
 declare abstract class Reflect {
@@ -54,54 +52,47 @@ export function jsonMember(options: IJsonMemberOptions): PropertyDecorator;
  * extra options.
  */
 export function jsonMember(
-    type?: TypeThunk,
+    type?: TypeThunk | TypeDescriptor,
     options?: IJsonMemberOptions,
 ): PropertyDecorator;
 
 export function jsonMember<T extends Function>(
-    optionsOrType?: IJsonMemberOptions | TypeThunk,
+    optionsOrType?: IJsonMemberOptions | Typelike<any>,
     options?: IJsonMemberOptions,
 ): PropertyDecorator {
     return (target, property) => {
         const decoratorName = `@jsonMember on ${nameof(target.constructor)}.${String(property)}`;
-        let typeThunk: TypeThunk | undefined;
+        let type: Typelike<any> | undefined;
 
-        if (isTypeThunk(optionsOrType)) {
-            typeThunk = optionsOrType;
+        if (isTypeLike(optionsOrType)) {
+            type = optionsOrType;
         } else {
             options = optionsOrType;
         }
 
         options = options ?? {};
 
-        if (typeThunk !== undefined) {
+        if (type !== undefined) {
             // Do nothing
         } else if (isReflectMetadataSupported) {
             const reflectCtor = Reflect.getMetadata(
                 'design:type',
                 target,
                 property,
-            ) as Function | null | undefined;
+            ) as Constructor<any> | null | undefined;
 
             if (reflectCtor == null) {
                 throw new Error(`${decoratorName}: cannot resolve detected property constructor at \
 runtime. ${LAZY_TYPE_EXPLANATION}`);
             }
-            typeThunk = () => ensureTypeDescriptor(reflectCtor);
+
+            type = new ConcreteTypeDescriptor(reflectCtor);
         } else if (options.fromJson === undefined) {
             throw new Error(`${decoratorName}: Cannot determine type`);
         }
 
-        const typeToTest = typeThunk?.();
-
-        if (typeToTest !== undefined) {
-            throwIfSpecialProperty(decoratorName, typeToTest);
-        }
-
         injectMetadataInformation(target, property, {
-            type: typeThunk === undefined
-                ? undefined
-                : () => ensureTypeDescriptor(typeThunk!()),
+            type: type === undefined ? undefined : ensureTypeDescriptor(type),
             emitDefaultValue: options.emitDefaultValue,
             isRequired: options.isRequired,
             options: extractOptionBase(options),
@@ -111,26 +102,4 @@ runtime. ${LAZY_TYPE_EXPLANATION}`);
             toJson: options.toJson,
         });
     };
-}
-
-function isConstructorEqual(type: Typelike, constructor: Constructor<any>) {
-    return type instanceof TypeDescriptor ? type.ctor === constructor : type === constructor;
-}
-
-function throwIfSpecialProperty(decoratorName: string, typeDescriptor: Typelike) {
-    if (!(typeDescriptor instanceof ArrayTypeDescriptor)
-        && isConstructorEqual(typeDescriptor, Array)) {
-        throw new Error(`${decoratorName}: property is an Array. Use the jsonArrayMember decorator \
-instead.`);
-    }
-
-    if (!(typeDescriptor instanceof SetTypeDescriptor) && isConstructorEqual(typeDescriptor, Set)) {
-        throw new Error(`${decoratorName}: property is a Set. Use the jsonSetMember decorator \
-instead.`);
-    }
-
-    if (!(typeDescriptor instanceof MapTypeDescriptor) && isConstructorEqual(typeDescriptor, Map)) {
-        throw new Error(`${decoratorName}: property is a Map. Use the jsonMapMember decorator \`
-instead.`);
-    }
 }

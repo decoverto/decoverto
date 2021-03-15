@@ -1,4 +1,4 @@
-import {AnyT, DecoratedJson, jsonArrayMember, jsonMember, jsonObject} from '../src';
+import {Any, array, DecoratedJson, jsonMember, jsonObject} from '../src';
 import {Everything, IEverything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -77,16 +77,16 @@ describe('multidimensional arrays', () => {
 
     @jsonObject()
     class WithArrays implements IWithArrays {
-        @jsonArrayMember(() => Everything)
+        @jsonMember(array(() => Everything))
         one: Array<Everything>;
 
-        @jsonArrayMember(() => Everything, {dimensions: 2})
+        @jsonMember(array(array(() => Everything)))
         two: Array<Array<Everything>>;
 
-        @jsonArrayMember(() => Everything, {dimensions: 6})
+        @jsonMember(array(array(array(array(array(array(() => Everything)))))))
         deep: Array<Array<Array<Array<Array<Array<Everything>>>>>>;
 
-        @jsonArrayMember(() => WithArrays, {dimensions: 2})
+        @jsonMember(array(array(() => WithArrays)))
         arrayWithArray?: Array<Array<WithArrays>>;
 
         constructor(init?: IWithArrays) {
@@ -124,7 +124,7 @@ describe('multidimensional arrays', () => {
                 [],
             ],
             deep: [[[[
-                [],
+                [[]],
                 [[expected ? Everything.expected() : Everything.create()]],
             ]]]],
             arrayWithArray: [
@@ -136,49 +136,27 @@ describe('multidimensional arrays', () => {
         return expected ? new WithArrays(result) : result;
     }
 
-    function createTestArray(expected: true): Array<Array<WithArrays>>;
-    function createTestArray(expected: false): Array<Array<IWithArrays>>;
-    function createTestArray(
-        expected: boolean,
-    ): Array<Array<IWithArrays>> | Array<Array<WithArrays>> {
-        return [
-            [],
-            [
-                createTestObject(expected),
-                createTestObject(expected),
-            ],
-            [],
-            [
-                createTestObject(expected),
-            ],
-        ];
-    }
-
     it('parses', () => {
-        const testArray = JSON.stringify(createTestArray(false));
-        const result = decoratedJson.type(WithArrays).parseArray(testArray, 2);
+        const result = decoratedJson.type(WithArrays).parse(createTestObject(false));
 
-        expect(result).toBeOfLength(4);
-        expect(result[0]).toBeOfLength(0);
-        expect(result[1]).toBeOfLength(2);
-        expect(result[1][0]).toEqual(createTestObject(true));
-        expect(result[1][1]).toEqual(createTestObject(true));
-        expect(result[2]).toBeOfLength(0);
-        expect(result[3]).toBeOfLength(1);
-        expect(result[3][0]).toEqual(createTestObject(true));
+        expect(result.one).toBeOfLength(2);
+        expect(result.two).toBeOfLength(4);
+        expect(result.deep[0][0][0][0][0]).toBeInstanceOf(Array);
+        expect(result.one[0]).toEqual(Everything.expected());
+        expect(result.deep[0][0][0][1][0][0]).toEqual(Everything.expected());
     });
 
     it('converts to JSON', () => {
-        const result = decoratedJson.type(WithArrays).stringifyArray(createTestArray(true), 2);
+        const result = decoratedJson.type(WithArrays).stringify(createTestObject(true));
 
-        expect(result).toBe(JSON.stringify(createTestArray(false)));
+        expect(result).toBe(JSON.stringify(createTestObject(true)));
     });
 });
 
 describe('array of raw objects', () => {
     @jsonObject()
     class Translations {
-        @jsonArrayMember(() => AnyT)
+        @jsonMember(array(Any))
         localization: Array<any>;
     }
 
