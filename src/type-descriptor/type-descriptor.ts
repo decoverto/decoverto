@@ -27,7 +27,7 @@ export abstract class TypeDescriptor<Class extends Object = any, Json = any> {
      */
     abstract getFriendlyName(): string;
 
-    throwTypeMismatchError(
+    protected throwTypeMismatchError(
         {
             expectedSourceType,
             context,
