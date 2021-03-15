@@ -27,7 +27,7 @@ npm install decorated-json
 
 ## How to use
 
-DecoratedJSON uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonMember` (or the specific `@jsonArrayMember`, `@jsonSetMember`, and `@jsonMapMember` decorators for collections, see below). Properties which are not annotated will not be serialized or deserialized.
+DecoratedJSON uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonMember`. Properties which are not annotated will not be serialized or deserialized.
 
 TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMetadata` options enabled.
 
@@ -116,7 +116,7 @@ Do note that in order to prevent the values from being parsed as `Number`, losin
 
 ### Collections
 
-Properties which are of type Array, Set, or Map require the special `@jsonArrayMember`, `@jsonSetMember` and `@jsonMapMember` property decorators (respectively), which require a type argument for members (and keys in case of Maps). For primitive types, the type arguments are the corresponding wrapper types, which the following example showcases. Everything else works the same way:
+Creating collections such as `Array`, `Map`, an `Set` can be accomplished by their respective descriptors. Example:
 
 ```typescript
 import {jsonObject, array, map, set, MapShape} from 'decorated-json';
@@ -136,11 +136,9 @@ class MyDataClass {
 
 Sets are converted to JSON as arrays. Maps are converted as arrays objects, each object having a `key` and a `value` property.
 
-Multidimensional arrays require additional configuration, see Limitations below.
-
 ### Complex, nested object tree
 
-DecoratedJSON works through your objects recursively, and can consume massively complex, nested object trees (except for some limitations with uncommon, untyped structures, see below in the limitations section).
+DecoratedJSON works through your objects recursively, and can consume massively complex, nested object trees.
 
 ```typescript
 import {jsonObject, jsonMember, MapShape} from 'decorated-json';
@@ -156,14 +154,15 @@ class MySecondDataClass {
 
 @jsonObject()
 class MyDataClass {
-    @jsonMember()
-    prop1: MySecondDataClass;
 
-    @jsonMember(array(() => MySecondDataClass))
-    arrayProp: MySecondDataClass[];
+    @jsonMember(array(array(() => MySecondDataClass)))
+    multiDimension: Array<Array<MySecondDataClass>>;
 
     @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     mapProp: Map<number, MySecondDataClass>;
+
+    @jsonMember(array(map(() => Date, array(array(() => MySecondDataClass)), {shape: MapShape.Object})))
+    overlyComplex: Array<Map<Date, Array<Array<MySecondDataClass>>>>;
 }
 ```
 
@@ -269,23 +268,6 @@ class MyDataClass {
 ```
 
 Instead, prefer creating the necessary class-structure for your object tree.
-
-### Multi-dimensional arrays
-
-DecoratedJSON only supports multi-dimensional arrays of a single type (can be polymorphic), and requires specifying the array dimension to do so:
-
-```typescript
-import {jsonObject, jsonArrayMember} from 'decorated-json';
-
-@jsonObject()
-class MyDataClass {
-    @jsonArrayMember(Number, {dimensions: 2})
-    public prop1: number[][];
-
-    @jsonArrayMember(Number, {dimensions: 3})
-    public prop2: number[][][];
-}
-```
 
 ### No inferred property types
 
