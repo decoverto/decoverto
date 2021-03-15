@@ -1,9 +1,6 @@
 import {
     isReflectMetadataSupported,
-    isSubtypeOf,
-    isValueDefined,
     LAZY_TYPE_EXPLANATION,
-    logWarning,
     nameof,
 } from './helpers';
 import {injectMetadataInformation} from './metadata';
@@ -77,32 +74,7 @@ export function jsonMember<T extends Function>(
 
         options = options ?? {};
 
-        if (Object.prototype.hasOwnProperty.call(options, 'constructor')) {
-            if (typeThunk !== undefined) {
-                throw new Error(
-                    'Cannot both define constructor option and type. Only one allowed.',
-                );
-            }
-
-            if (!isValueDefined(options.constructor)) {
-                throw new Error(`${decoratorName}: cannot resolve specified property constructor \
-at runtime. ${LAZY_TYPE_EXPLANATION}`);
-            }
-
-            // Property constructor has been specified. Use ReflectDecorators (if available) to
-            // check whether that constructor is correct. Warn if not.
-            const newTypeDescriptor = ensureTypeDescriptor(options.constructor);
-            typeThunk = () => newTypeDescriptor;
-            if (isReflectMetadataSupported && !isSubtypeOf(
-                newTypeDescriptor.ctor,
-                Reflect.getMetadata('design:type', target, property),
-            )) {
-                logWarning(
-                    `${decoratorName}: detected property type does not match`
-                    + ` 'constructor' option.`,
-                );
-            }
-        } else if (typeThunk !== undefined) {
+        if (typeThunk !== undefined) {
             // Do nothing
         } else if (isReflectMetadataSupported) {
             const reflectCtor = Reflect.getMetadata(
