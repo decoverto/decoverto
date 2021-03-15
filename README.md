@@ -62,23 +62,37 @@ _Note: this example assumes you are using ReflectDecorators. Without it, `@jsonM
 
 ### Mapping types
 
-At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. In this case, `mapType` can be used to define conversion functions. Example:
+At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. To tackle this use case, DecoratedJson allows mapping a type to a custom converter. Example:
 
 ```typescript
-import {DecoratedJson, jsonObject, jsonMember} from 'decorated-json';
+import {ConversionContext, DecoratedJson, jsonObject, jsonMember, SimpleTypeDescriptor} from 'decorated-json';
 import * as Decimal from 'decimal.js'; // Or any other library your type originates from
 
-const decoratedJson = new DecoratedJson(); 
 
-decoratedJson.mapType(BigInt, {
-    fromJson: json => json == null ? json : BigInt(json),
-    toJson: value => value == null ? value : value.toString(),
-});
+class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string> {
+    fromJson({source}: ConversionContext<string | null | undefined>): bigint | null | undefined {
+        return source == null ? source : BigInt(source);
+    }
 
-decoratedJson.mapType(Decimal, {
-    fromJson: json => json == null ? json : new Decimal(json),
-    toJson: value => value == null ? value : value.toString(),
-});
+    toJson({source}: ConversionContext<bigint | null | undefined>): string | null | undefined {
+        return source == null ? source : source.toString();
+    }
+}
+
+class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string> {
+    fromJson({source}: ConversionContext<string | null | undefined>): Decimal | null | undefined {
+        return source == null ? source : new Decimal(source);
+    }
+
+    toJson({source}: ConversionContext<Decimal | null | undefined>): string | null | undefined {
+        return source == null ? source : source.toString();
+    }
+}
+
+const decoratedJson = new DecoratedJson();
+
+decoratedJson.converterMap.set(BigInt, new BigIntTypeDescriptor());
+decoratedJson.converterMap.set(Decimal, new DecimalTypeDescriptor());
 
 @jsonObject()
 class MappedTypes {
@@ -90,9 +104,12 @@ class MappedTypes {
     money: Decimal;
 }
 
-const result = decoratedJson.type(MappedTypes).parse({cryptoKey: '1234567890123456789', money: '12345.67'});
-console.log(result.money instanceof Decimal); // true 
+const result = decoratedJson.type(MappedTypes).parse({
+    cryptoKey: '1234567890123456789',
+    money: '12345.67',
+});
 console.log(typeof result.cryptoKey === 'bigint'); // true 
+console.log(result.money instanceof Decimal); // true 
 ```
 
 Do note that in order to prevent the values from being parsed as `Number`, losing precision in the process, they have to be strings. This is a limitation of the `JSON.parse` and `JSON.stringify` functions.
