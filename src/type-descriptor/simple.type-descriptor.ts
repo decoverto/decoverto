@@ -14,6 +14,6 @@ export abstract class SimpleTypeDescriptor<Class extends Object = any, Json = an
     }
 
     getFriendlyName(): string {
-        return (this.type as any).name;
+        return this.type.name;
     }
 }
