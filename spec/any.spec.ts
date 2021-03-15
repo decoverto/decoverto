@@ -1,15 +1,15 @@
-import {AnyT, DecoratedJson, jsonArrayMember, jsonMember, jsonObject, jsonSetMember} from '../src';
+import {Any, array, DecoratedJson, jsonMember, jsonObject, set} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('AnyT', () => {
+describe('Any', () => {
     describe('on a simple class property', () => {
         @jsonObject()
         class SimplePropertyAny {
-            @jsonMember(() => AnyT)
+            @jsonMember(Any)
             any: any;
 
-            @jsonMember(() => AnyT)
+            @jsonMember(Any)
             anyNullable?: any | null;
         }
 
@@ -48,10 +48,10 @@ describe('AnyT', () => {
     describe('on arrays', () => {
         @jsonObject()
         class ArrayPropertyAny {
-            @jsonArrayMember(() => AnyT)
+            @jsonMember(array(Any))
             any: Array<any>;
 
-            @jsonArrayMember(() => AnyT)
+            @jsonMember(array(Any))
             anyNullable?: Array<any> | null;
         }
 
@@ -95,10 +95,10 @@ describe('AnyT', () => {
         @jsonObject()
         class SetPropertyAny {
 
-            @jsonSetMember(() => AnyT)
+            @jsonMember(set(Any))
             any: Set<any>;
 
-            @jsonSetMember(() => AnyT)
+            @jsonMember(set(Any))
             anyNullable?: Set<any> | null;
         }
 
@@ -143,14 +143,14 @@ describe('AnyT', () => {
         @jsonObject()
         class Event {
 
-            @jsonMember(() => AnyT)
+            @jsonMember(Any)
             data?: {[k: string]: any} | null;
         }
 
         @jsonObject()
         class A {
 
-            @jsonArrayMember(() => Event)
+            @jsonMember(array(() => Event))
             events: Array<Event>;
         }
 

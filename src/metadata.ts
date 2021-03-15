@@ -1,6 +1,6 @@
 import {isJsonStringifyCompatible, isTypeTypedArray, nameof} from './helpers';
 import {OptionsBase} from './options-base';
-import {TypeDescriptor} from './type-descriptor';
+import {TypeDescriptor} from './type-descriptor/type-descriptor';
 import {Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decoratedJsonMetadata');
@@ -16,7 +16,7 @@ export interface JsonMemberMetadata {
     key: string;
 
     /** Type descriptor of the member. */
-    type?: (() => TypeDescriptor) | null;
+    type?: TypeDescriptor;
 
     /** If set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;

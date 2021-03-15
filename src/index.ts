@@ -9,18 +9,12 @@ export {
     IJsonObjectOptionsBase,
 } from './json-object';
 export {jsonMember, IJsonMemberOptions} from './json-member';
-export {jsonArrayMember, IJsonArrayMemberOptions} from './json-array-member';
-export {jsonSetMember, IJsonSetMemberOptions} from './json-set-member';
-export {jsonMapMember, IJsonMapMemberOptions} from './json-map-member';
-export {
-    ArrayT,
-    AnyT,
-    SetT,
-    MapT,
-    Typelike,
-    MapOptions,
-    SetTypeDescriptor,
-    ArrayTypeDescriptor,
-    MapTypeDescriptor,
-} from './type-descriptor';
+export * from './type-descriptor/any.type-descriptor';
+export * from './type-descriptor/array.type-descriptor';
+export * from './type-descriptor/concrete.type-descriptor';
+export * from './type-descriptor/list.type-descriptor';
+export * from './type-descriptor/map.type-descriptor';
+export * from './type-descriptor/set.type-descriptor';
+export * from './type-descriptor/simple.type-descriptor';
+export * from './type-descriptor/type-descriptor';
 export * from './types';

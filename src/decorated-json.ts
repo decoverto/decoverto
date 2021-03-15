@@ -1,6 +1,11 @@
 import {DecoratedJsonTypeHandler} from './decorated-json-type-handler';
-import {MappedTypeConverters} from './decorated-json.interface';
 import {JsonHandler} from './json-handler';
+import {ArrayBufferTypeDescriptor} from './type-descriptor/array-buffer.type-descriptor';
+import {DataViewTypeDescriptor} from './type-descriptor/data-view.type-descriptor';
+import {DateTypeDescriptor} from './type-descriptor/date.type-descriptor';
+import {DirectTypeDescriptor} from './type-descriptor/direct.type-descriptor';
+import {TypeDescriptor} from './type-descriptor/type-descriptor';
+import {TypedArrayTypeDescriptor} from './type-descriptor/typed-array.type-descriptor';
 import {Serializable} from './types';
 
 interface DecoratedJsonSettings {
@@ -21,26 +26,35 @@ interface DecoratedJsonSettings {
 
 export class DecoratedJson {
 
-    private readonly mappedConversions = new Map<Serializable<any>,
-        MappedTypeConverters<any>>();
+    readonly converterMap = new Map<Serializable<any>, TypeDescriptor>([
+        [Boolean, new DirectTypeDescriptor(Boolean)],
+        [Date, new DateTypeDescriptor()],
+        [Number, new DirectTypeDescriptor(Number)],
+        [String, new DirectTypeDescriptor(String)],
+        [ArrayBuffer, new ArrayBufferTypeDescriptor()],
+        [DataView, new DataViewTypeDescriptor()],
+
+        // typed arrays
+        [Float32Array, new TypedArrayTypeDescriptor(Float32Array)],
+        [Float64Array, new TypedArrayTypeDescriptor(Float64Array)],
+        [Int8Array, new TypedArrayTypeDescriptor(Int8Array)],
+        [Uint8Array, new TypedArrayTypeDescriptor(Uint8Array)],
+        [Uint8ClampedArray, new TypedArrayTypeDescriptor(Uint8ClampedArray)],
+        [Int16Array, new TypedArrayTypeDescriptor(Int16Array)],
+        [Uint16Array, new TypedArrayTypeDescriptor(Uint16Array)],
+        [Int32Array, new TypedArrayTypeDescriptor(Int32Array)],
+        [Uint32Array, new TypedArrayTypeDescriptor(Uint32Array)],
+    ]);
 
     constructor(
         private readonly settings: DecoratedJsonSettings = {},
     ) {
     }
 
-    mapType<T, R = T>(type: Serializable<T>, converters: MappedTypeConverters<R>): void {
-        this.mappedConversions.set(type, converters);
-    }
-
     type<T>(type: Serializable<T>): DecoratedJsonTypeHandler<T> {
-        const handler = new DecoratedJsonTypeHandler<T>(type, {
+        return new DecoratedJsonTypeHandler<T>(type, {
+            conversionMap: this.converterMap,
             jsonHandler: this.settings.jsonHandler,
         });
-        this.mappedConversions.forEach((converters, conversionType) => {
-            handler.setConversionStrategy(conversionType, converters);
-        });
-
-        return handler;
     }
 }

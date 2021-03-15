@@ -1,12 +1,12 @@
 import {
+    array,
     DecoratedJson,
-    jsonArrayMember,
-    jsonMapMember,
     jsonMember,
     jsonObject,
-    jsonSetMember,
+    map,
+    MapShape,
+    set,
 } from '../../src';
-import {MapShape} from '../../src/type-descriptor';
 import {A} from './a.model';
 import {B} from './b.model';
 
@@ -55,7 +55,7 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonArrayMember(() => Lazy)
+            @jsonMember(array(() => Lazy))
             lazy: Array<Lazy>;
         }
 
@@ -94,7 +94,7 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonMapMember(() => String, () => LazyValue, {shape: MapShape.Array})
+            @jsonMember(map(() => String, () => LazyValue, {shape: MapShape.Array}))
             lazy: Map<string, LazyValue>;
         }
 
@@ -135,7 +135,7 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonSetMember(() => Lazy)
+            @jsonMember(set(() => Lazy))
             lazy: Set<Lazy>;
         }
 

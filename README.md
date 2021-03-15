@@ -102,17 +102,17 @@ Do note that in order to prevent the values from being parsed as `Number`, losin
 Properties which are of type Array, Set, or Map require the special `@jsonArrayMember`, `@jsonSetMember` and `@jsonMapMember` property decorators (respectively), which require a type argument for members (and keys in case of Maps). For primitive types, the type arguments are the corresponding wrapper types, which the following example showcases. Everything else works the same way:
 
 ```typescript
-import {jsonObject, jsonArrayMember, jsonSetMember, jsonMapMember, MapShape} from 'decorated-json';
+import {jsonObject, array, map, set, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonArrayMember(() => Number)
+    @jsonMember(array(() => Number))
     prop1: Array<number>;
 
-    @jsonSetMember(() => String)
+    @jsonMember(set(() => String))
     prop2: Set<string>;
 
-    @jsonMapMember(() => Number, () => MySecondDataClass, {shape: MapShape.Object})
+    @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     prop3: Map<number, MySecondDataClass>;
 }
 ```
@@ -126,7 +126,7 @@ Multidimensional arrays require additional configuration, see Limitations below.
 DecoratedJSON works through your objects recursively, and can consume massively complex, nested object trees (except for some limitations with uncommon, untyped structures, see below in the limitations section).
 
 ```typescript
-import {jsonObject, jsonMember, jsonArrayMember, jsonMapMember} from 'decorated-json';
+import {jsonObject, jsonMember, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MySecondDataClass {
@@ -141,24 +141,24 @@ class MySecondDataClass {
 class MyDataClass {
     @jsonMember()
     prop1: MySecondDataClass;
-    
-    @jsonArrayMember(() => MySecondDataClass)
+
+    @jsonMember(array(() => MySecondDataClass))
     arrayProp: MySecondDataClass[];
 
-    @jsonMapMember(() => Number, MySecondDataClass)
+    @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     mapProp: Map<number, MySecondDataClass>;
 }
 ```
 
 ### Any type
-In case you don't want DecoratedJSON to make any conversion, the `AnyT` type can be used. 
+In case you don't want DecoratedJSON to make any conversion, the `Any` type can be used. 
 
 ```typescript
-import {AnyT, jsonObject, jsonMember} from 'decorated-json';
+import {Any, jsonObject, jsonMember} from 'decorated-json';
 
 @jsonObject()
 class Something {
-    @jsonMember(() => AnyT)
+    @jsonMember(Any)
     anythingGoes: any;
 }
 ```
