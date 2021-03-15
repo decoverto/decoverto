@@ -64,3 +64,11 @@ overrides:
       project:
         - tsconfig/tsconfig.lint.json
       sourceType: module
+
+    rules:
+      "@typescript-eslint/ban-types":
+        - error
+        -
+          types:
+            Function: false
+            Object: false
