@@ -1,4 +1,3 @@
-import {isValueDefined} from '../helpers';
 import {ListTypeDescriptor} from './list.type-descriptor';
 import {
     ConversionContext,
@@ -55,18 +54,11 @@ export class SetTypeDescriptor<Class extends Object>
         context.path += '[]';
         const resultArray: Array<any> = [];
 
-        // Convert each element of the set, and put it into an array.
-        context.source.forEach((element) => {
-            const resultElement = this.type.toJson({
+        context.source.forEach(element => {
+            resultArray.push(this.type.toJson({
                 ...context,
                 source: element,
-            });
-
-            // Add to output if the source element was undefined, OR the converted element is
-            // defined.
-            if (!isValueDefined(element) || isValueDefined(resultElement)) {
-                resultArray.push(resultElement);
-            }
+            }));
         });
 
         return resultArray;
