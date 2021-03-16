@@ -187,12 +187,17 @@ describe('basic conversion of', () => {
                 return this._getterOnly;
             }
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             private _setterOnly: string = 'setter';
             @jsonMember()
             set setterOnly(val: string) {
                 this._setterOnly = val;
+            }
+
+            /**
+             * Exists to prevent a "'_setterOnly' is declared but its value is never read." error.
+             */
+            noTsIgnore(): string {
+                return this._setterOnly;
             }
         }
 
