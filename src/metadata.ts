@@ -6,8 +6,6 @@ import {Serializable} from './types';
 export const metadataFieldKey = Symbol('decoratedJsonMetadata');
 
 export interface JsonMemberMetadata {
-    /** If set, a default value will be emitted for uninitialized members. */
-    emitDefaultValue?: boolean | null;
 
     /** Member name as it appears in JSON. */
     name: string;

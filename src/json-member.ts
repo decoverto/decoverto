@@ -24,9 +24,6 @@ export interface IJsonMemberOptions extends OptionsBase {
     /** When set, indicates that the member must be present when converting from JSON. */
     isRequired?: boolean | null;
 
-    /** When set, a default value is emitted if the property is uninitialized/undefined. */
-    emitDefaultValue?: boolean | null;
-
     /** When set, the key on the JSON that should be used instead of the class property name. */
     name?: string | null;
 
@@ -93,7 +90,6 @@ runtime. ${LAZY_TYPE_EXPLANATION}`);
 
         injectMetadataInformation(target, property, {
             type: type === undefined ? undefined : ensureTypeDescriptor(type),
-            emitDefaultValue: options.emitDefaultValue,
             isRequired: options.isRequired,
             options: extractOptionBase(options),
             key: property.toString(),
