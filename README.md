@@ -217,10 +217,6 @@ To do that DecoratedJSON exposes `toPlainJson` and friends. The return value is 
 
 ### Options
 
-#### afterFromJson and beforeToJson
-
-On `@jsonObject` you can specify name of methods to be called before converting the object to JSON and after it was converted from JSON. This method can be a static method or instance method. The instance method is preferred over the static method.
-
 #### toJson and fromJson
 
 On `@jsonProperty` decorator family you can provide your own functions to perform custom conversion. This is similar to

@@ -85,21 +85,6 @@ unknown type to object. Define a type or the toJson function.`);
             // Finally, assign converted properties to target object.
             Object.assign(targetObject, sourceObjectWithConvertedProperties);
 
-            // Call afterFromJson method (if any).
-            const methodName = sourceObjectMetadata.afterFromJsonMethodName;
-            if (methodName != null) {
-                if (typeof (targetObject as any)[methodName] === 'function') {
-                    // check for instance method first
-                    (targetObject as any)[methodName]();
-                } else if (typeof (targetObject.constructor as any)[methodName] === 'function') {
-                    // check for static method
-                    (targetObject.constructor as any)[methodName]();
-                } else {
-                    throw new TypeError(`afterFromJson callback '${
-                        nameof(sourceObjectMetadata.classType)}.${methodName}' is not a method.`);
-                }
-            }
-
             return targetObject;
         } else {
             // @todo investigate whether isExplicitlyMarked is needed at all
@@ -174,21 +159,6 @@ unknown type to object. Define a type or the toJson function.`);
             // we don't want to modify the original object.
             targetObject = {...source};
         } else {
-            const beforeToJsonMethodName = sourceTypeMetadata.beforeToJsonMethodName;
-            if (beforeToJsonMethodName != null) {
-                const beforeToJsonMethod = source[beforeToJsonMethodName];
-                if (typeof beforeToJsonMethod === 'function') {
-                    // instance method
-                    beforeToJsonMethod.bind(source)();
-                } else if (typeof source.constructor[beforeToJsonMethodName] === 'function') {
-                    // check for static method
-                    source.constructor[beforeToJsonMethodName]();
-                } else {
-                    throw new TypeError(`beforeToJson callback \
-'${nameof(sourceTypeMetadata.classType)}.${beforeToJsonMethodName}' is not a method.`);
-                }
-            }
-
             const sourceMeta = sourceTypeMetadata;
             // Strong-typed conversion available.
             // We'll convert all properties that have been marked with @jsonProperty

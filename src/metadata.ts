@@ -56,10 +56,6 @@ export class JsonObjectMetadata {
 
     properties = new Map<string, JsonPropertyMetadata>();
 
-    afterFromJsonMethodName?: string | null;
-
-    beforeToJsonMethodName?: string | null;
-
     constructor(
         classType: Function,
     ) {
