@@ -63,6 +63,18 @@ describe('set of objects', () => {
 
         expect(result).toBe(JSON.stringify(expectation));
     });
+
+    describe('should error', () => {
+        it('on non-array fromJson', () => {
+            expect(() => decoratedJson.type(Simple).parseSet(false as any))
+                .toThrowError('Got invalid value. Received Boolean, expected Array<Simple>.');
+        });
+
+        it('on non-set toJson', () => {
+            expect(() => decoratedJson.type(Simple).toPlainSet([] as any))
+                .toThrowError('Got invalid value. Received Array, expected Set<Simple>.');
+        });
+    });
 });
 
 describe('set member', () => {

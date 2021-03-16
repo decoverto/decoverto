@@ -20,7 +20,10 @@ export class SetTypeDescriptor<Class extends Object>
         }
 
         if (!Array.isArray(context.source)) {
-            this.throwTypeMismatchError(context);
+            this.throwTypeMismatchError({
+                ...context,
+                expectedType: `Array<${this.type.getFriendlyName()}>`,
+            });
         }
 
         const resultSet = new Set<Class | null | undefined>();
@@ -43,6 +46,10 @@ export class SetTypeDescriptor<Class extends Object>
     toJson(context: ConversionContext<Set<Class | null | undefined> | null | undefined>) {
         if (context.source == null) {
             return null;
+        }
+
+        if (!(context.source as any instanceof Set)) {
+            this.throwTypeMismatchError(context);
         }
 
         context.path += '[]';
