@@ -50,7 +50,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         }
 
         this.rootConstructor = rootConstructor;
-        this.configure(settings ?? {});
+        this.configure(settings);
     }
 
     configure(settings: DecoratedJsonTypeHandlerSettingsInput) {
