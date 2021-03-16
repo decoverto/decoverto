@@ -45,7 +45,7 @@ describe('mapped types', () => {
         class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
             fromJson(
                 context: ConversionContext<any | null | undefined>,
-            ): CustomType | null | undefined {
+            ): CustomType {
                 return new CustomType(context.source);
             }
 
@@ -93,7 +93,7 @@ describe('mapped types', () => {
         class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
             fromJson(
                 context: ConversionContext<any | null | undefined>,
-            ): CustomType | null | undefined {
+            ): CustomType {
                 return new CustomType(context.source);
             }
 
@@ -153,7 +153,7 @@ describe('mapped types', () => {
         class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
             fromJson(
                 context: ConversionContext<any | null | undefined>,
-            ): CustomType | null | undefined {
+            ): CustomType {
                 return new CustomType(context.source);
             }
 

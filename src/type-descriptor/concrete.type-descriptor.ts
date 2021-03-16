@@ -8,10 +8,10 @@ import {ConversionContext, TypeDescriptor} from './type-descriptor';
 /**
  * A concrete type descriptor converts instances of user defined classes.
  */
-export class ConcreteTypeDescriptor<Class extends Object = any, Json = any>
-    extends SimpleTypeDescriptor<Class, Json> {
+export class ConcreteTypeDescriptor<Class extends Object = any>
+    extends SimpleTypeDescriptor<Class> {
 
-    fromJson(context: ConversionContext<Json | null | undefined>): Class | null | undefined {
+    fromJson(context: ConversionContext<any | null | undefined>): Class | null | undefined {
         const {source, path} = context;
 
         if (source === null) {
@@ -28,12 +28,10 @@ export class ConcreteTypeDescriptor<Class extends Object = any, Json = any>
 ${this.getFriendlyName()}.`);
             }
 
-            // Some unfortunate 'as any' casts are required. We don't quite know whether
-            // source has the correct type, but it __should__ be.
             return this.fromJsonObject({
                 ...context,
-                source: source as any,
-            }) as unknown as any;
+                source: source,
+            }) as unknown as any; // Required since return type might not match Class
         } else {
             return converter.fromJson(context);
         }
@@ -128,7 +126,7 @@ no constructor nor fromJson function to use.`);
         }
     }
 
-    toJson(context: ConversionContext<Class | null | undefined>): Json | null | undefined {
+    toJson(context: ConversionContext<Class | null | undefined>): any {
         const {source, path} = context;
 
         if (source === null) {

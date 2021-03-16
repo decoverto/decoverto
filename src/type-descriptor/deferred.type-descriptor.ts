@@ -5,10 +5,10 @@ import {
     TypeThunk,
 } from './type-descriptor';
 
-export class DeferredTypeDescriptor<Class extends Object, Json>
-    extends TypeDescriptor<Class, Json> {
+export class DeferredTypeDescriptor<Class>
+    extends TypeDescriptor<Class | null | undefined> {
 
-    private resolvedDescriptor: ConcreteTypeDescriptor<Class, Json> | undefined;
+    private resolvedDescriptor: ConcreteTypeDescriptor<Class> | undefined;
 
     constructor(
         private readonly thunk: TypeThunk<Class>,
@@ -16,11 +16,11 @@ export class DeferredTypeDescriptor<Class extends Object, Json>
         super();
     }
 
-    fromJson(context: ConversionContext<Json | null | undefined>): Class | null | undefined {
+    fromJson(context: ConversionContext<any>): Class | null | undefined {
         return this.getConcreteTypeDescriptor().fromJson(context);
     }
 
-    toJson(context: ConversionContext<Class | null | undefined>): Json | null | undefined {
+    toJson(context: ConversionContext<Class | null | undefined>): any {
         return this.getConcreteTypeDescriptor().toJson(context);
     }
 
@@ -28,9 +28,9 @@ export class DeferredTypeDescriptor<Class extends Object, Json>
         return this.thunk().name;
     }
 
-    private getConcreteTypeDescriptor(): ConcreteTypeDescriptor<Class, Json> {
+    private getConcreteTypeDescriptor(): ConcreteTypeDescriptor<Class> {
         if (this.resolvedDescriptor === undefined) {
-            this.resolvedDescriptor = new ConcreteTypeDescriptor<Class, Json>(this.thunk());
+            this.resolvedDescriptor = new ConcreteTypeDescriptor<Class>(this.thunk());
         }
 
         return this.resolvedDescriptor;

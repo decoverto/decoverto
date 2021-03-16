@@ -69,7 +69,7 @@ import {ConversionContext, DecoratedJson, jsonObject, jsonMember, SimpleTypeDesc
 import * as Decimal from 'decimal.js'; // Or any other library your type originates from
 
 
-class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string> {
+class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string | null | undefined> {
 
     constructor() {
         super(BigInt);
@@ -84,7 +84,7 @@ class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string> {
     }
 }
 
-class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string> {
+class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string | null | undefined> {
 
     constructor() {
         super(Decimal);

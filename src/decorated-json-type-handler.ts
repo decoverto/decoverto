@@ -39,7 +39,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         private readonly rootConstructor: Serializable<RootType>,
         settings: DecoratedJsonTypeHandlerSettingsInput,
     ) {
-        this.rootTypeDescriptor = new ConcreteTypeDescriptor<RootType, any>(rootConstructor);
+        this.rootTypeDescriptor = new ConcreteTypeDescriptor<RootType>(rootConstructor);
         const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
 
         if (rootMetadata === undefined

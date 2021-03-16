@@ -5,8 +5,16 @@ import {
 } from './type-descriptor';
 import {ensureTypeDescriptor} from './type-descriptor.utils';
 
-export class ArrayTypeDescriptor<Class extends Object> extends ListTypeDescriptor<Class> {
+export class ArrayTypeDescriptor<Class extends Object>
+    extends ListTypeDescriptor<
+        Array<Class | null | undefined> | null | undefined,
+        Class | null | undefined
+    > {
 
+    fromJson(context: ConversionContext<Array<any>>): Array<Class | null | undefined>;
+    fromJson(
+        context: ConversionContext<Array<any> | null | undefined>,
+    ): Array<Class | null | undefined> | null | undefined
     fromJson(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Array<Class | null | undefined> | null | undefined {
@@ -36,6 +44,10 @@ export class ArrayTypeDescriptor<Class extends Object> extends ListTypeDescripto
      * Performs the conversion of an array of typed objects (or primitive values) to an array of
      * simple javascript objects (or primitive values).
      */
+    toJson(context: ConversionContext<Array<Class>>): Array<any>
+    toJson(
+        context: ConversionContext<Array<Class | null | undefined> | null | undefined>,
+    ): Array<any> | null | undefined
     toJson(
         context: ConversionContext<Array<Class | null | undefined> | null | undefined>,
     ): Array<any> | null | undefined {

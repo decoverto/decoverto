@@ -6,7 +6,12 @@ import {
 } from './type-descriptor';
 import {ensureTypeDescriptor} from './type-descriptor.utils';
 
-export class SetTypeDescriptor<Class extends Object> extends ListTypeDescriptor<Class> {
+export class SetTypeDescriptor<Class extends Object>
+    extends ListTypeDescriptor<
+        Set<Class | null | undefined> | null | undefined,
+        Class | null | undefined
+    > {
+
     fromJson(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Set<Class | null | undefined> | null | undefined {
@@ -38,7 +43,7 @@ export class SetTypeDescriptor<Class extends Object> extends ListTypeDescriptor<
      * Performs the conversion of a set of typed objects (or primitive values) into an array
      * of simple javascript objects.
      */
-    toJson(context: ConversionContext<Array<Class | null | undefined> | null | undefined>) {
+    toJson(context: ConversionContext<Set<Class | null | undefined> | null | undefined>) {
         if (context.source == null) {
             return null;
         }

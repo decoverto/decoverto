@@ -15,11 +15,9 @@ export interface ConversionContext<Raw> {
     typeMap: Map<Serializable<any>, TypeDescriptor>;
 }
 
-export abstract class TypeDescriptor<Class extends Object = any, Json = any> {
-    abstract fromJson(
-        context: ConversionContext<Json | null | undefined>,
-    ): Class | null | undefined;
-    abstract toJson(context: ConversionContext<Class | null | undefined>): Json | null | undefined;
+export abstract class TypeDescriptor<Class = any, Json = any> {
+    abstract fromJson(context: ConversionContext<Json>): Class;
+    abstract toJson(context: ConversionContext<Class>): Json;
 
     /**
      * Return a human readable name for this type descriptor. Will be used in error and debug

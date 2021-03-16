@@ -2,7 +2,8 @@ import {arrayBufferToString, createArrayBufferFromString} from '../util/buffer.u
 import {SimpleTypeDescriptor} from './simple.type-descriptor';
 import {ConversionContext} from './type-descriptor';
 
-export class DataViewTypeDescriptor extends SimpleTypeDescriptor<DataView, string> {
+export class DataViewTypeDescriptor
+    extends SimpleTypeDescriptor<DataView, string | null | undefined> {
 
     constructor() {
         super(DataView);

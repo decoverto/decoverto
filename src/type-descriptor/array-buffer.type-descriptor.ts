@@ -2,7 +2,8 @@ import {arrayBufferToString, createArrayBufferFromString} from '../util/buffer.u
 import {SimpleTypeDescriptor} from './simple.type-descriptor';
 import {ConversionContext} from './type-descriptor';
 
-export class ArrayBufferTypeDescriptor extends SimpleTypeDescriptor<ArrayBuffer, string> {
+export class ArrayBufferTypeDescriptor
+    extends SimpleTypeDescriptor<ArrayBuffer, string | null | undefined> {
 
     constructor() {
         super(ArrayBuffer);

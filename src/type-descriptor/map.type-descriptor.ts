@@ -50,13 +50,13 @@ export type MapJson =
 ;
 
 export class MapTypeDescriptor<Key extends Object, Value extends Object>
-    extends TypeDescriptor<Map<Key, Value>, MapJson> {
+    extends TypeDescriptor<Map<Key, Value> | null | undefined, MapJson> {
 
     readonly shape: MapShape;
 
     constructor(
-        readonly keyType: TypeDescriptor,
-        readonly valueType: TypeDescriptor,
+        readonly keyType: TypeDescriptor<Key>,
+        readonly valueType: TypeDescriptor<Value>,
         readonly options: MapOptions,
     ) {
         super();
@@ -65,7 +65,7 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
 
     fromJson(
         context: ConversionContext<MapJson | null | undefined>,
-    ): Map<any, any> | null | undefined {
+    ): Map<Key, Value> | null | undefined {
         const {source, path} = context;
 
         if (source == null) {
@@ -130,7 +130,7 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
      * of simple javascript objects with `key` and `value` properties.
      */
     toJson(
-        context: ConversionContext<Map<any, any> | null | undefined>,
+        context: ConversionContext<Map<Key, Value> | null | undefined>,
     ): MapJson | null | undefined {
         if (context.source == null) {
             return context.source;

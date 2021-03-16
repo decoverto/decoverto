@@ -1,7 +1,8 @@
 import {SimpleTypeDescriptor} from './simple.type-descriptor';
 import {ConversionContext} from './type-descriptor';
 
-export class DateTypeDescriptor extends SimpleTypeDescriptor<Date | string | number, Date> {
+export class DateTypeDescriptor
+    extends SimpleTypeDescriptor<Date | string | number, Date | null | undefined> {
 
     constructor() {
         super(Date);
