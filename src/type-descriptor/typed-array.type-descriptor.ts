@@ -19,8 +19,8 @@ export class TypedArrayTypeDescriptor extends SimpleTypeDescriptor {
         }
 
         this.throwTypeMismatchError({
-            context,
-            expectedSourceType: 'a numeric array',
+            ...context,
+            expectedType: 'a numeric array',
         });
     }
 

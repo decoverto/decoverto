@@ -1,3 +1,4 @@
+import {UnknownTypeError} from '../errors/unknown-type.error';
 import {nameof} from '../helpers';
 import {JsonObjectMetadata} from '../metadata';
 import {mergeOptions} from '../options-base';
@@ -24,8 +25,10 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
 
         if (converter === undefined) {
             if (typeof source !== 'object') {
-                throw new TypeError(`Could not determine how to convert '${path}' from JSON. Type: \
-${this.getFriendlyName()}.`);
+                throw new UnknownTypeError({
+                    path,
+                    type: this.getFriendlyName(),
+                });
             }
 
             return this.fromJsonObject({
@@ -40,14 +43,7 @@ ${this.getFriendlyName()}.`);
     fromJsonObject(
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
-        const {path, source} = context;
-
-        if (typeof source as any !== 'object' || source as any === null) {
-            throw new TypeError(
-                `Cannot convert ${path} to object: 'sourceObject' must be a defined object.`,
-            );
-        }
-
+        const {source} = context;
         const sourceObjectMetadata = JsonObjectMetadata.getFromConstructor(this.type);
 
         if (sourceObjectMetadata?.isExplicitlyMarked === true) {
@@ -66,8 +62,8 @@ ${this.getFriendlyName()}.`);
                 if (objMemberMetadata.fromJson != null) {
                     revivedValue = objMemberMetadata.fromJson(objMemberValue);
                 } else if (objMemberMetadata.type === undefined) {
-                    throw new TypeError(`Cannot convert ${objMemberDebugName} to object there is \
-no constructor nor fromJson function to use.`);
+                    throw new TypeError(`Could not convert '${objMemberMetadata.name}' with \
+unknown type to object. Define a type or the toJson function.`);
                 } else {
                     revivedValue = objMemberMetadata.type.fromJson({
                         ...context,
@@ -80,9 +76,7 @@ no constructor nor fromJson function to use.`);
                 if (revivedValue !== undefined) {
                     sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
-                    throw new TypeError(
-                        `Missing required member '${objMemberDebugName}'.`,
-                    );
+                    throw new TypeError(`Missing required member '${objMemberDebugName}'.`);
                 }
             });
 
@@ -139,8 +133,10 @@ no constructor nor fromJson function to use.`);
 
         if (converter === undefined) {
             if (typeof source !== 'object') {
-                throw new TypeError(`Could not determine how to convert '${path}' to JSON. Type: \
-${this.getFriendlyName()}.`);
+                throw new UnknownTypeError({
+                    path,
+                    type: this.getFriendlyName(),
+                });
             }
 
             return this.toJsonObject({
@@ -203,20 +199,19 @@ ${this.getFriendlyName()}.`);
 
             const classOptions = sourceMeta.options ?? {};
 
-            sourceMeta.dataMembers.forEach((objMemberMetadata) => {
+            sourceMeta.dataMembers.forEach((objMemberMetadata, propKey) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
+                const objMemberDebugName = `${nameof(sourceMeta.classType)}.${propKey}`;
                 let json;
                 if (objMemberMetadata.toJson != null) {
                     json = objMemberMetadata.toJson(source[objMemberMetadata.key]);
                 } else if (objMemberMetadata.type === undefined) {
-                    throw new TypeError(
-                        `Could not convert ${objMemberMetadata.name} to JSON, there is`
-                        + ` no constructor nor toJson function to use.`,
-                    );
+                    throw new TypeError(`Could not convert '${objMemberMetadata.name}' with \
+unknown type to JSON. Define a type or the toJson function.`);
                 } else {
                     json = objMemberMetadata.type.toJson({
                         ...context,
-                        path: `${nameof(sourceMeta.classType)}.${objMemberMetadata.key}`,
+                        path: objMemberDebugName,
                         memberOptions: objMemberOptions,
                         source: source[objMemberMetadata.key],
                     });

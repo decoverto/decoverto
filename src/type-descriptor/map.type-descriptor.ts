@@ -74,10 +74,10 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
 
         if (!this.isExpectedMapShape(source)) {
             const expectedType = this.shape === MapShape.Array ? Array : Object;
-            throw new TypeError(this.throwTypeMismatchError({
-                expectedSourceType: expectedType.name,
-                context,
-            }));
+            this.throwTypeMismatchError({
+                ...context,
+                expectedType: `${expectedType} notation`,
+            });
         }
 
         const resultMap = new Map<any, any>();

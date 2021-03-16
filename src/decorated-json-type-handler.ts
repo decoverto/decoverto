@@ -45,7 +45,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         if (rootMetadata === undefined
             || (!rootMetadata.isExplicitlyMarked && !rootMetadata.isHandledWithoutAnnotation)) {
             throw new TypeError(
-                'The DecoratedJson root data type must have the @jsonObject decorator used.',
+                `The type ${rootConstructor.name} is missing the @jsonObject decorator.`,
             );
         }
 
@@ -127,6 +127,7 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     private toJsonSingleValue(object: any, typeDescriptor: TypeDescriptor) {
         return typeDescriptor.toJson({
+            path: '',
             source: object,
             typeMap: this.settings.conversionMap,
         });
@@ -134,6 +135,7 @@ export class DecoratedJsonTypeHandler<RootType> {
 
     private toObjectSingleValue(object: any, typeDescriptor: TypeDescriptor) {
         return typeDescriptor.fromJson({
+            path: '',
             source: object,
             typeMap: this.settings.conversionMap,
         });

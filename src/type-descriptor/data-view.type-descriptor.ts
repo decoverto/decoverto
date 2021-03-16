@@ -17,10 +17,7 @@ export class DataViewTypeDescriptor
         }
 
         if (typeof context.source !== 'string') {
-            this.throwTypeMismatchError({
-                context,
-                expectedSourceType: 'a string',
-            });
+            this.throwTypeMismatchError(context);
         }
         return new DataView(createArrayBufferFromString(context.source));
     }

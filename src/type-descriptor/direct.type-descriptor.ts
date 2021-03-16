@@ -23,10 +23,7 @@ export class DirectTypeDescriptor extends SimpleTypeDescriptor {
         }
 
         if (context.source.constructor !== this.type) {
-            this.throwTypeMismatchError({
-                context,
-                expectedSourceType: this.getFriendlyName(),
-            });
+            this.throwTypeMismatchError(context);
         }
     }
 }

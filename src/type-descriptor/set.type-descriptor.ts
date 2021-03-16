@@ -20,10 +20,7 @@ export class SetTypeDescriptor<Class extends Object>
         }
 
         if (!Array.isArray(context.source)) {
-            throw new TypeError(this.throwTypeMismatchError({
-                context,
-                expectedSourceType: 'an array',
-            }));
+            this.throwTypeMismatchError(context);
         }
 
         const resultSet = new Set<Class | null | undefined>();

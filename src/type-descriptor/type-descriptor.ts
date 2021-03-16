@@ -1,3 +1,4 @@
+import {InvalidValueError} from '../errors/invalid-value.error';
 import {nameof} from '../helpers';
 import {OptionsBase} from '../options-base';
 import {Serializable} from '../types';
@@ -9,10 +10,16 @@ export interface ConversionContext<Raw> {
     /**
      * Name of the object being converted, used for debugging purposes.
      */
-    path?: string;
+    path: string;
     memberOptions?: OptionsBase;
     source: Raw;
     typeMap: Map<Serializable<any>, TypeDescriptor>;
+}
+
+export interface ThrowTypeMismatchErrorInput {
+    path: string;
+    source: any;
+    expectedType?: string;
 }
 
 export abstract class TypeDescriptor<Class = any, Json = any> {
@@ -25,18 +32,12 @@ export abstract class TypeDescriptor<Class = any, Json = any> {
      */
     abstract getFriendlyName(): string;
 
-    protected throwTypeMismatchError(
-        {
-            expectedSourceType,
-            context,
-        }: {
-            expectedSourceType: string;
-            context: ConversionContext<any>;
-        },
-    ): never {
-        throw new TypeError(`Conversion to object failed, could not convert ${context.path} as \
-${this.getFriendlyName()}. Expected ${expectedSourceType}, got \
-${nameof(context.source.constructor)}.`);
+    protected throwTypeMismatchError(context: ThrowTypeMismatchErrorInput): never {
+        throw new InvalidValueError({
+            actualType: nameof(context.source.constructor),
+            expectedType: context.expectedType ?? this.getFriendlyName(),
+            path: context.path,
+        });
     }
 }
 

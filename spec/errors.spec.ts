@@ -35,10 +35,8 @@ describe('errors', () => {
             const typeHandler = decoratedJson.type(DirectTypeMismatch);
 
             it('on from JSON', () => {
-                expect(() => typeHandler.parse({
-                    test: 15,
-                })).toThrowError(`Conversion to object failed, could not convert DirectTypeMismatch\
-.test as String. Expected String, got Number.`);
+                expect(() => typeHandler.parse({test: 15})).toThrowError(`Got invalid value at \
+DirectTypeMismatch.test. Received Number, expected String.`);
             });
 
             it('on to JSON', () => {

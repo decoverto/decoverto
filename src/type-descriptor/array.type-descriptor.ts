@@ -23,10 +23,7 @@ export class ArrayTypeDescriptor<Class extends Object>
         }
 
         if (!Array.isArray(context.source)) {
-            this.throwTypeMismatchError({
-                context,
-                expectedSourceType: 'an array',
-            });
+            this.throwTypeMismatchError(context);
         }
 
         return context.source.map((element, i) => {

@@ -1,3 +1,4 @@
+import {InvalidValueError} from '../errors/invalid-value.error';
 import {SimpleTypeDescriptor} from './simple.type-descriptor';
 import {ConversionContext} from './type-descriptor';
 
@@ -17,8 +18,11 @@ export class DateTypeDescriptor
             const isInteger = source % 1 === 0;
 
             if (!isInteger) {
-                throw new TypeError(`Could not parse ${path} as Date. Expected an integer, \
-got a number with decimal places.`);
+                throw new InvalidValueError({
+                    path,
+                    actualType: 'Float',
+                    expectedType: 'a string (ISO-8601) or integer (time since epoch in ms)',
+                });
             }
 
             return new Date(source);
@@ -28,8 +32,8 @@ got a number with decimal places.`);
             return source;
         } else {
             this.throwTypeMismatchError({
-                context,
-                expectedSourceType: 'an string (ISO-8601) or number (time since epoch in ms)',
+                ...context,
+                expectedType: 'a string (ISO-8601) or integer (time since epoch in ms)',
             });
         }
     }
