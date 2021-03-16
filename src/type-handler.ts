@@ -12,7 +12,7 @@ export type ToPlainResult<T> =
         ? {[k in keyof T]?: T[k]} | {[k: string]: any}
         : any;
 
-export interface DecoratedJsonTypeHandlerSettings {
+export interface TypeHandlerSettings {
     conversionMap: Map<Serializable<any>, TypeDescriptor>;
     jsonHandler: JsonHandler;
 }
@@ -20,13 +20,13 @@ export interface DecoratedJsonTypeHandlerSettings {
 /**
  * Make some settings optional.
  */
-export type DecoratedJsonTypeHandlerSettingsInput =
-    Omit<DecoratedJsonTypeHandlerSettings, 'jsonHandler'>
-    & Partial<DecoratedJsonTypeHandlerSettings>;
+export type TypeHandlerSettingsInput =
+    Omit<TypeHandlerSettings, 'jsonHandler'>
+    & Partial<TypeHandlerSettings>;
 
-export class DecoratedJsonTypeHandler<RootType> {
+export class TypeHandler<RootType> {
 
-    private settings!: DecoratedJsonTypeHandlerSettings;
+    private settings!: TypeHandlerSettings;
     private readonly rootTypeDescriptor: ConcreteTypeDescriptor;
 
     /**
@@ -37,7 +37,7 @@ export class DecoratedJsonTypeHandler<RootType> {
      */
     constructor(
         private readonly rootConstructor: Serializable<RootType>,
-        settings: DecoratedJsonTypeHandlerSettingsInput,
+        settings: TypeHandlerSettingsInput,
     ) {
         this.rootTypeDescriptor = new ConcreteTypeDescriptor<RootType>(rootConstructor);
         const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
@@ -53,7 +53,7 @@ export class DecoratedJsonTypeHandler<RootType> {
         this.configure(settings);
     }
 
-    configure(settings: DecoratedJsonTypeHandlerSettingsInput) {
+    configure(settings: TypeHandlerSettingsInput) {
         this.settings = {
             conversionMap: settings.conversionMap,
             jsonHandler: settings.jsonHandler ?? new JsonHandlerSimple({}),

@@ -1,5 +1,5 @@
 export * from './decorated-json';
-export * from './decorated-json-type-handler';
+export * from './type-handler';
 export * from './json-handler';
 export {JsonObjectMetadata} from './metadata';
 export {

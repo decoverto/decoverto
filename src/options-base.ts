@@ -4,7 +4,7 @@
  * The order from highest to lowest precedence is as follows:
  * 1. @jsonProperty options
  * 1. @jsonObject options
- * 1. DecoratedJsonTypeHandler options
+ * 1. TypeHandler options
  * 1. DecoratedJson options
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

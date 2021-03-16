@@ -1,4 +1,3 @@
-import {DecoratedJsonTypeHandler} from './decorated-json-type-handler';
 import {JsonHandler} from './json-handler';
 import {ArrayBufferTypeDescriptor} from './type-descriptor/array-buffer.type-descriptor';
 import {DataViewTypeDescriptor} from './type-descriptor/data-view.type-descriptor';
@@ -6,6 +5,7 @@ import {DateTypeDescriptor} from './type-descriptor/date.type-descriptor';
 import {DirectTypeDescriptor} from './type-descriptor/direct.type-descriptor';
 import {TypeDescriptor} from './type-descriptor/type-descriptor';
 import {TypedArrayTypeDescriptor} from './type-descriptor/typed-array.type-descriptor';
+import {TypeHandler} from './type-handler';
 import {Serializable} from './types';
 
 interface DecoratedJsonSettings {
@@ -51,8 +51,8 @@ export class DecoratedJson {
     ) {
     }
 
-    type<T>(type: Serializable<T>): DecoratedJsonTypeHandler<T> {
-        return new DecoratedJsonTypeHandler<T>(type, {
+    type<T>(type: Serializable<T>): TypeHandler<T> {
+        return new TypeHandler<T>(type, {
             conversionMap: this.converterMap,
             jsonHandler: this.settings.jsonHandler,
         });
