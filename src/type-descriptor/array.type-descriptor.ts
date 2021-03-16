@@ -53,7 +53,7 @@ export class ArrayTypeDescriptor<Class extends Object> extends ListTypeDescripto
     }
 
     getFriendlyName(): string {
-        return `Array<${this.type.getFriendlyName()}`;
+        return `Array<${this.type.getFriendlyName()}>`;
     }
 }
 
