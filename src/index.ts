@@ -4,7 +4,7 @@ export * from './json-handler';
 export {JsonObjectMetadata} from './metadata';
 export {
     jsonObject,
-    IJsonObjectOptions,
+    JsonObjectOptions,
     InitializerCallback,
 } from './json-object';
 export {jsonProperty, JsonPropertyOptions} from './json-property';

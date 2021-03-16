@@ -4,14 +4,14 @@ import {Serializable} from './types';
 
 export type InitializerCallback<T> = (sourceObject: T, rawSourceObject: T) => T;
 
-export type IJsonObjectOptions<T> = OptionsBase;
+export type JsonObjectOptions<T> = OptionsBase;
 
 /**
  * Marks that a class is convertible using DecoratedJson, with additional settings.
  * @param options Configuration settings.
  */
 export function jsonObject<T>(
-    options: IJsonObjectOptions<T> = {},
+    options: JsonObjectOptions<T> = {},
 ): (target: Serializable<T>) => void {
     return target => {
         // Create or obtain JsonObjectMetadata object.
