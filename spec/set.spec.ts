@@ -1,4 +1,4 @@
-import {Any, array, DecoratedJson, jsonMember, jsonObject, set} from '../src';
+import {Any, array, DecoratedJson, jsonObject, jsonProperty, set} from '../src';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -6,10 +6,10 @@ const decoratedJson = new DecoratedJson();
 describe('set of objects', () => {
     @jsonObject()
     class Simple {
-        @jsonMember()
+        @jsonProperty()
         strProp: string;
 
-        @jsonMember()
+        @jsonProperty()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {
@@ -77,10 +77,10 @@ describe('set of objects', () => {
     });
 });
 
-describe('set member', () => {
+describe('set property', () => {
     @jsonObject()
     class WithSet {
-        @jsonMember(set(() => Everything))
+        @jsonProperty(set(() => Everything))
         prop: Set<Everything>;
 
         getSetSize() {
@@ -109,13 +109,13 @@ describe('set member', () => {
     });
 });
 
-describe('set array member', () => {
+describe('set array property', () => {
     @jsonObject()
     class Simple {
-        @jsonMember()
+        @jsonProperty()
         strProp: string;
 
-        @jsonMember()
+        @jsonProperty()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {
@@ -132,7 +132,7 @@ describe('set array member', () => {
 
     @jsonObject()
     class WithSet {
-        @jsonMember(set(array(() => Simple)))
+        @jsonProperty(set(array(() => Simple)))
         prop: Set<Array<Simple>>;
 
         getSetSize() {
@@ -214,7 +214,7 @@ describe('set array member', () => {
 describe('set of raw objects', () => {
     @jsonObject()
     class WithRawSet {
-        @jsonMember(set(Any))
+        @jsonProperty(set(Any))
         rawSet: Set<any>;
     }
 

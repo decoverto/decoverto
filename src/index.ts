@@ -8,7 +8,7 @@ export {
     InitializerCallback,
     IJsonObjectOptionsBase,
 } from './json-object';
-export {jsonMember, IJsonMemberOptions} from './json-member';
+export {jsonProperty, JsonPropertyOptions} from './json-property';
 export * from './type-descriptor/any.type-descriptor';
 export * from './type-descriptor/array.type-descriptor';
 export * from './type-descriptor/concrete.type-descriptor';

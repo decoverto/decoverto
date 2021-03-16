@@ -1,7 +1,7 @@
 /**
  * This options cascade through the annotations. Options set
  * in the more specific place override the previous option.
- * Ex. @jsonMember overrides TypedJson options.
+ * Ex. @jsonProperty overrides TypedJson options.
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface OptionsBase {

@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonMember, jsonObject} from '../src';
+import {DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -10,7 +10,7 @@ describe('errors', () => {
         @jsonObject()
         class TestNonDeterminableTypes {
 
-            @jsonMember()
+            @jsonProperty()
             bar: CustomType;
         }
 
@@ -22,7 +22,7 @@ describe('errors', () => {
         describe('on direct type descriptor', () => {
             @jsonObject()
             class DirectTypeMismatch {
-                @jsonMember(() => String)
+                @jsonProperty(() => String)
                 test: any;
 
                 constructor(

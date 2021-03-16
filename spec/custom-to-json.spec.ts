@@ -1,14 +1,14 @@
-import {array, DecoratedJson, jsonMember, jsonObject} from '../src';
+import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('custom member toJson', () => {
+describe('custom property toJson', () => {
     @jsonObject()
     class Person {
-        @jsonMember({toJson: (value: string) => value.split(' ')})
+        @jsonProperty({toJson: (value: string) => value.split(' ')})
         firstName: string;
 
-        @jsonMember()
+        @jsonProperty()
         lastName: string;
 
         getFullName() {
@@ -38,13 +38,13 @@ describe('custom member toJson', () => {
     });
 });
 
-describe('custom array member toJson', () => {
+describe('custom array property toJson', () => {
     @jsonObject()
     class Obj {
-        @jsonMember(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
+        @jsonProperty(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
         nums: Array<number>;
 
-        @jsonMember()
+        @jsonProperty()
         str: string;
 
         sum() {
@@ -74,10 +74,10 @@ describe('custom array member toJson', () => {
     });
 });
 
-describe('custom delegating array member toJson', () => {
+describe('custom delegating array property toJson', () => {
     @jsonObject()
     class Inner {
-        @jsonMember()
+        @jsonProperty()
         prop: string;
 
         shouldConvertToJson: boolean;
@@ -96,10 +96,10 @@ describe('custom delegating array member toJson', () => {
 
     @jsonObject()
     class Obj {
-        @jsonMember(array(() => Inner), {toJson: objArrayToJson})
+        @jsonProperty(array(() => Inner), {toJson: objArrayToJson})
         inners: Array<Inner>;
 
-        @jsonMember()
+        @jsonProperty()
         str: string;
     }
 

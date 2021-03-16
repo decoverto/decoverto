@@ -19,9 +19,9 @@ declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
 }
 
-export interface IJsonMemberOptions extends OptionsBase {
+export interface JsonPropertyOptions extends OptionsBase {
 
-    /** When set, indicates that the member must be present when converting from JSON. */
+    /** When set, indicates that the property must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     /** When set, the key on the JSON that should be used instead of the class property name. */
@@ -42,23 +42,23 @@ export interface IJsonMemberOptions extends OptionsBase {
  * Specifies that the property should be included in the JSON conversion, with additional options.
  * Requires ReflectDecorators.
  */
-export function jsonMember(options: IJsonMemberOptions): PropertyDecorator;
+export function jsonProperty(options: JsonPropertyOptions): PropertyDecorator;
 
 /**
  * Specifies that a property should be included in the JSON conversion, with a defined type and
  * extra options.
  */
-export function jsonMember(
+export function jsonProperty(
     type?: TypeThunk | TypeDescriptor,
-    options?: IJsonMemberOptions,
+    options?: JsonPropertyOptions,
 ): PropertyDecorator;
 
-export function jsonMember<T extends Function>(
-    optionsOrType?: IJsonMemberOptions | Typelike<any>,
-    options?: IJsonMemberOptions,
+export function jsonProperty<T extends Function>(
+    optionsOrType?: JsonPropertyOptions | Typelike<any>,
+    options?: JsonPropertyOptions,
 ): PropertyDecorator {
     return (target, property) => {
-        const decoratorName = `@jsonMember on ${nameof(target.constructor)}.${String(property)}`;
+        const decoratorName = `@jsonProperty on ${nameof(target.constructor)}.${String(property)}`;
         let type: Typelike<any> | undefined;
 
         if (isTypeLike(optionsOrType)) {

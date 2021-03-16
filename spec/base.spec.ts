@@ -1,4 +1,4 @@
-import {array, DecoratedJson, jsonMember, jsonObject} from '../src';
+import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -47,10 +47,10 @@ describe('basic conversion of', () => {
     describe('single class', () => {
         @jsonObject()
         class Person {
-            @jsonMember()
+            @jsonProperty()
             firstName: string;
 
-            @jsonMember()
+            @jsonProperty()
             lastName: string;
 
             getFullName() {
@@ -108,19 +108,19 @@ describe('basic conversion of', () => {
         describe('by assigment', () => {
             @jsonObject()
             class WithDefaults {
-                @jsonMember()
+                @jsonProperty()
                 num: number = 2;
 
-                @jsonMember()
+                @jsonProperty()
                 str: string = 'Hello world';
 
-                @jsonMember()
+                @jsonProperty()
                 bool: boolean = true;
 
-                @jsonMember(array(() => String))
+                @jsonProperty(array(() => String))
                 arr: Array<string> = [];
 
-                @jsonMember()
+                @jsonProperty()
                 present: number = 10;
             }
 
@@ -135,19 +135,19 @@ describe('basic conversion of', () => {
         describe('by constructor', () => {
             @jsonObject()
             class WithCtr {
-                @jsonMember()
+                @jsonProperty()
                 num: number;
 
-                @jsonMember()
+                @jsonProperty()
                 str: string;
 
-                @jsonMember()
+                @jsonProperty()
                 bool: boolean;
 
-                @jsonMember(array(() => String))
+                @jsonProperty(array(() => String))
                 arr: Array<string>;
 
-                @jsonMember()
+                @jsonProperty()
                 present: number;
 
                 constructor() {
@@ -172,7 +172,7 @@ describe('basic conversion of', () => {
         @jsonObject()
         class SomeClass {
             private _prop: string = 'value';
-            @jsonMember()
+            @jsonProperty()
             get prop(): string {
                 return this._prop;
             }
@@ -182,13 +182,13 @@ describe('basic conversion of', () => {
             }
 
             private _getterOnly: string = 'getter';
-            @jsonMember()
+            @jsonProperty()
             get getterOnly(): string {
                 return this._getterOnly;
             }
 
             private _setterOnly: string = 'setter';
-            @jsonMember()
+            @jsonProperty()
             set setterOnly(val: string) {
                 this._setterOnly = val;
             }

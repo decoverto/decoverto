@@ -1,16 +1,16 @@
-import {Any, array, DecoratedJson, jsonMember, jsonObject, map, MapShape} from '../src';
+import {Any, array, DecoratedJson, jsonObject, jsonProperty, map, MapShape} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('Complex members', () => {
+describe('Complex properties', () => {
     @jsonObject()
-    class ComplexMember {
+    class ComplexProperty {
 
-        @jsonMember(array(map(() => Date, array(Any), {shape: MapShape.Array})))
+        @jsonProperty(array(map(() => Date, array(Any), {shape: MapShape.Array})))
         arrayOfMapsOfDateArrayAny: Array<Map<Date, Array<any>>>;
     }
 
-    const typeHandler = decoratedJson.type(ComplexMember);
+    const typeHandler = decoratedJson.type(ComplexProperty);
 
     it('parses', () => {
         const firstDate = new Date('2021-03-15T07:44:13.907Z');

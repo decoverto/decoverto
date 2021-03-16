@@ -1,4 +1,4 @@
-import {jsonMember, jsonObject} from '../../src';
+import {jsonObject, jsonProperty} from '../../src';
 
 export enum JustEnum {
     One = 1,
@@ -64,39 +64,39 @@ export interface IEverything {
 
 @jsonObject()
 export class Everything implements IEverything {
-    @jsonMember()
+    @jsonProperty()
     strProp: string;
-    @jsonMember()
+    @jsonProperty()
     numProp: number;
-    @jsonMember()
+    @jsonProperty()
     boolProp: boolean;
-    @jsonMember()
+    @jsonProperty()
     dateProp: Date;
-    // @jsonMember()
+    // @jsonProperty()
     // nullable: {}|null;
-    @jsonMember()
+    @jsonProperty()
     // eslint-disable-next-line @typescript-eslint/ban-types
     optional?: {};
-    @jsonMember()
+    @jsonProperty()
     // eslint-disable-next-line @typescript-eslint/ban-types
     undefinable: {} | undefined;
-    @jsonMember()
+    @jsonProperty()
     enum: JustEnum;
-    @jsonMember()
+    @jsonProperty()
     constEnum: ConstEnum;
-    @jsonMember()
+    @jsonProperty()
     strEnum: StrEnum;
-    @jsonMember()
+    @jsonProperty()
     constStrEnum: ConstStrEnum;
-    // @jsonMember()
+    // @jsonProperty()
     // heteroEnum: HeteroEnum;
-    // @jsonMember()
+    // @jsonProperty()
     // heteroEnum2: HeteroEnum;
-    // @jsonMember()
+    // @jsonProperty()
     // constHeteroEnum: ConstHeteroEnum;
-    // @jsonMember()
+    // @jsonProperty()
     // constHeteroEnum2: ConstHeteroEnum;
-    // @jsonMember()
+    // @jsonProperty()
     // [symbolProp]: string;
 
     constructor(init?: IEverything) {

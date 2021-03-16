@@ -53,7 +53,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
             const sourceObjectWithConvertedProperties: Record<string, unknown> = {};
 
             // Convert by expected properties.
-            sourceMetadata.dataMembers.forEach((objMemberMetadata, propKey) => {
+            sourceMetadata.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberValue = source[propKey];
                 const objMemberDebugName = `${nameof(sourceMetadata.classType)}.${propKey}`;
                 const objMemberOptions = {};
@@ -67,7 +67,7 @@ unknown type to object. Define a type or the toJson function.`);
                 } else {
                     revivedValue = objMemberMetadata.type.fromJson({
                         ...context,
-                        memberOptions: objMemberOptions,
+                        propertyOptions: objMemberOptions,
                         path: objMemberDebugName,
                         source: objMemberValue,
                     });
@@ -76,7 +76,7 @@ unknown type to object. Define a type or the toJson function.`);
                 if (revivedValue !== undefined) {
                     sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
-                    throw new TypeError(`Missing required member '${objMemberDebugName}'.`);
+                    throw new TypeError(`Missing required property '${objMemberDebugName}'.`);
                 }
             });
 
@@ -89,10 +89,10 @@ unknown type to object. Define a type or the toJson function.`);
             const methodName = sourceObjectMetadata.afterFromJsonMethodName;
             if (methodName != null) {
                 if (typeof (targetObject as any)[methodName] === 'function') {
-                    // check for member first
+                    // check for instance method first
                     (targetObject as any)[methodName]();
                 } else if (typeof (targetObject.constructor as any)[methodName] === 'function') {
-                    // check for static
+                    // check for static method
                     (targetObject.constructor as any)[methodName]();
                 } else {
                     throw new TypeError(`afterFromJson callback '${
@@ -181,7 +181,7 @@ unknown type to object. Define a type or the toJson function.`);
                     // instance method
                     beforeToJsonMethod.bind(source)();
                 } else if (typeof source.constructor[beforeToJsonMethodName] === 'function') {
-                    // check for static
+                    // check for static method
                     source.constructor[beforeToJsonMethodName]();
                 } else {
                     throw new TypeError(`beforeToJson callback \
@@ -191,15 +191,15 @@ unknown type to object. Define a type or the toJson function.`);
 
             const sourceMeta = sourceTypeMetadata;
             // Strong-typed conversion available.
-            // We'll convert by members that have been marked with @jsonMember (including
-            // array/set/map members), and perform recursive conversion on each of them. The
+            // We'll convert all properties that have been marked with @jsonProperty
+            // and perform recursive conversion on each of them. The
             // converted objects are put on the 'targetObject', which is what will be put into
             // 'JSON.stringify' finally.
             targetObject = {};
 
             const classOptions = sourceMeta.options ?? {};
 
-            sourceMeta.dataMembers.forEach((objMemberMetadata, propKey) => {
+            sourceMeta.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
                 const objMemberDebugName = `${nameof(sourceMeta.classType)}.${propKey}`;
                 let json;
@@ -212,7 +212,7 @@ unknown type to JSON. Define a type or the toJson function.`);
                     json = objMemberMetadata.type.toJson({
                         ...context,
                         path: objMemberDebugName,
-                        memberOptions: objMemberOptions,
+                        propertyOptions: objMemberOptions,
                         source: source[objMemberMetadata.key],
                     });
                 }

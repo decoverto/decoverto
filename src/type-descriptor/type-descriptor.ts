@@ -11,7 +11,7 @@ export interface ConversionContext<Raw> {
      * Name of the object being converted, used for debugging purposes.
      */
     path: string;
-    memberOptions?: OptionsBase;
+    propertyOptions?: OptionsBase;
     source: Raw;
     typeMap: Map<Serializable<any>, TypeDescriptor>;
 }

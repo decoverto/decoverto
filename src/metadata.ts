@@ -5,18 +5,18 @@ import {Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decoratedJsonMetadata');
 
-export interface JsonMemberMetadata {
+export interface JsonPropertyMetadata {
 
-    /** Member name as it appears in JSON. */
+    /** Property name as it appears in JSON. */
     name: string;
 
-    /** Property or field key of the json member. */
+    /** Property name as it appears on the class. */
     key: string;
 
-    /** Type descriptor of the member. */
+    /** Type descriptor of the property. */
     type?: TypeDescriptor;
 
-    /** If set, indicates that the member must be present when converting from JSON. */
+    /** If set, indicates that the property must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     options?: OptionsBase | null;
@@ -34,14 +34,12 @@ export interface JsonMemberMetadata {
 
 export class JsonObjectMetadata {
 
-    dataMembers = new Map<string, JsonMemberMetadata>();
-
     /** Gets or sets the constructor function for the jsonObject. */
     classType: Function;
 
     /**
      * Indicates whether this class was explicitly annotated with @jsonObject()
-     * or implicitly by @jsonMember()
+     * or implicitly by @jsonProperty()
      */
     isExplicitlyMarked: boolean = false;
 
@@ -55,6 +53,8 @@ export class JsonObjectMetadata {
     name?: string | null;
 
     options?: OptionsBase | null;
+
+    properties = new Map<string, JsonPropertyMetadata>();
 
     afterFromJsonMethodName?: string | null;
 
@@ -82,7 +82,7 @@ export class JsonObjectMetadata {
             metadata = prototype[metadataFieldKey as any];
         }
 
-        // Ignore implicitly added jsonObject (through jsonMember)
+        // Ignore implicitly added jsonObject (through jsonProperty)
         if (metadata?.isExplicitlyMarked === true) {
             return metadata;
         }
@@ -103,11 +103,11 @@ export class JsonObjectMetadata {
         // Target has no JsonObjectMetadata associated with it yet, create it now.
         const objectMetadata = new JsonObjectMetadata(prototype.constructor);
 
-        // Inherit json members and from parent @jsonObject (if any).
+        // Inherit json properties from parent @jsonObject (if any).
         const parentMetadata: JsonObjectMetadata | undefined = prototype[metadataFieldKey as any];
         if (parentMetadata !== undefined) {
-            parentMetadata.dataMembers.forEach((memberMetadata, propKey) => {
-                objectMetadata.dataMembers.set(propKey, memberMetadata);
+            parentMetadata.properties.forEach((propertyMetadata, propKey) => {
+                objectMetadata.properties.set(propKey, propertyMetadata);
             });
         }
 
@@ -129,17 +129,17 @@ export class JsonObjectMetadata {
 export function injectMetadataInformation(
     prototype: Record<string, any> | Function,
     propKey: string | symbol,
-    metadata: JsonMemberMetadata,
+    metadata: JsonPropertyMetadata,
 ) {
     // For error messages
-    const decoratorName = `@jsonMember on ${nameof(prototype.constructor)}.${String(propKey)}`;
+    const decoratorName = `@jsonProperty on ${nameof(prototype.constructor)}.${String(propKey)}`;
 
-    // When a property decorator is applied to a static member, 'constructor' is a constructor
+    // When a property decorator is applied to a static property, 'constructor' is a constructor
     // function.
     // See:
     // eslint-disable-next-line max-len
     // https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
-    // ... and static members are not supported here, so abort.
+    // ... and static properties are not supported here, so abort.
     if (typeof prototype === 'function') {
         throw new Error(`${decoratorName}: cannot use a static property.`);
     }
@@ -153,7 +153,7 @@ export function injectMetadataInformation(
     // @todo check if metadata is ever undefined, if so, change parameter type
     if (metadata as any == null
         || (metadata.type === undefined && metadata.fromJson === undefined)) {
-        throw new Error(`${decoratorName}: JsonMemberMetadata has unknown type.`);
+        throw new Error(`${decoratorName} has unknown type.`);
     }
 
     // Add jsonObject metadata to 'constructor' if not yet exists ('constructor' is the prototype).
@@ -162,7 +162,7 @@ export function injectMetadataInformation(
     const objectMetadata = JsonObjectMetadata.ensurePresentInPrototype(prototype);
 
     // clear metadata of undefined properties to save memory
-    (Object.keys(metadata) as Array<keyof JsonMemberMetadata>)
+    (Object.keys(metadata) as Array<keyof JsonPropertyMetadata>)
         .forEach((key) => (metadata[key] === undefined) && delete metadata[key]);
-    objectMetadata.dataMembers.set(metadata.name, metadata);
+    objectMetadata.properties.set(metadata.name, metadata);
 }

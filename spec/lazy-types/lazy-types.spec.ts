@@ -1,8 +1,8 @@
 import {
     array,
     DecoratedJson,
-    jsonMember,
     jsonObject,
+    jsonProperty,
     map,
     MapShape,
     set,
@@ -13,18 +13,18 @@ import {B} from './b.model';
 const decoratedJson = new DecoratedJson();
 
 describe('Lazy types', () => {
-    describe('simple member', () => {
+    describe('simple property', () => {
         @jsonObject()
         class Root {
 
-            @jsonMember(() => Lazy)
+            @jsonProperty(() => Lazy)
             lazy: Lazy;
         }
 
         @jsonObject()
         class Lazy {
 
-            @jsonMember()
+            @jsonProperty()
             name: string;
         }
 
@@ -51,18 +51,18 @@ describe('Lazy types', () => {
         });
     });
 
-    describe('array member', () => {
+    describe('array property', () => {
         @jsonObject()
         class Root {
 
-            @jsonMember(array(() => Lazy))
+            @jsonProperty(array(() => Lazy))
             lazy: Array<Lazy>;
         }
 
         @jsonObject()
         class Lazy {
 
-            @jsonMember()
+            @jsonProperty()
             name: string;
         }
 
@@ -90,18 +90,18 @@ describe('Lazy types', () => {
         });
     });
 
-    describe('map member', () => {
+    describe('map property', () => {
         @jsonObject()
         class Root {
 
-            @jsonMember(map(() => String, () => LazyValue, {shape: MapShape.Array}))
+            @jsonProperty(map(() => String, () => LazyValue, {shape: MapShape.Array}))
             lazy: Map<string, LazyValue>;
         }
 
         @jsonObject()
         class LazyValue {
 
-            @jsonMember()
+            @jsonProperty()
             name: string;
         }
 
@@ -131,18 +131,18 @@ describe('Lazy types', () => {
         });
     });
 
-    describe('set member', () => {
+    describe('set property', () => {
         @jsonObject()
         class Root {
 
-            @jsonMember(set(() => Lazy))
+            @jsonProperty(set(() => Lazy))
             lazy: Set<Lazy>;
         }
 
         @jsonObject()
         class Lazy {
 
-            @jsonMember()
+            @jsonProperty()
             name: string;
         }
 

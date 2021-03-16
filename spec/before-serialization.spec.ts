@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonMember, jsonObject} from '../src';
+import {DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -8,10 +8,10 @@ describe('beforeToJson', () => {
             beforeToJson: 'beforeToJson',
         })
         class Person {
-            @jsonMember()
+            @jsonProperty()
             age: number;
 
-            @jsonMember()
+            @jsonProperty()
             isOld: boolean;
 
             static beforeToJson() {
@@ -29,15 +29,15 @@ describe('beforeToJson', () => {
         expect(Person.beforeToJson).toHaveBeenCalled();
     });
 
-    it('should call the member method', () => {
+    it('should call the instance method', () => {
         @jsonObject({
             beforeToJson: 'beforeToJson',
         })
         class Person {
-            @jsonMember()
+            @jsonProperty()
             age: number;
 
-            @jsonMember()
+            @jsonProperty()
             isOld: boolean;
 
             beforeToJson() {
@@ -63,15 +63,15 @@ describe('beforeToJson', () => {
         expect(oldPersonUntyped['isOld']).toBeTruthy();
     });
 
-    it('should prefer the member method when there are both', () => {
+    it('should prefer the instance method over the static method', () => {
         @jsonObject({
             beforeToJson: 'beforeToJson',
         })
         class Person {
-            @jsonMember()
+            @jsonProperty()
             age: number;
 
-            @jsonMember()
+            @jsonProperty()
             isOld: boolean;
 
             constructor() {

@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonMember, jsonObject} from '../src';
+import {DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -8,10 +8,10 @@ describe('afterFromJson', () => {
             afterFromJson: 'afterDeser',
         })
         class Person {
-            @jsonMember()
+            @jsonProperty()
             name: string;
 
-            @jsonMember()
+            @jsonProperty()
             age: number;
 
             static afterDeser() {
@@ -31,15 +31,15 @@ describe('afterFromJson', () => {
         expect(Person.afterDeser).toHaveBeenCalled();
     });
 
-    it('should call the member method', () => {
+    it('should call the instance method', () => {
         @jsonObject({
             afterFromJson: 'afterDeser',
         })
         class Person {
-            @jsonMember()
+            @jsonProperty()
             name: string;
 
-            @jsonMember()
+            @jsonProperty()
             age: number;
 
             constructor() {
@@ -62,15 +62,15 @@ describe('afterFromJson', () => {
         expect(person.afterDeser).toHaveBeenCalled();
     });
 
-    it('should prefer the member method when there are both', () => {
+    it('should prefer the instance method over the static method', () => {
         @jsonObject({
             afterFromJson: 'afterDeser',
         })
         class Person {
-            @jsonMember()
+            @jsonProperty()
             name: string;
 
-            @jsonMember()
+            @jsonProperty()
             age: number;
 
             constructor() {

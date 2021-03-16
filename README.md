@@ -27,7 +27,7 @@ npm install decorated-json
 
 ## How to use
 
-DecoratedJSON uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonMember`. Properties which are not annotated will not be serialized or deserialized.
+DecoratedJSON uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonProperty`. Properties which are not annotated will not be serialized or deserialized.
 
 TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMetadata` options enabled.
 
@@ -36,14 +36,14 @@ TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMeta
 The following example demonstrates how to annotate a basic, non-nested, class and how to convert to JSON and back:
 
 ```typescript
-import {DecoratedJson, jsonObject, jsonMember} from 'decorated-json';
+import {DecoratedJson, jsonObject, jsonProperty} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonMember()
+    @jsonProperty()
     prop1: number;
 
-    @jsonMember()
+    @jsonProperty()
     prop2: string;
 }
 
@@ -58,14 +58,14 @@ const instance2 = typeHandler.parse(json);
 instance2 instanceof MyDataClass; // true
 ```
 
-_Note: this example assumes you are using ReflectDecorators. Without it, `@jsonMember` requires a type argument, which is detailed below._
+_Note: this example assumes you are using ReflectDecorators. Without it, `@jsonProperty` requires a type argument, which is detailed below._
 
 ### Mapping types
 
 At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. To tackle this use case, DecoratedJson allows mapping a type to a custom converter. Example:
 
 ```typescript
-import {ConversionContext, DecoratedJson, jsonObject, jsonMember, SimpleTypeDescriptor} from 'decorated-json';
+import {ConversionContext, DecoratedJson, jsonObject, jsonProperty, SimpleTypeDescriptor} from 'decorated-json';
 import * as Decimal from 'decimal.js'; // Or any other library your type originates from
 
 
@@ -107,10 +107,10 @@ decoratedJson.converterMap.set(Decimal, new DecimalTypeDescriptor());
 @jsonObject()
 class MappedTypes {
 
-    @jsonMember()
+    @jsonProperty()
     cryptoKey: bigint;
 
-    @jsonMember()
+    @jsonProperty()
     money: Decimal;
 }
 
@@ -133,13 +133,13 @@ import {jsonObject, array, map, set, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonMember(array(() => Number))
+    @jsonProperty(array(() => Number))
     prop1: Array<number>;
 
-    @jsonMember(set(() => String))
+    @jsonProperty(set(() => String))
     prop2: Set<string>;
 
-    @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
+    @jsonProperty(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     prop3: Map<number, MySecondDataClass>;
 }
 ```
@@ -151,27 +151,27 @@ Sets are converted to JSON as arrays. Maps are converted as arrays objects, each
 DecoratedJSON works through your objects recursively, and can consume massively complex, nested object trees.
 
 ```typescript
-import {jsonObject, jsonMember, MapShape} from 'decorated-json';
+import {jsonObject, jsonProperty, MapShape} from 'decorated-json';
 
 @jsonObject()
 class MySecondDataClass {
-    @jsonMember()
+    @jsonProperty()
     prop1: number;
 
-    @jsonMember()
+    @jsonProperty()
     prop2: number;
 }
 
 @jsonObject()
 class MyDataClass {
 
-    @jsonMember(array(array(() => MySecondDataClass)))
+    @jsonProperty(array(array(() => MySecondDataClass)))
     multiDimension: Array<Array<MySecondDataClass>>;
 
-    @jsonMember(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
+    @jsonProperty(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     mapProp: Map<number, MySecondDataClass>;
 
-    @jsonMember(array(map(() => Date, array(array(() => MySecondDataClass)), {shape: MapShape.Object})))
+    @jsonProperty(array(map(() => Date, array(array(() => MySecondDataClass)), {shape: MapShape.Object})))
     overlyComplex: Array<Map<Date, Array<Array<MySecondDataClass>>>>;
 }
 ```
@@ -180,31 +180,31 @@ class MyDataClass {
 In case you don't want DecoratedJSON to make any conversion, the `Any` type can be used. 
 
 ```typescript
-import {Any, jsonObject, jsonMember} from 'decorated-json';
+import {Any, jsonObject, jsonProperty} from 'decorated-json';
 
 @jsonObject()
 class Something {
-    @jsonMember(Any)
+    @jsonProperty(Any)
     anythingGoes: any;
 }
 ```
 
 ### Using without ReflectDecorators
 
-Without ReflectDecorators, `@jsonMember` requires an additional type argument, because TypeScript cannot infer it automatically:
+Without ReflectDecorators, `@jsonProperty` requires an additional type argument, because TypeScript cannot infer it automatically:
 
 ```diff
 - import 'reflect-metadata';
-  import {jsonObject, jsonMember} from 'decorated-json';
+  import {jsonObject, jsonProperty} from 'decorated-json';
 
   @jsonObject()
   class MyDataClass {
--     @jsonMember()
-+     @jsonMember(() => Number)
+-     @jsonProperty()
++     @jsonProperty(() => Number)
       prop1: number;
 
--     @jsonMember()
-+     @jsonMember(() => MySecondDataClass)
+-     @jsonProperty()
++     @jsonProperty(() => MySecondDataClass)
       public prop2: MySecondDataClass;
   }
 ```
@@ -219,19 +219,19 @@ To do that DecoratedJSON exposes `toPlainJson` and friends. The return value is 
 
 #### afterFromJson and beforeToJson
 
-On `@jsonObject` you can specify name of methods to be called before converting the object to JSON and after it was converted from JSON. This method can be a static method or instance member. In case you have static and member with the same name - the member method is preferred.
+On `@jsonObject` you can specify name of methods to be called before converting the object to JSON and after it was converted from JSON. This method can be a static method or instance method. The instance method is preferred over the static method.
 
 #### toJson and fromJson
 
-On `@jsonMember` decorator family you can provide your own functions to perform custom conversion. This is similar to
+On `@jsonProperty` decorator family you can provide your own functions to perform custom conversion. This is similar to
 [mapped types](#mapping-types) but only applies to the property on which it is declared. The example below is used to fix up data on parsing.
 
 ```typescript
-import {jsonObject, jsonMember} from 'decorated-json';
+import {jsonObject, jsonProperty} from 'decorated-json';
 
 @jsonObject()
 class OverrideExample {
-    @jsonMember({
+    @jsonProperty({
         fromJson: json => {
             if (json == null) {
                 return json;
@@ -252,11 +252,11 @@ It is possible to only specify one of the functions. In this example, the `toJso
 You can provide a name for a property if it differs between the JSON property and your class definition.
 
 ```typescript
-import {jsonObject, jsonMember} from 'decorated-json';
+import {jsonObject, jsonProperty} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonMember({name: 'api_option'})
+    @jsonProperty({name: 'api_option'})
     ownOption: string;
 }
 ```
@@ -268,11 +268,11 @@ class MyDataClass {
 DecoratedJSON is primarily for use-cases where object-trees are defined using instantiatible classes, and thus only supports a subset of all type-definitions possible in TypeScript. Interfaces and inline type definitions, for example, are not supported, and the following is not going to work so well:
 
 ```typescript
-import {jsonObject, jsonMember} from 'decorated-json';
+import {jsonObject, jsonProperty} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonMember()
+    @jsonProperty()
     prop1: {prop2: {prop3: [1, 2, 3]}};
 }
 ```
@@ -284,11 +284,11 @@ Instead, prefer creating the necessary class-structure for your object tree.
 If using ReflectDecorators to infer the constructor (type) of properties, it's always required to manually specify the property type:
 
 ```diff
-  import {jsonObject, jsonMember} from 'decorated-json';
+  import {jsonObject, jsonProperty} from 'decorated-json';
 
   @jsonObject()
   class MyDataClass {
-      @jsonMember()
+      @jsonProperty()
 -     firstName = "john";
 +     firstName: string = "john";
   }

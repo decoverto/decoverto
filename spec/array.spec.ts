@@ -1,4 +1,4 @@
-import {Any, array, DecoratedJson, jsonMember, jsonObject} from '../src';
+import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 import {Everything, IEverything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -6,10 +6,10 @@ const decoratedJson = new DecoratedJson();
 describe('array of objects', () => {
     @jsonObject()
     class Simple {
-        @jsonMember()
+        @jsonProperty()
         strProp: string;
 
-        @jsonMember()
+        @jsonProperty()
         numProp: number;
 
         constructor(init?: {strProp: string; numProp: number}) {
@@ -89,16 +89,16 @@ describe('multidimensional arrays', () => {
 
     @jsonObject()
     class WithArrays implements IWithArrays {
-        @jsonMember(array(() => Everything))
+        @jsonProperty(array(() => Everything))
         one: Array<Everything>;
 
-        @jsonMember(array(array(() => Everything)))
+        @jsonProperty(array(array(() => Everything)))
         two: Array<Array<Everything>>;
 
-        @jsonMember(array(array(array(array(array(array(() => Everything)))))))
+        @jsonProperty(array(array(array(array(array(array(() => Everything)))))))
         deep: Array<Array<Array<Array<Array<Array<Everything>>>>>>;
 
-        @jsonMember(array(array(() => WithArrays)))
+        @jsonProperty(array(array(() => WithArrays)))
         arrayWithArray?: Array<Array<WithArrays>>;
 
         constructor(init?: IWithArrays) {
@@ -168,7 +168,7 @@ describe('multidimensional arrays', () => {
 describe('array of raw objects', () => {
     @jsonObject()
     class Translations {
-        @jsonMember(array(Any))
+        @jsonProperty(array(Any))
         localization: Array<any>;
     }
 

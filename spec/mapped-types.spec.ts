@@ -2,8 +2,8 @@ import {
     array,
     ConversionContext,
     DecoratedJson,
-    jsonMember,
     jsonObject,
+    jsonProperty,
     TypeDescriptor,
 } from '../src';
 
@@ -23,10 +23,10 @@ describe('mapped types', () => {
     @jsonObject()
     class MappedTypesSpec {
 
-        @jsonMember()
+        @jsonProperty()
         one: CustomType;
 
-        @jsonMember()
+        @jsonProperty()
         two: CustomType;
     }
 
@@ -85,7 +85,7 @@ describe('mapped types', () => {
     });
 
     it('can be overwritten with fromJson/toJson prop', () => {
-        const jsonMemberOptions = {
+        const jsonPropertyOptions = {
             fromJson: () => new CustomType(0),
             toJson: () => 1,
         };
@@ -111,16 +111,16 @@ describe('mapped types', () => {
         const customTypeDescriptor = new CustomTypeDescriptor();
 
         spyOn(customTypeDescriptor, 'toJson').and.callThrough();
-        spyOn(jsonMemberOptions, 'toJson').and.callThrough();
+        spyOn(jsonPropertyOptions, 'toJson').and.callThrough();
         spyOn(customTypeDescriptor, 'fromJson').and.callThrough();
-        spyOn(jsonMemberOptions, 'fromJson').and.callThrough();
+        spyOn(jsonPropertyOptions, 'fromJson').and.callThrough();
 
         @jsonObject()
         class OverriddenConverters {
-            @jsonMember(jsonMemberOptions)
+            @jsonProperty(jsonPropertyOptions)
             overwritten: CustomType;
 
-            @jsonMember()
+            @jsonProperty()
             simple: CustomType;
         }
 
@@ -130,14 +130,14 @@ describe('mapped types', () => {
         const parsed = overriddenTypeHandler.parse({data: 5, simple: 5});
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(customTypeDescriptor.fromJson).toHaveBeenCalledTimes(1);
-        expect(jsonMemberOptions.fromJson).toHaveBeenCalledTimes(1);
+        expect(jsonPropertyOptions.fromJson).toHaveBeenCalledTimes(1);
         expect(parsed.overwritten.value).toBe(0);
         expect(parsed.simple.value).toBe(5);
 
         const plain = overriddenTypeHandler.toPlainJson(parsed);
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(customTypeDescriptor.toJson).toHaveBeenCalledTimes(1);
-        expect(jsonMemberOptions.toJson).toHaveBeenCalledTimes(1);
+        expect(jsonPropertyOptions.toJson).toHaveBeenCalledTimes(1);
         expect(plain.overwritten).toBe(1);
         expect(plain.simple).toBe(5);
     });
@@ -146,7 +146,7 @@ describe('mapped types', () => {
         @jsonObject()
         class MappedTypeWithArray {
 
-            @jsonMember(array(() => CustomType))
+            @jsonProperty(array(() => CustomType))
             array: Array<CustomType>;
         }
 

@@ -3,7 +3,7 @@ declare abstract class Reflect {
 }
 
 export const LAZY_TYPE_EXPLANATION = `If the type is not yet defined, for example due to circular \
-references, add '() => ' before it. E.g. @jsonMember(() => Foo)`;
+references, add '() => ' before it. E.g. @jsonProperty(() => Foo)`;
 
 export const MISSING_REFLECT_CONF_MSG = 'Make sure that you have both "experimentalDecorators"'
     + ' and "emitDecoratorMetadata" enabled in your tsconfig.json';

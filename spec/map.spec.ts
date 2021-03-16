@@ -1,4 +1,4 @@
-import {array, DecoratedJson, jsonMember, jsonObject, map, MapShape} from '../src';
+import {array, DecoratedJson, jsonObject, jsonProperty, map, MapShape} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -6,10 +6,10 @@ describe('map', () => {
     describe('with dictionary shape', () => {
         @jsonObject()
         class Simple {
-            @jsonMember()
+            @jsonProperty()
             strProp: string;
 
-            @jsonMember()
+            @jsonProperty()
             numProp: number;
 
             constructor(init?: {strProp: string; numProp: number}) {
@@ -26,7 +26,7 @@ describe('map', () => {
 
         @jsonObject()
         class DictMap {
-            @jsonMember(map(() => String, () => Simple, {shape: MapShape.Object}))
+            @jsonProperty(map(() => String, () => Simple, {shape: MapShape.Object}))
             prop: Map<string, Simple>;
 
             getSetSize() {
@@ -75,7 +75,7 @@ describe('map', () => {
     describe('with array shape', () => {
         @jsonObject()
         class Simple {
-            @jsonMember()
+            @jsonProperty()
             foo: string;
 
             constructor(foo?: string) {
@@ -87,7 +87,7 @@ describe('map', () => {
 
         @jsonObject()
         class DictionaryArrayShape {
-            @jsonMember(map(() => String, () => Simple, {shape: MapShape.Array}))
+            @jsonProperty(map(() => String, () => Simple, {shape: MapShape.Array}))
             map: Map<string, Simple>;
         }
 
@@ -119,10 +119,10 @@ describe('map', () => {
     describe('with an array as value', () => {
         @jsonObject()
         class Simple {
-            @jsonMember()
+            @jsonProperty()
             strProp: string;
 
-            @jsonMember()
+            @jsonProperty()
             numProp: number;
 
             constructor(init?: {strProp: string; numProp: number}) {
@@ -139,7 +139,7 @@ describe('map', () => {
 
         @jsonObject()
         class DictArrayMap {
-            @jsonMember(map(() => String, array(() => Simple), {shape: MapShape.Object}))
+            @jsonProperty(map(() => String, array(() => Simple), {shape: MapShape.Object}))
             prop: Map<string, Array<Simple>>;
 
             getSetSize() {

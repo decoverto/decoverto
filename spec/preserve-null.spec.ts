@@ -1,4 +1,4 @@
-import {DecoratedJson, jsonMember, jsonObject} from '../src';
+import {DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -6,7 +6,7 @@ describe('null', () => {
     describe('should be preserved', () => {
         @jsonObject()
         class Person {
-            @jsonMember(() => String)
+            @jsonProperty(() => String)
             name: string | null;
         }
 
@@ -29,7 +29,7 @@ describe('undefined', () => {
     describe('should be not be assigned', () => {
         @jsonObject()
         class Person {
-            @jsonMember(() => String)
+            @jsonProperty(() => String)
             name?: string;
         }
 

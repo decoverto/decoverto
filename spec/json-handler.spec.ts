@@ -1,10 +1,10 @@
-import {DecoratedJson, JsonHandlerSimple, jsonMember, jsonObject} from '../src';
+import {DecoratedJson, JsonHandlerSimple, jsonObject, jsonProperty} from '../src';
 
 describe('JSON handler', () => {
     @jsonObject()
     class JsonHandlerTest {
 
-        @jsonMember()
+        @jsonProperty()
         foo: 'unchanged' | 'changed';
 
         constructor(foo: 'unchanged' | 'changed') {
