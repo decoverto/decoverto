@@ -11,7 +11,7 @@ export class InvalidValueError extends ValidationError {
             path: input.path,
         });
 
-        this.message = `Got invalid value at ${input.path}. Received ${input.actualType}, expected \
-${input.expectedType}.`;
+        this.message = `Got invalid value${input.path === '' ? '' : ` at ${input.path}`}. Received \
+${input.actualType}, expected ${input.expectedType}.`;
     }
 }
