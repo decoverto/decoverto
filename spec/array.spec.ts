@@ -65,6 +65,18 @@ describe('array of objects', () => {
 
         expect(result).toBe(JSON.stringify(expectation));
     });
+
+    describe('should error', () => {
+        it('on non-array fromJson', () => {
+            expect(() => decoratedJson.type(Simple).parseArray(false as any))
+                .toThrowError('Got invalid value at . Received Boolean, expected Array<Simple>.');
+        });
+
+        it('on non-array toJson', () => {
+            expect(() => decoratedJson.type(Simple).toPlainArray(false as any))
+                .toThrowError('Got invalid value at . Received Boolean, expected Array<Simple>.');
+        });
+    });
 });
 
 describe('multidimensional arrays', () => {

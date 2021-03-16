@@ -52,6 +52,10 @@ export class ArrayTypeDescriptor<Class extends Object>
             return context.source;
         }
 
+        if (!Array.isArray(context.source)) {
+            this.throwTypeMismatchError(context);
+        }
+
         return context.source.map((element, i) => {
             return this.type.toJson({
                 ...context,
