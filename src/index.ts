@@ -6,7 +6,6 @@ export {
     jsonObject,
     IJsonObjectOptions,
     InitializerCallback,
-    IJsonObjectOptionsBase,
 } from './json-object';
 export {jsonProperty, JsonPropertyOptions} from './json-property';
 export * from './type-descriptor/any.type-descriptor';
