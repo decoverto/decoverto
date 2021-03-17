@@ -1,5 +1,5 @@
 import {UnknownTypeError} from '../errors/unknown-type.error';
-import {nameof} from '../helpers';
+import {isObject, nameof} from '../helpers';
 import {JsonObjectMetadata} from '../metadata';
 import {mergeOptions} from '../options-base';
 import {Constructor} from '../types';
@@ -24,7 +24,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
-            if (typeof source !== 'object') {
+            if (!isObject(source)) {
                 throw new UnknownTypeError({
                     path,
                     type: this.getFriendlyName(),
@@ -117,7 +117,7 @@ unknown type to object. Define a type or the toJson function.`);
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
-            if (typeof source !== 'object') {
+            if (!isObject(source)) {
                 throw new UnknownTypeError({
                     path,
                     type: this.getFriendlyName(),

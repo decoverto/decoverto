@@ -1,4 +1,4 @@
-import {isValueDefined} from '../helpers';
+import {isObject, isValueDefined} from '../helpers';
 import {
     ConversionContext,
     TypeDescriptor,
@@ -176,7 +176,7 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
 
     private isExpectedMapShape(source: any): boolean {
         return (this.shape === MapShape.Array && Array.isArray(source))
-            || (this.shape === MapShape.Object && typeof source === 'object');
+            || (this.shape === MapShape.Object && isObject(source));
     }
 }
 

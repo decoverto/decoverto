@@ -1,8 +1,10 @@
+import {isObject} from '../../src/helpers';
+
 export function isEqual<T>(a: Record<string, unknown>, b: Record<string, unknown>): boolean;
 export function isEqual<T>(a: T, b: T): boolean;
 export function isEqual<T>(a: Array<T>, b: Array<T>): boolean;
 export function isEqual<T>(a: any, b: any): boolean {
-    if (typeof a === 'object') {
+    if (isObject(a) && isObject(b)) {
         if (Object.keys(a).length === Object.keys(b).length) {
             // Alphabetical iteration over object property keys.
             return Object.keys(a).sort().every(k => {

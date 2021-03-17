@@ -34,7 +34,7 @@ export function isTypeTypedArray(type: Function): boolean {
 }
 
 export function isObject(value: any): value is Record<string, unknown> {
-    return value !== null && typeof value === 'object';
+    return value != null && typeof value === 'object';
 }
 
 export function shouldOmitParseString(jsonStr: string, expectedType: Function): boolean {
@@ -119,7 +119,7 @@ export function isInstanceOf<T>(value: any, constructor: Function): boolean {
 }
 
 export const isReflectMetadataSupported =
-    typeof Reflect as any === 'object' && typeof Reflect.getMetadata as any === 'function';
+    isObject(Reflect) && typeof Reflect.getMetadata as any === 'function';
 
 /**
  * Gets the name of a function.
