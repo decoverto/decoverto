@@ -17,13 +17,15 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: yarn install, lint, build, and test
-      run: |
-        yarn install --frozen-lockfile
-        yarn run lint
-        yarn run build
-        yarn run coverage
-        yarn run test:ts
-        yarn run size
-      env:
-        CI: true
+    - name: yarn install
+      run: yarn install --frozen-lockfile
+    - name: Build
+      run: yarn run build
+    - name: Lint
+      run: yarn run lint
+    - name: Test + coverage
+      run: yarn run coverage #this also runs tests
+    - name: Test TypeScript
+      run: yarn run test:ts
+    - name: Determine size
+      run: yarn run size
