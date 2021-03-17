@@ -1,4 +1,4 @@
-import {Any, array, DecoratedJson, jsonObject, jsonProperty, set} from '../src';
+import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -42,100 +42,6 @@ describe('Any', () => {
                 .toPlainJson(simplePropertyAny);
             expect(result.any).toEqual(foo);
             expect(result.anyNullable).toEqual(foo);
-        });
-    });
-
-    describe('on arrays', () => {
-        @jsonObject()
-        class ArrayPropertyAny {
-            @jsonProperty(array(Any))
-            any: Array<any>;
-
-            @jsonProperty(array(Any))
-            anyNullable?: Array<any> | null;
-        }
-
-        const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
-
-        it('should parse from JSON simple object correctly', () => {
-            const result = arrayPropertyAnyHandler.parse({
-                any: [{foo: 'bar'}],
-                anyNullable: [{foo: 'bar'}],
-            });
-            expect(result.any).toBeInstanceOf(Array);
-            expect(result.any[0].foo).toEqual('bar');
-            expect(result.anyNullable).toBeInstanceOf(Array);
-            expect(result.anyNullable?.[0].foo).toEqual('bar');
-        });
-
-        it('should parse from JSON class instance correctly', () => {
-            const foo = {foo: 'bar'};
-            const result = arrayPropertyAnyHandler.parse({
-                any: [foo],
-                anyNullable: [foo],
-            });
-            expect(result.any).toBeInstanceOf(Array);
-            expect(result.any[0]).toEqual(foo);
-            expect(result.anyNullable).toBeInstanceOf(Array);
-            expect(result.anyNullable?.[0]).toEqual(foo);
-        });
-
-        it('should perform conversion to JSON with referential equality', () => {
-            const foo = {foo: 'bar'};
-            const arrayPropertyAny = new ArrayPropertyAny();
-            arrayPropertyAny.any = [foo];
-            arrayPropertyAny.anyNullable = [foo];
-            const result = arrayPropertyAnyHandler.toPlainJson(arrayPropertyAny);
-            expect(result.any[0]).toEqual(foo);
-            expect(result.anyNullable[0]).toEqual(foo);
-        });
-    });
-
-    describe('on set', () => {
-        @jsonObject()
-        class SetPropertyAny {
-
-            @jsonProperty(set(Any))
-            any: Set<any>;
-
-            @jsonProperty(set(Any))
-            anyNullable?: Set<any> | null;
-        }
-
-        it('should parse from JSON simple object correctly', () => {
-            const foo = {foo: 'bar'};
-            const result = decoratedJson.type(SetPropertyAny).parse({
-                any: [foo, foo],
-                anyNullable: [foo, foo],
-            });
-            expect(result.any).toBeInstanceOf(Set);
-            expect(result.any.size).toBe(1);
-            expect(result.any.values().next().value).toEqual(foo);
-            expect(result.anyNullable).toBeInstanceOf(Set);
-            expect(result.anyNullable?.size).toBe(1);
-            expect(result.anyNullable?.values().next().value).toEqual(foo);
-        });
-
-        it('should parse from JSON with referential equality', () => {
-            const foo = {foo: 'bar'};
-            const result = decoratedJson.type(SetPropertyAny).parse({
-                any: [foo, foo],
-                anyNullable: [foo, foo],
-            });
-            expect(result.any).toBeInstanceOf(Set);
-            expect(result.any.values().next().value).toBe(foo);
-            expect(result.anyNullable).toBeInstanceOf(Set);
-            expect(result.anyNullable?.values().next().value).toBe(foo);
-        });
-
-        it('should perform conversion to JSON with referential equality', () => {
-            const foo = {foo: 'bar'};
-            const setPropertyAny = new SetPropertyAny();
-            setPropertyAny.any = new Set([foo, foo]);
-            setPropertyAny.anyNullable = new Set([foo, foo]);
-            const result = decoratedJson.type(SetPropertyAny).toPlainJson(setPropertyAny);
-            expect(result.any.values().next().value).toEqual(foo);
-            expect(result.anyNullable.values().next().value).toEqual(foo);
         });
     });
 

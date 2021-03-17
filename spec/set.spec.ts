@@ -211,35 +211,50 @@ describe('set array property', () => {
     });
 });
 
-describe('set of raw objects', () => {
+describe('set of any', () => {
     @jsonObject()
-    class WithRawSet {
+    class SetPropertyAny {
+
         @jsonProperty(set(Any))
-        rawSet: Set<any>;
+        any: Set<any>;
+
+        @jsonProperty(set(Any))
+        anyNullable?: Set<any> | null;
     }
 
-    function rawObjects() {
-        return [
-            {
-                prop: 'something',
-            },
-            {
-                another: 'value',
-            },
-        ];
-    }
-
-    it('should parse from JSON as is', () => {
-        const withRawSet = decoratedJson.type(WithRawSet).parse({rawSet: rawObjects()});
-        expect(withRawSet).toBeDefined();
-        expect(withRawSet instanceof WithRawSet).toBeTruthy();
-        expect(withRawSet.rawSet).toEqual(new Set(rawObjects()));
+    it('should parse from JSON simple object correctly', () => {
+        const foo = {foo: 'bar'};
+        const result = decoratedJson.type(SetPropertyAny).parse({
+            any: [foo, foo],
+            anyNullable: [foo, foo],
+        });
+        expect(result.any).toBeInstanceOf(Set);
+        expect(result.any.size).toBe(1);
+        expect(result.any.values().next().value).toEqual(foo);
+        expect(result.anyNullable).toBeInstanceOf(Set);
+        expect(result.anyNullable?.size).toBe(1);
+        expect(result.anyNullable?.values().next().value).toEqual(foo);
     });
 
-    it('should perform conversion to JSON as is', () => {
-        const withRawSet = new WithRawSet();
-        withRawSet.rawSet = new Set(rawObjects());
-        const json = decoratedJson.type(WithRawSet).toPlainJson(withRawSet);
-        expect(json).toEqual({rawSet: rawObjects()});
+    it('should parse from JSON with referential equality', () => {
+        const foo = {foo: 'bar'};
+        const result = decoratedJson.type(SetPropertyAny).parse({
+            any: [foo, foo],
+            anyNullable: [foo, foo],
+        });
+        expect(result.any).toBeInstanceOf(Set);
+        expect(result.any.values().next().value).toBe(foo);
+        expect(result.anyNullable).toBeInstanceOf(Set);
+        expect(result.anyNullable?.values().next().value).toBe(foo);
+    });
+
+    it('should perform conversion to JSON with referential equality', () => {
+        const foo = {foo: 'bar'};
+        const setPropertyAny = new SetPropertyAny();
+        setPropertyAny.any = new Set([foo, foo]);
+        setPropertyAny.anyNullable = new Set([foo, foo]);
+        const result = decoratedJson.type(SetPropertyAny).toPlainJson(setPropertyAny);
+        expect(result.any.values().next().value).toEqual(foo);
+        expect(result.anyNullable.values().next().value).toEqual(foo);
     });
 });

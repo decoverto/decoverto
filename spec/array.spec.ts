@@ -165,39 +165,48 @@ describe('multidimensional arrays', () => {
     });
 });
 
-describe('array of raw objects', () => {
+describe('array of any', () => {
     @jsonObject()
-    class Translations {
+    class ArrayPropertyAny {
         @jsonProperty(array(Any))
-        localization: Array<any>;
+        any: Array<any>;
+
+        @jsonProperty(array(Any))
+        anyNullable?: Array<any> | null;
     }
 
-    function localization() {
-        return [
-            {
-                language_tag: 'en_us',
-                '/actions/main': 'My Game Actions',
-                '/actions/driving': 'Driving',
-            },
-            {
-                language_tag: 'fr',
-                '/actions/main': 'Mes actions de jeux',
-                '/actions/driving': 'Conduire',
-            },
-        ];
-    }
+    const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
 
-    it('should parse from JSON as is', () => {
-        const translations = decoratedJson.type(Translations).parse({localization: localization()});
-        expect(translations).toBeDefined();
-        expect(translations instanceof Translations).toBeTruthy();
-        expect(translations.localization).toEqual(localization());
+    it('should parse from JSON simple object correctly', () => {
+        const result = arrayPropertyAnyHandler.parse({
+            any: [{foo: 'bar'}],
+            anyNullable: [{foo: 'bar'}],
+        });
+        expect(result.any).toBeInstanceOf(Array);
+        expect(result.any[0].foo).toEqual('bar');
+        expect(result.anyNullable).toBeInstanceOf(Array);
+        expect(result.anyNullable?.[0].foo).toEqual('bar');
     });
 
-    it('should perform conversion to JSON as is', () => {
-        const translations = new Translations();
-        translations.localization = localization();
-        const json = decoratedJson.type(Translations).toPlainJson(translations);
-        expect(json).toEqual({localization: localization()});
+    it('should parse from JSON class instance correctly', () => {
+        const foo = {foo: 'bar'};
+        const result = arrayPropertyAnyHandler.parse({
+            any: [foo],
+            anyNullable: [foo],
+        });
+        expect(result.any).toBeInstanceOf(Array);
+        expect(result.any[0]).toEqual(foo);
+        expect(result.anyNullable).toBeInstanceOf(Array);
+        expect(result.anyNullable?.[0]).toEqual(foo);
+    });
+
+    it('should perform conversion to JSON with referential equality', () => {
+        const foo = {foo: 'bar'};
+        const arrayPropertyAny = new ArrayPropertyAny();
+        arrayPropertyAny.any = [foo];
+        arrayPropertyAny.anyNullable = [foo];
+        const result = arrayPropertyAnyHandler.toPlainJson(arrayPropertyAny);
+        expect(result.any[0]).toEqual(foo);
+        expect(result.anyNullable[0]).toEqual(foo);
     });
 });
