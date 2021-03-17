@@ -146,9 +146,7 @@ export function injectMetadataInformation(
         throw new Error(`${decoratorName}: cannot use a method property.`);
     }
 
-    // @todo check if metadata is ever undefined, if so, change parameter type
-    if (metadata as any == null
-        || (metadata.type === undefined && metadata.fromJson === undefined)) {
+    if (metadata.type === undefined && metadata.fromJson === undefined) {
         throw new Error(`${decoratorName} has unknown type.`);
     }
 
