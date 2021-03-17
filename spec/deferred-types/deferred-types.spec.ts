@@ -1,3 +1,5 @@
+import test from 'ava';
+
 import {
     array,
     DecoratedJson,
@@ -12,190 +14,157 @@ import {B} from './b.model';
 
 const decoratedJson = new DecoratedJson();
 
-describe('Deferred types', () => {
-    describe('simple property', () => {
-        @jsonObject()
-        class Root {
+@jsonObject()
+class DeferredSimple {
 
-            @jsonProperty(() => Deferred)
-            deferred: Deferred;
-        }
+    @jsonProperty(() => Deferred)
+    deferred: Deferred;
+}
 
-        @jsonObject()
-        class Deferred {
+@jsonObject()
+class DeferredArray {
 
-            @jsonProperty()
-            name: string;
-        }
+    @jsonProperty(array(() => Deferred))
+    deferred: Array<Deferred>;
+}
 
-        const rootHandler = decoratedJson.type(Root);
+@jsonObject()
+class DeferredMap {
 
-        it('should parse from JSON', () => {
-            const result = rootHandler.parse({
-                deferred: {
-                    name: 'hello',
+    @jsonProperty(map(() => String, () => Deferred, {shape: MapShape.Array}))
+    deferred: Map<string, Deferred>;
+}
+
+@jsonObject()
+class DeferredSet {
+
+    @jsonProperty(set(() => Deferred))
+    deferred: Set<Deferred>;
+}
+
+// Must be declared beneath other classes to test deferred typed
+@jsonObject()
+class Deferred {
+
+    @jsonProperty()
+    name: string;
+}
+
+const simpleTypeHandler = decoratedJson.type(DeferredSimple);
+const arrayTypeHandler = decoratedJson.type(DeferredArray);
+const mapTypeHandler = decoratedJson.type(DeferredMap);
+const setTypeHandler = decoratedJson.type(DeferredSet);
+
+test('Converting a simple object with a not yet defined type from JSON should succeed', t => {
+    const result = simpleTypeHandler.parse({
+        deferred: {
+            name: 'hello',
+        },
+    });
+
+    t.true(result.deferred instanceof Deferred);
+    t.is(result.deferred.name, 'hello');
+});
+
+test('Converting a simple object with a not yet defined type to JSON should succeed', t => {
+    const root = new DeferredSimple();
+    root.deferred = new Deferred();
+    root.deferred.name = 'hello';
+    const result = simpleTypeHandler.toPlainJson(root);
+
+    t.is(result.deferred.name, 'hello');
+});
+
+test('Converting an array of objects with a not yet defined type from JSON should succeed', t => {
+    const result = arrayTypeHandler.parse({
+        deferred: [{name: 'hello'}],
+    });
+
+    t.is(result.deferred.length, 1);
+    t.true(result.deferred[0] instanceof Deferred);
+    t.is(result.deferred[0].name, 'hello');
+});
+
+test('Converting an array of objects with a not yet defined type to JSON should succeed', t => {
+    const root = new DeferredArray();
+    const deferred = new Deferred();
+    deferred.name = 'hello';
+    root.deferred = [deferred];
+    const result = arrayTypeHandler.toPlainJson(root);
+
+    t.is(result.deferred.length, 1);
+    t.is(result.deferred[0].name, 'hello');
+});
+
+test('Converting a map with a not yet defined value type from JSON should succeed', t => {
+    const result = mapTypeHandler.parse({
+        deferred: [{key: 'key', value: {name: 'hello'}}],
+    });
+
+    t.is(result.deferred.size, 1);
+    t.true(result.deferred instanceof Map);
+    t.true(result.deferred.get('key') instanceof Deferred);
+    t.is(result.deferred.get('key')?.name, 'hello');
+});
+
+test('Converting a map with a not yet defined value type to JSON should succeed', t => {
+    const root = new DeferredMap();
+    const deferred = new Deferred();
+    deferred.name = 'hello';
+    root.deferred = new Map<string, Deferred>([['key', deferred]]);
+    const result = mapTypeHandler.toPlainJson(root);
+
+    t.is(result.deferred.length, 1);
+    t.is(result.deferred[0].key, 'key');
+    t.is(result.deferred[0].value.name, 'hello');
+});
+
+test('Converting a set of objects with a not yet defined type from JSON should succeed', t => {
+    const result = setTypeHandler.parse({
+        deferred: [{name: 'hello'}],
+    });
+
+    t.is(result.deferred.size, 1);
+    t.true(result.deferred instanceof Set);
+    t.true(result.deferred.values().next().value instanceof Deferred);
+    t.is(result.deferred.values().next().value.name, 'hello');
+});
+
+test('Converting a set of objects with a not yet defined type to JSON should succeed', t => {
+    const root = new DeferredSet();
+    const deferred = new Deferred();
+    deferred.name = 'hello';
+    root.deferred = new Set([deferred]);
+    const result = setTypeHandler.toPlainJson(root);
+
+    t.is(result.deferred.length, 1);
+    t.is(result.deferred[0].name, 'hello');
+});
+
+test('Conversion should succeed on circular models in separate files', t => {
+    const result = decoratedJson.type(A).parse({
+        b: {
+            a: {
+                b: {
+                    name: 'b2',
                 },
-            });
-
-            expect(result.deferred).toBeInstanceOf(Deferred);
-            expect(result.deferred.name).toBe('hello');
-        });
-
-        it('should perform conversion to JSON', () => {
-            const root = new Root();
-            root.deferred = new Deferred();
-            root.deferred.name = 'hello';
-            const result = rootHandler.toPlainJson(root);
-
-            expect(result.deferred.name).toBe('hello');
-        });
-    });
-
-    describe('array property', () => {
-        @jsonObject()
-        class Root {
-
-            @jsonProperty(array(() => Deferred))
-            deferred: Array<Deferred>;
-        }
-
-        @jsonObject()
-        class Deferred {
-
-            @jsonProperty()
-            name: string;
-        }
-
-        const rootHandler = decoratedJson.type(Root);
-
-        it('should parse from JSON', () => {
-            const result = rootHandler.parse({
-                deferred: [{name: 'hello'}],
-            });
-
-            expect(result.deferred.length).toBe(1);
-            expect(result.deferred[0]).toBeInstanceOf(Deferred);
-            expect(result.deferred[0].name).toBe('hello');
-        });
-
-        it('should perform conversion to JSON', () => {
-            const root = new Root();
-            const deferred = new Deferred();
-            deferred.name = 'hello';
-            root.deferred = [deferred];
-            const result = rootHandler.toPlainJson(root);
-
-            expect(result.deferred.length).toBe(1);
-            expect(result.deferred[0].name).toBe('hello');
-        });
-    });
-
-    describe('map property', () => {
-        @jsonObject()
-        class Root {
-
-            @jsonProperty(map(() => String, () => DeferredValue, {shape: MapShape.Array}))
-            deferred: Map<string, DeferredValue>;
-        }
-
-        @jsonObject()
-        class DeferredValue {
-
-            @jsonProperty()
-            name: string;
-        }
-
-        const rootHandler = decoratedJson.type(Root);
-
-        it('should parse from JSON', () => {
-            const result = rootHandler.parse({
-                deferred: [{key: 'key', value: {name: 'hello'}}],
-            });
-
-            expect(result.deferred.size).toBe(1);
-            expect(result.deferred).toBeInstanceOf(Map);
-            expect(result.deferred.get('key')).toBeInstanceOf(DeferredValue);
-            expect(result.deferred.get('key')?.name).toBe('hello');
-        });
-
-        it('should perform conversion to JSON', () => {
-            const root = new Root();
-            const deferred = new DeferredValue();
-            deferred.name = 'hello';
-            root.deferred = new Map<string, DeferredValue>([['key', deferred]]);
-            const result = rootHandler.toPlainJson(root);
-
-            expect(result.deferred.length).toBe(1);
-            expect(result.deferred[0].key).toBe('key');
-            expect(result.deferred[0].value.name).toBe('hello');
-        });
-    });
-
-    describe('set property', () => {
-        @jsonObject()
-        class Root {
-
-            @jsonProperty(set(() => Deferred))
-            deferred: Set<Deferred>;
-        }
-
-        @jsonObject()
-        class Deferred {
-
-            @jsonProperty()
-            name: string;
-        }
-
-        const rootHandler = decoratedJson.type(Root);
-
-        it('should parse from JSON', () => {
-            const result = rootHandler.parse({
-                deferred: [{name: 'hello'}],
-            });
-
-            expect(result.deferred.size).toBe(1);
-            expect(result.deferred).toBeInstanceOf(Set);
-            expect(result.deferred.values().next().value).toBeInstanceOf(Deferred);
-            expect(result.deferred.values().next().value.name).toBe('hello');
-        });
-
-        it('should perform conversion to JSON', () => {
-            const root = new Root();
-            const deferred = new Deferred();
-            deferred.name = 'hello';
-            root.deferred = new Set([deferred]);
-            const result = rootHandler.toPlainJson(root);
-
-            expect(result.deferred.length).toBe(1);
-            expect(result.deferred[0].name).toBe('hello');
-        });
-    });
-
-    it('should work on multi file imports', () => {
-        const result = decoratedJson.type(A).parse({
-            b: {
-                a: {
-                    b: {
-                        name: 'b2',
-                    },
-                    name: 'a2',
-                },
-                name: 'b1',
+                name: 'a2',
             },
-            name: 'a1',
-        });
-
-        expect(result).toBeInstanceOf(A);
-        expect(result.name).toBe('a1');
-        expect(result.test()).toBeTrue();
-        expect(result.b).toBeInstanceOf(B);
-        expect(result.b.name).toBe('b1');
-        expect(result.b.test()).toBeTrue();
-        expect(result.b.a).toBeInstanceOf(A);
-        expect(result.b.a.name).toBe('a2');
-        expect(result.b.a.test()).toBeTrue();
-        expect(result.b.a.b).toBeInstanceOf(B);
-        expect(result.b.a.b.name).toBe('b2');
-        expect(result.b.a.b.test()).toBeTrue();
+            name: 'b1',
+        },
+        name: 'a1',
     });
+
+    t.true(result instanceof A);
+    t.is(result.name, 'a1');
+    t.true(result.test());
+    t.true(result.b instanceof B);
+    t.is(result.b.name, 'b1');
+    t.true(result.b.test());
+    t.true(result.b.a instanceof A);
+    t.is(result.b.a.name, 'a2');
+    t.true(result.b.a.test());
+    t.true(result.b.a.b instanceof B);
+    t.is(result.b.a.b.name, 'b2');
+    t.true(result.b.a.b.test());
 });

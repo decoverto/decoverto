@@ -1,47 +1,50 @@
+import test from 'ava';
+
 import {DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('errors', () => {
+test('An error should be thrown when it is unknown how to convert a type', t => {
     class CustomType {
     }
 
-    it('should be thrown when types could not be determined', () => {
-        @jsonObject()
-        class TestNonDeterminableTypes {
+    @jsonObject()
+    class TestNonDeterminableTypes {
 
-            @jsonProperty()
-            bar: CustomType;
-        }
+        @jsonProperty()
+        bar: CustomType;
+    }
 
-        const testNonDeterminableTypesHandler = decoratedJson.type(TestNonDeterminableTypes);
-        expect(() => testNonDeterminableTypesHandler.parse({bar: 'bar'})).toThrow();
+    const testNonDeterminableTypesHandler = decoratedJson.type(TestNonDeterminableTypes);
+    t.throws(() => testNonDeterminableTypesHandler.parse({bar: 'bar'}));
+});
+
+@jsonObject()
+class DirectTypeMismatch {
+    @jsonProperty(() => String)
+    property: any;
+
+    constructor(
+        property: any,
+    ) {
+        this.property = property;
+    }
+}
+
+const directTypeMismatchTypeHandler = decoratedJson.type(DirectTypeMismatch);
+
+test(`An error should be thrown when the defined type and the type encountered during fromJson \
+differ`, t => {
+    t.throws(() => directTypeMismatchTypeHandler.parse({property: 15}), {
+        message: `Got invalid value at DirectTypeMismatch.property. Received Number, expected \
+String.`,
     });
+});
 
-    describe('should be thrown when type differs', () => {
-        describe('on direct type descriptor', () => {
-            @jsonObject()
-            class DirectTypeMismatch {
-                @jsonProperty(() => String)
-                test: any;
-
-                constructor(
-                    test: any,
-                ) {
-                    this.test = test;
-                }
-            }
-
-            const typeHandler = decoratedJson.type(DirectTypeMismatch);
-
-            it('on from JSON', () => {
-                expect(() => typeHandler.parse({test: 15})).toThrowError(`Got invalid value at \
-DirectTypeMismatch.test. Received Number, expected String.`);
-            });
-
-            it('on to JSON', () => {
-                expect(() => typeHandler.toPlainJson(new DirectTypeMismatch(15))).toThrow();
-            });
-        });
+test(`An error should be thrown when the defined type and the type encountered during toJson \
+differ`, t => {
+    t.throws(() => directTypeMismatchTypeHandler.toPlainJson(new DirectTypeMismatch(15)), {
+        message: `Got invalid value at DirectTypeMismatch.property. Received Number, expected \
+String.`,
     });
 });

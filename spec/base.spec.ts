@@ -1,254 +1,230 @@
+import test from 'ava';
+
 import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
 
-describe('basic conversion of', () => {
-    describe('builtins', () => {
-        it('should parse from JSON', () => {
-            expect(decoratedJson.type(String).parse('"str"')).toEqual('str');
-            expect(decoratedJson.type(Number).parse('45834')).toEqual(45834);
-            expect(decoratedJson.type(Boolean).parse('true')).toEqual(true);
-            expect(decoratedJson.type(Date).parse('1543915254')).toEqual(new Date(1543915254));
-            expect(decoratedJson.type(Date).parse('-1543915254')).toEqual(new Date(-1543915254));
-            expect(decoratedJson.type(Date).parse('"1970-01-18T20:51:55.254Z"'))
-                .toEqual(new Date(1543915254));
+test('quoted builtins should parse', t => {
+    t.is(decoratedJson.type(String).parse('"str"'), 'str');
+    t.is(decoratedJson.type(Number).parse('45834'), 45834);
+    t.is(decoratedJson.type(Boolean).parse('true'), true);
+    t.deepEqual(decoratedJson.type(Date).parse('1543915254'), new Date(1543915254));
+    t.deepEqual(decoratedJson.type(Date).parse('-1543915254'), new Date(-1543915254));
+    t.deepEqual(decoratedJson.type(Date).parse('"1970-01-18T20:51:55.254Z"'), new Date(1543915254));
 
-            const dataBuffer = Uint8Array.from([100, 117, 112, 97]) as any;
-            expect(decoratedJson.type(ArrayBuffer).parse('"畤慰"')).toEqual(dataBuffer);
-            expect(decoratedJson.type(DataView).parse('"畤慰"')).toEqual(dataBuffer);
-            expect(decoratedJson.type(Uint8Array).parse('[100,117,112,97]')).toEqual(dataBuffer);
-        });
+    const dataBuffer = Uint8Array.from([100, 117, 112, 97]) as any;
+    t.deepEqual(decoratedJson.type(ArrayBuffer).parse('"畤慰"'), dataBuffer.buffer);
+    t.deepEqual(decoratedJson.type(DataView).parse('"畤慰"'), new DataView(dataBuffer.buffer));
+    t.deepEqual(decoratedJson.type(Uint8Array).parse('[100,117,112,97]'), dataBuffer);
+});
 
-        it('should perform conversion to JSON', () => {
-            expect(decoratedJson.type(String).stringify('str')).toEqual('"str"');
-            expect(decoratedJson.type(Number).stringify(45834)).toEqual('45834');
-            expect(decoratedJson.type(Boolean).stringify(true)).toEqual('true');
-            expect(decoratedJson.type(Date).stringify(new Date(1543915254)))
-                .toEqual(`"${new Date(1543915254).toISOString()}"`);
-            expect(decoratedJson.type(Date).stringify(new Date(-1543915254)))
-                .toEqual(`"${new Date(-1543915254).toISOString()}"`);
-            expect(decoratedJson.type(Date).stringify(new Date('2018-12-04T09:20:54')))
-                .toEqual(`"${new Date('2018-12-04T09:20:54').toISOString()}"`);
+test('quoted builtins should convert to JSON', t => {
+    t.is(decoratedJson.type(String).stringify('str'), '"str"');
+    t.is(decoratedJson.type(Number).stringify(45834), '45834');
+    t.is(decoratedJson.type(Boolean).stringify(true), 'true');
+    t.is(
+        decoratedJson.type(Date).stringify(new Date(1543915254)),
+        `"${new Date(1543915254).toISOString()}"`,
+    );
+    t.is(
+        decoratedJson.type(Date).stringify(new Date(-1543915254)),
+        `"${new Date(-1543915254).toISOString()}"`,
+    );
+    t.is(
+        decoratedJson.type(Date).stringify(new Date('2018-12-04T09:20:54')),
+        `"${new Date('2018-12-04T09:20:54').toISOString()}"`,
+    );
 
-            const buffer = new ArrayBuffer(4);
-            const view = new DataView(buffer);
-            view.setInt8(0, 100);
-            view.setInt8(1, 117);
-            view.setInt8(2, 112);
-            view.setInt8(3, 97);
-            expect(decoratedJson.type(ArrayBuffer).stringify(buffer)).toEqual('"畤慰"');
-            expect(decoratedJson.type(DataView).stringify(view)).toEqual('"畤慰"');
-            expect(decoratedJson.type(Uint8Array).stringify(new Uint8Array(buffer)))
-                .toEqual('[100,117,112,97]');
-        });
-    });
+    const buffer = new ArrayBuffer(4);
+    const view = new DataView(buffer);
+    view.setInt8(0, 100);
+    view.setInt8(1, 117);
+    view.setInt8(2, 112);
+    view.setInt8(3, 97);
+    t.is(decoratedJson.type(ArrayBuffer).stringify(buffer), '"畤慰"');
+    t.is(decoratedJson.type(DataView).stringify(view), '"畤慰"');
+    t.is(decoratedJson.type(Uint8Array).stringify(new Uint8Array(buffer)), '[100,117,112,97]');
+});
 
-    describe('single class', () => {
-        @jsonObject()
-        class Person {
-            @jsonProperty()
-            firstName: string;
+@jsonObject()
+class Person {
+    @jsonProperty()
+    firstName: string;
 
-            @jsonProperty()
-            lastName: string;
+    @jsonProperty()
+    lastName: string;
 
-            getFullName() {
-                return `${this.firstName} ${this.lastName}`;
-            }
+    getFullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+}
+
+test('Converting a single class from JSON should succeed', t => {
+    const result = decoratedJson
+        .type(Person)
+        .parse('{ "firstName": "John", "lastName": "Doe" }');
+    t.true(result instanceof Person);
+    t.not(result.getFullName.bind(result), undefined);
+    t.is(result.getFullName(), 'John Doe');
+});
+
+test('Single class converted to JSON should contain all data', t => {
+    const person = new Person();
+    person.firstName = 'John';
+    person.lastName = 'Doe';
+    t.is(
+        decoratedJson.type(Person).stringify(person),
+        '{"firstName":"John","lastName":"Doe"}',
+    );
+});
+
+test('All basic types should be able to be converted from json', t => {
+    const everything = Everything.create();
+    const object = decoratedJson.type(Everything).parse(JSON.stringify(everything));
+    t.deepEqual(object, Everything.expected());
+});
+
+test('All basic types should be able to be converted to json', t => {
+    const everything = Everything.create();
+    const json = decoratedJson.type(Everything).stringify(new Everything(everything));
+    t.deepEqual(json, JSON.stringify(everything));
+});
+
+test('class with defaults in property expression should use defaults', t => {
+    @jsonObject()
+    class WithDefaults {
+        @jsonProperty()
+        num: number = 2;
+
+        @jsonProperty()
+        str: string = 'Hello world';
+
+        @jsonProperty()
+        bool: boolean = true;
+
+        @jsonProperty(array(() => String))
+        arr: Array<string> = [];
+
+        @jsonProperty()
+        present: number = 10;
+    }
+
+    const parsed = decoratedJson.type(WithDefaults).parse('{"present":5}');
+    const expected = new WithDefaults();
+    expected.present = 5;
+    t.deepEqual(parsed, expected);
+});
+
+test('class with defaults in constructors should use defaults', t => {
+    @jsonObject()
+    class WithCtr {
+        @jsonProperty()
+        num: number;
+
+        @jsonProperty()
+        str: string;
+
+        @jsonProperty()
+        bool: boolean;
+
+        @jsonProperty(array(() => String))
+        arr: Array<string>;
+
+        @jsonProperty()
+        present: number;
+
+        constructor() {
+            this.num = 2;
+            this.str = 'Hello world';
+            this.bool = true;
+            this.arr = [];
+            this.present = 10;
         }
+    }
 
-        describe('parsed', () => {
-            beforeAll(function (this: {person: Person}) {
-                this.person = decoratedJson
-                    .type(Person)
-                    .parse('{ "firstName": "John", "lastName": "Doe" }');
-            });
+    const parsed = decoratedJson.type(WithCtr).parse('{"present":5}');
+    const expected = new WithCtr();
+    expected.present = 5;
+    t.deepEqual(parsed, expected);
+});
 
-            it('should be of proper type', function (this: {person: Person}) {
-                expect(this.person instanceof Person).toBeTruthy();
-            });
+@jsonObject()
+class SomeClass {
+    private _prop: string = 'value';
+    @jsonProperty()
+    get prop(): string {
+        return this._prop;
+    }
 
-            it('should have functions', function (this: {person: Person}) {
-                expect(this.person.getFullName.bind(this.person)).toBeDefined();
-                expect(this.person.getFullName()).toBe('John Doe');
-            });
-        });
+    set prop(val: string) {
+        this._prop = val;
+    }
 
-        describe('converted to JSON', () => {
-            it('should contain all data', () => {
-                const person = new Person();
-                person.firstName = 'John';
-                person.lastName = 'Doe';
-                expect(decoratedJson.type(Person).stringify(person))
-                    .toBe('{"firstName":"John","lastName":"Doe"}');
-            });
-        });
-    });
+    private _getterOnly: string = 'getter';
+    @jsonProperty()
+    get getterOnly(): string {
+        return this._getterOnly;
+    }
 
-    describe('all types', () => {
-        it('should parse from JSON', () => {
-            const everything = Everything.create();
+    private _setterOnly: string = 'setter';
+    @jsonProperty()
+    set setterOnly(val: string) {
+        this._setterOnly = val;
+    }
 
-            const object = decoratedJson.type(Everything).parse(JSON.stringify(everything));
+    /**
+     * Exists to prevent a "'_setterOnly' is declared but its value is never read." error.
+     */
+    noTsIgnore(): string {
+        return this._setterOnly;
+    }
+}
 
-            expect(object).toEqual(Everything.expected());
-        });
+test('toJson should work for class with getters and setters', t => {
+    const json = decoratedJson.type(SomeClass).stringify(new SomeClass());
+    t.is(json, '{"prop":"value","getterOnly":"getter"}');
+});
 
-        it('should perform conversion to JSON', () => {
-            const everything = Everything.create();
+test('should parse from JSON', t => {
+    const parsed = decoratedJson.type(SomeClass).parse(
+        '{"prop":"other value","setterOnly":"ok"}',
+    );
 
-            const json = decoratedJson.type(Everything).stringify(new Everything(everything));
+    const expected = new SomeClass();
+    expected.prop = 'other value';
+    expected.setterOnly = 'ok';
+    t.deepEqual(parsed, expected);
+});
 
-            expect(json).toBe(JSON.stringify(everything));
-        });
-    });
+test.failing('should parse from JSON ignoring readonly properties', t => {
+    // this is not supported currently
+    const parsed = decoratedJson.type(SomeClass).parse(
+        '{"prop":"other value","getterOnly":"ignored","setterOnly":"ok"}',
+    );
 
-    describe('class with defaults', () => {
-        describe('by assigment', () => {
-            @jsonObject()
-            class WithDefaults {
-                @jsonProperty()
-                num: number = 2;
+    const expected = new SomeClass();
+    expected.prop = 'other value';
+    expected.setterOnly = 'ok';
+    t.deepEqual(parsed, expected);
+});
 
-                @jsonProperty()
-                str: string = 'Hello world';
+class JustForOrganizationalPurpose {
 
-                @jsonProperty()
-                bool: boolean = true;
+}
 
-                @jsonProperty(array(() => String))
-                arr: Array<string> = [];
+@jsonObject()
+class Child extends JustForOrganizationalPurpose {
 
-                @jsonProperty()
-                present: number = 10;
-            }
+}
 
-            it('should use defaults when missing', () => {
-                const parsed = decoratedJson.type(WithDefaults).parse('{"present":5}');
-                const expected = new WithDefaults();
-                expected.present = 5;
-                expect(parsed).toEqual(expected);
-            });
-        });
+test('Converting a class which extends an unannotated base class should succeed', t => {
+    t.is(decoratedJson.type(Child).stringify(new Child()), '{}');
+    t.deepEqual(decoratedJson.type(Child).parse('{}'), new Child());
+});
 
-        describe('by constructor', () => {
-            @jsonObject()
-            class WithCtr {
-                @jsonProperty()
-                num: number;
-
-                @jsonProperty()
-                str: string;
-
-                @jsonProperty()
-                bool: boolean;
-
-                @jsonProperty(array(() => String))
-                arr: Array<string>;
-
-                @jsonProperty()
-                present: number;
-
-                constructor() {
-                    this.num = 2;
-                    this.str = 'Hello world';
-                    this.bool = true;
-                    this.arr = [];
-                    this.present = 10;
-                }
-            }
-
-            it('should use defaults when missing', () => {
-                const parsed = decoratedJson.type(WithCtr).parse('{"present":5}');
-                const expected = new WithCtr();
-                expected.present = 5;
-                expect(parsed).toEqual(expected);
-            });
-        });
-    });
-
-    describe('getters/setters', () => {
-        @jsonObject()
-        class SomeClass {
-            private _prop: string = 'value';
-            @jsonProperty()
-            get prop(): string {
-                return this._prop;
-            }
-
-            set prop(val: string) {
-                this._prop = val;
-            }
-
-            private _getterOnly: string = 'getter';
-            @jsonProperty()
-            get getterOnly(): string {
-                return this._getterOnly;
-            }
-
-            private _setterOnly: string = 'setter';
-            @jsonProperty()
-            set setterOnly(val: string) {
-                this._setterOnly = val;
-            }
-
-            /**
-             * Exists to prevent a "'_setterOnly' is declared but its value is never read." error.
-             */
-            noTsIgnore(): string {
-                return this._setterOnly;
-            }
-        }
-
-        it('should perform conversion to JSON', () => {
-            const json = decoratedJson.type(SomeClass).stringify(new SomeClass());
-            expect(json).toBe('{"prop":"value","getterOnly":"getter"}');
-        });
-
-        it('should parse from JSON', () => {
-            const parsed = decoratedJson.type(SomeClass).parse(
-                '{"prop":"other value","setterOnly":"ok"}',
-            );
-
-            const expected = new SomeClass();
-            expected.prop = 'other value';
-            expected.setterOnly = 'ok';
-            expect(parsed).toEqual(expected);
-        });
-
-        it('should parse from JSON ignoring readonly properties', () => {
-            pending('this is not supported as of now');
-            const parsed = decoratedJson.type(SomeClass).parse(
-                '{"prop":"other value","getterOnly":"ignored","setterOnly":"ok"}',
-            );
-
-            const expected = new SomeClass();
-            expected.prop = 'other value';
-            expected.setterOnly = 'ok';
-            expect(parsed).toEqual(expected);
-        });
-    });
-
-    describe('structural inheritance', () => {
-        class JustForOrganizationalPurpose {
-
-        }
-
-        @jsonObject()
-        class Child extends JustForOrganizationalPurpose {
-
-        }
-
-        it('should work for unannotated base class', () => {
-            expect(decoratedJson.type(Child).stringify(new Child())).toEqual('{}');
-            expect(decoratedJson.type(Child).parse('{}')).toEqual(new Child());
-        });
-
-        it('should throw when using passing base for conversion', () => {
-            expect(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()))
-                .toThrow();
-            expect(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}')).toThrow();
-        });
-    });
+test(`Converting a class which extends an unannotated base class by providing the base class \
+should fail`, t => {
+    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()));
+    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}'));
 });

@@ -1,61 +1,60 @@
+import test from 'ava';
+
 import {DecoratedJson} from '../src';
 
 const decoratedJson = new DecoratedJson();
 const typeHandler = decoratedJson.type(String);
 const toJsonObject = typeHandler.toJsonObject.bind(typeHandler);
 
-describe('parse To Object', () => {
-    it('should passthrough objects', () => {
-        const obj = {
-            a: 1,
-            b: 2,
-        };
+test('toJsonObject should pass through objects', t => {
+    const obj = {
+        a: 1,
+        b: 2,
+    };
 
-        const obj2 = toJsonObject(obj, Object);
-        expect(obj2).toBe(obj);
-    });
+    const obj2 = toJsonObject(obj, Object);
+    t.is(obj2, obj);
+});
 
-    it('should passthrough arrays', () => {
-        const arr = [{
-            a: 1,
-            b: 2,
-        }];
+test('toJsonObject should pass through arrays', t => {
+    const arr = [{
+        a: 1,
+        b: 2,
+    }];
 
-        const arr2 = toJsonObject(arr, Array);
-        expect(arr2).toBe(arr);
-    });
+    const arr2 = toJsonObject(arr, Array);
+    t.is(arr2, arr);
+});
 
-    it('should parse object string', () => {
-        const arr = {
-            a: 1,
-            b: 2,
-        };
+test('toJsonObject should parse object string', t => {
+    const arr = {
+        a: 1,
+        b: 2,
+    };
 
-        const arr2 = toJsonObject(JSON.stringify(arr), Object);
-        expect(arr2).toEqual(arr);
-    });
+    const arr2 = toJsonObject(JSON.stringify(arr), Object);
+    t.deepEqual(arr2, arr);
+});
 
-    it('should passthrough primitives', () => {
-        expect(toJsonObject(1, Number)).toBe(1);
-        expect(toJsonObject(false, Boolean)).toBe(false);
-    });
+test('toJsonObject should pass through primitives', t => {
+    t.is(toJsonObject(1, Number), 1);
+    t.is(toJsonObject(false, Boolean), false);
+});
 
-    it('should parse strings with quotes, but passthrough otherwise', () => {
-        expect(toJsonObject('"I am a string"', String)).toEqual('I am a string');
-        expect(toJsonObject('just a string', String)).toBe('just a string');
-        expect(toJsonObject('"1970-01-18T20:51:55.254Z"', Date))
-            .toEqual('1970-01-18T20:51:55.254Z');
-        expect(toJsonObject('1970-01-18T20:51:55.254Z', Date)).toBe('1970-01-18T20:51:55.254Z');
-        expect(toJsonObject('"畤慰"', ArrayBuffer)).toEqual('畤慰');
-        expect(toJsonObject('畤慰', ArrayBuffer)).toBe('畤慰');
-        expect(toJsonObject('"畤慰"', DataView)).toEqual('畤慰');
-        expect(toJsonObject('畤慰', DataView)).toBe('畤慰');
-    });
+test('toJsonObject should parse strings with quotes, but passthrough otherwise', t => {
+    t.is(toJsonObject('"I am a string"', String), 'I am a string');
+    t.is(toJsonObject('just a string', String), 'just a string');
+    t.is(toJsonObject('"1970-01-18T20:51:55.254Z"', Date), '1970-01-18T20:51:55.254Z');
+    t.is(toJsonObject('1970-01-18T20:51:55.254Z', Date), '1970-01-18T20:51:55.254Z');
+    t.is(toJsonObject('"畤慰"', ArrayBuffer), '畤慰');
+    t.is(toJsonObject('畤慰', ArrayBuffer), '畤慰');
+    t.is(toJsonObject('"畤慰"', DataView), '畤慰');
+    t.is(toJsonObject('畤慰', DataView), '畤慰');
+});
 
-    it('should passthrough builtins', () => {
-        const date = new Date();
-        expect(toJsonObject(date, Date)).toBe(date);
-        const buffer = new ArrayBuffer(3);
-        expect(toJsonObject(buffer, ArrayBuffer)).toBe(buffer);
-    });
+test('toJsonObject should pass through builtins', t => {
+    const date = new Date();
+    t.is(toJsonObject(date, Date), date);
+    const buffer = new ArrayBuffer(3);
+    t.is(toJsonObject(buffer, ArrayBuffer), buffer);
 });

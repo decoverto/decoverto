@@ -1,85 +1,90 @@
+import test from 'ava';
+
 import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('custom property fromJson', () => {
-    @jsonObject()
-    class Person {
-        @jsonProperty({fromJson: (json: any) => json[0]})
-        firstName: string;
+@jsonObject()
+class Person {
+    @jsonProperty({fromJson: (json: any) => json[0]})
+    firstName: string;
 
-        @jsonProperty()
-        lastName: string;
+    @jsonProperty()
+    lastName: string;
 
-        getFullName() {
-            return `${this.firstName} ${this.lastName}`;
-        }
+    getFullName() {
+        return `${this.firstName} ${this.lastName}`;
     }
+}
 
-    beforeAll(function (this: {person: Person}) {
-        this.person = decoratedJson.type(Person)
-            .parse('{ "firstName": ["John"], "lastName": "Doe" }');
-    });
+const simpleJson = '{ "firstName": ["John"], "lastName": "Doe" }';
 
-    it('should properly parse', function (this: {person: Person}) {
-        expect(this.person.firstName).toBe('John');
-        expect(this.person.lastName).toBe('Doe');
-    });
-
-    it('should return object of proper type', function (this: {person: Person}) {
-        expect(this.person instanceof Person).toBeTruthy();
-    });
-
-    it('should return object with callable functions', function (this: {person: Person}) {
-        expect(this.person.getFullName?.()).toBe('John Doe');
-    });
-
-    it('should not affect toJson', function (this: {person: Person}) {
-        expect(decoratedJson.type(Person).stringify(this.person))
-            .toBe('{"firstName":"John","lastName":"Doe"}');
-    });
+test('Parsing @jsonProperty({fromJson: ...}) should use the fromJson function', t => {
+    const result = decoratedJson.type(Person)
+        .parse(simpleJson);
+    t.is(result.firstName, 'John');
+    t.is(result.lastName, 'Doe');
 });
 
-describe('custom array property fromJson', () => {
-    @jsonObject()
-    class Obj {
-        @jsonProperty(array(() => Number), {
-            fromJson: (json: string) => json.split(',').map((v) => parseInt(v, 10)),
-        })
-        nums: Array<number>;
-
-        @jsonProperty()
-        str: string;
-
-        sum() {
-            return this.nums.reduce((sum, cur) => sum + cur, 0);
-        }
-    }
-
-    beforeAll(function (this: {obj: Obj}) {
-        this.obj = decoratedJson.type(Obj).parse('{ "nums": "1,2,3,4,5", "str": "Some string" }');
-    });
-
-    it('should properly parse', function (this: {obj: Obj}) {
-        expect(this.obj.nums).toEqual([1, 2, 3, 4, 5]);
-        expect(this.obj.str).toBe('Some string');
-    });
-
-    it('should obj object of proper type', function (this: {obj: Obj}) {
-        expect(this.obj instanceof Obj).toBeTruthy();
-    });
-
-    it('should return object with callable functions', function (this: {obj: Obj}) {
-        expect(this.obj.sum?.()).toBe(15);
-    });
-
-    it('should not affect toJson', function (this: {obj: Obj}) {
-        expect(decoratedJson.type(Obj).stringify(this.obj))
-            .toBe('{"nums":[1,2,3,4,5],"str":"Some string"}');
-    });
+test('Result of parsing @jsonProperty({fromJson: ...}) should have the correct type', t => {
+    const result = decoratedJson.type(Person)
+        .parse(simpleJson);
+    t.true(result instanceof Person);
 });
 
-describe('custom delegating array property toJson', () => {
+test('Result of parsing @jsonProperty({fromJson: ...}) should have with callable methods', t => {
+    const result = decoratedJson.type(Person)
+        .parse(simpleJson);
+    t.is(result.getFullName(), 'John Doe');
+});
+
+test('Result of parsing @jsonProperty({fromJson: ...}) should not affect toJson', t => {
+    const result = decoratedJson.type(Person)
+        .parse(simpleJson);
+    t.is(
+        decoratedJson.type(Person).stringify(result),
+        '{"firstName":"John","lastName":"Doe"}',
+    );
+});
+
+@jsonObject()
+class ArrayFromJsonTest {
+    @jsonProperty(array(() => Number), {
+        fromJson: (json: string) => json.split(',').map((v) => parseInt(v, 10)),
+    })
+    nums: Array<number>;
+
+    @jsonProperty()
+    str: string;
+
+    sum() {
+        return this.nums.reduce((sum, cur) => sum + cur, 0);
+    }
+}
+
+const arrayJson = '{ "nums": "1,2,3,4,5", "str": "Some string" }';
+const arrayFromJsonHandler = decoratedJson.type(ArrayFromJsonTest);
+
+test(`Parsing @jsonProperty(array(() => Number), {fromJson: ...}) should use the fromJson \
+function`, t => {
+    const result = arrayFromJsonHandler.parse(arrayJson);
+    t.deepEqual(result.nums, [1, 2, 3, 4, 5]);
+    t.is(result.str, 'Some string');
+});
+
+test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should have with \
+callable methods`, t => {
+    const result = arrayFromJsonHandler.parse(arrayJson);
+    t.is(result.sum?.(), 15);
+});
+
+test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
+toJson`, t => {
+    const result = arrayFromJsonHandler.stringify(arrayFromJsonHandler.parse(arrayJson));
+    t.is(result, '{"nums":[1,2,3,4,5],"str":"Some string"}');
+});
+
+test('Converting @jsonProperty(array(() => Class), {fromJson: function}) should succeed', t => {
     @jsonObject()
     class Inner {
         @jsonProperty()
@@ -111,32 +116,26 @@ describe('custom delegating array property toJson', () => {
         str: string;
     }
 
-    beforeAll(function (this: {obj: Obj}) {
-        this.obj = decoratedJson.type(Obj).parse(
-            JSON.stringify({
-                inners: [
-                    {
-                        prop: 'something',
-                        shouldConvertToObject: false,
-                    },
-                    {
-                        prop: 'gogo',
-                        shouldConvertToObject: true,
-                    },
-                ],
-                str: 'Text',
-            }),
-        );
-    });
+    const result = decoratedJson.type(Obj).parse(JSON.stringify({
+        inners: [
+            {
+                prop: 'something',
+                shouldConvertToObject: false,
+            },
+            {
+                prop: 'gogo',
+                shouldConvertToObject: true,
+            },
+        ],
+        str: 'Text',
+    }));
 
-    it('should properly convert to JSON', function (this: {obj: Obj}) {
-        expect(this.obj).toBeDefined();
-        expect(this.obj instanceof Obj).toBeTruthy();
-        expect(this.obj.str).toEqual('Text');
-        expect(this.obj.inners.length).toEqual(1);
-        expect(this.obj.inners[0] instanceof Inner).toBeTruthy();
-        expect(this.obj.inners[0]).not.toHaveProperties(['shouldConvertToObject'] as any);
-        expect(this.obj.inners[0]).toHaveProperties({prop: 'gogo'});
-        expect(this.obj.inners[0].woo()).toEqual('hoo');
-    });
+    t.not(result, undefined);
+    t.true(result instanceof Obj);
+    t.is(result.str, 'Text');
+    t.is(result.inners.length, 1);
+    t.true(result.inners[0] instanceof Inner);
+    t.is((result.inners[0] as any).shouldConvertToObject, undefined);
+    t.is(result.inners[0].prop, 'gogo');
+    t.is(result.inners[0].woo(), 'hoo');
 });

@@ -1,8 +1,10 @@
+import test from 'ava';
+
 import {Any, array, DecoratedJson, jsonObject, jsonProperty, map, MapShape} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('Complex properties', () => {
+test('Complex @jsonProperty should parse', t => {
     @jsonObject()
     class ComplexProperty {
 
@@ -11,20 +13,16 @@ describe('Complex properties', () => {
     }
 
     const typeHandler = decoratedJson.type(ComplexProperty);
-
-    it('parses', () => {
-        const firstDate = new Date('2021-03-15T07:44:13.907Z');
-
-        const result = typeHandler.parse({
-            arrayOfMapsOfDateArrayAny: [
-                [
-                    {key: firstDate, value: [{foo: true}]},
-                ],
+    const firstDate = new Date('2021-03-15T07:44:13.907Z');
+    const result = typeHandler.parse({
+        arrayOfMapsOfDateArrayAny: [
+            [
+                {key: firstDate, value: [{foo: true}]},
             ],
-        });
-        expect(result.arrayOfMapsOfDateArrayAny).toBeInstanceOf(Array);
-        expect(result.arrayOfMapsOfDateArrayAny[0]).toBeInstanceOf(Map);
-        expect(result.arrayOfMapsOfDateArrayAny[0].get(firstDate)).toBeInstanceOf(Array);
-        expect(result.arrayOfMapsOfDateArrayAny[0].get(firstDate)?.[0].foo).toBe(true);
+        ],
     });
+    t.true(result.arrayOfMapsOfDateArrayAny instanceof Array);
+    t.true(result.arrayOfMapsOfDateArrayAny[0] instanceof Map);
+    t.true(result.arrayOfMapsOfDateArrayAny[0].get(firstDate) instanceof Array);
+    t.is(result.arrayOfMapsOfDateArrayAny[0].get(firstDate)?.[0].foo, true);
 });

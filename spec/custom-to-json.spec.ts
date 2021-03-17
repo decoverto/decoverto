@@ -1,80 +1,75 @@
+import test from 'ava';
+
 import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('custom property toJson', () => {
-    @jsonObject()
-    class Person {
-        @jsonProperty({toJson: (value: string) => value.split(' ')})
-        firstName: string;
+@jsonObject()
+class Person {
+    @jsonProperty({toJson: (value: string) => value.split(' ')})
+    firstName: string;
 
-        @jsonProperty()
-        lastName: string;
+    @jsonProperty()
+    lastName: string;
 
-        getFullName() {
-            return `${this.firstName} ${this.lastName}`;
-        }
+    getFullName() {
+        return `${this.firstName} ${this.lastName}`;
     }
+}
 
-    beforeAll(function (this: {json: any; person: Person}) {
-        this.person = new Person();
-        this.person.firstName = 'Mulit term name';
-        this.person.lastName = 'Surname';
-        this.json = JSON.parse(decoratedJson.type(Person).stringify(this.person));
-    });
+test(`Converting @jsonProperty({toJson: ...}) to JSON  should use the custom fromJson \
+function`, t => {
+    const person = new Person();
+    person.firstName = 'Mulit term name';
+    person.lastName = 'Surname';
 
-    it('should properly convert to JSON', function (this: {json: any; person: Person}) {
-        expect(this.json).toEqual(
-            {
-                firstName: ['Mulit', 'term', 'name'],
-                lastName: 'Surname',
-            },
-        );
-    });
-
-    it('should not affect parsing', () => {
-        expect(decoratedJson.type(Person).parse('{"firstName":"name","lastName":"last"}'))
-            .toEqual(Object.assign(new Person(), {firstName: 'name', lastName: 'last'}));
+    t.deepEqual(JSON.parse(decoratedJson.type(Person).stringify(person)), {
+        firstName: ['Mulit', 'term', 'name'],
+        lastName: 'Surname',
     });
 });
 
-describe('custom array property toJson', () => {
-    @jsonObject()
-    class Obj {
-        @jsonProperty(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
-        nums: Array<number>;
+test('Converting @jsonProperty({toJson: ...}) to JSON should not affect fromJson', t => {
+    t.deepEqual(
+        decoratedJson.type(Person).parse('{"firstName":"name","lastName":"last"}'),
+        Object.assign(new Person(), {firstName: 'name', lastName: 'last'}),
+    );
+});
 
-        @jsonProperty()
-        str: string;
+@jsonObject()
+class ArrayToJsonTest {
+    @jsonProperty(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
+    nums: Array<number>;
 
-        sum() {
-            return this.nums.reduce((sum, cur) => sum + cur, 0);
-        }
+    @jsonProperty()
+    str: string;
+
+    sum() {
+        return this.nums.reduce((sum, cur) => sum + cur, 0);
     }
+}
 
-    beforeAll(function (this: {json: any; obj: Obj}) {
-        this.obj = new Obj();
-        this.obj.nums = [3, 45, 34];
-        this.obj.str = 'Text';
-        this.json = JSON.parse(decoratedJson.type(Obj).stringify(this.obj));
-    });
+test('Parsing @jsonProperty(array(() => Number), {toJson: ...}) should use the toJsonJson \
+function', t => {
+    const testInstance = new ArrayToJsonTest();
+    testInstance.nums = [3, 45, 34];
+    testInstance.str = 'Text';
 
-    it('should properly convert to JSON', function (this: {json: any; obj: Obj}) {
-        expect(this.json).toEqual(
-            {
-                nums: '3,45,34',
-                str: 'Text',
-            },
-        );
-    });
-
-    it('should not affect parsing', () => {
-        expect(decoratedJson.type(Obj).parse('{"nums":[4,5,6,7],"str":"string"}'))
-            .toEqual(Object.assign(new Obj(), {nums: [4, 5, 6, 7], str: 'string'} as Obj));
+    t.deepEqual(JSON.parse(decoratedJson.type(ArrayToJsonTest).stringify(testInstance)), {
+        nums: '3,45,34',
+        str: 'Text',
     });
 });
 
-describe('custom delegating array property toJson', () => {
+test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
+toJson`, t => {
+    t.deepEqual(
+        decoratedJson.type(ArrayToJsonTest).parse('{"nums":[4,5,6,7],"str":"string"}'),
+        Object.assign(new ArrayToJsonTest(), {nums: [4, 5, 6, 7], str: 'string'}),
+    );
+});
+
+test('Converting @jsonProperty(array(() => Class), {toJsonJson: function}) should succeed', t => {
     @jsonObject()
     class Inner {
         @jsonProperty()
@@ -103,26 +98,20 @@ describe('custom delegating array property toJson', () => {
         str: string;
     }
 
-    beforeAll(function (this: {json: any; obj: Obj}) {
-        this.obj = new Obj();
-        this.obj.inners = [
-            new Inner('valval', false),
-            new Inner('something', true),
-        ];
-        this.obj.str = 'Text';
-        this.json = JSON.parse(decoratedJson.type(Obj).stringify(this.obj));
-    });
+    const obj = new Obj();
+    obj.inners = [
+        new Inner('valval', false),
+        new Inner('something', true),
+    ];
+    obj.str = 'Text';
+    const json = JSON.parse(decoratedJson.type(Obj).stringify(obj));
 
-    it('should properly convert to JSON', function (this: {json: any; obj: Obj}) {
-        expect(this.json).toEqual(
+    t.deepEqual(json, {
+        inners: [
             {
-                inners: [
-                    {
-                        prop: 'something',
-                    },
-                ],
-                str: 'Text',
+                prop: 'something',
             },
-        );
+        ],
+        str: 'Text',
     });
 });

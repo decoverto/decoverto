@@ -1,85 +1,84 @@
+import test from 'ava';
+
 import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../src';
 import {Everything, IEverything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
 
-describe('array of objects', () => {
-    @jsonObject()
-    class Simple {
-        @jsonProperty()
-        strProp: string;
+@jsonObject()
+class Simple {
+    @jsonProperty()
+    strProp: string;
 
-        @jsonProperty()
-        numProp: number;
+    @jsonProperty()
+    numProp: number;
 
-        constructor(init?: {strProp: string; numProp: number}) {
-            if (init !== undefined) {
-                this.strProp = init.strProp;
-                this.numProp = init.numProp;
-            }
-        }
-
-        foo() {
-            return `${this.strProp}-${this.numProp}`;
+    constructor(init?: {strProp: string; numProp: number}) {
+        if (init !== undefined) {
+            this.strProp = init.strProp;
+            this.numProp = init.numProp;
         }
     }
 
-    it('should parse an empty array', () => {
-        const result = decoratedJson.type(Simple).parseArray('[]');
-        expect(result).toBeDefined();
-        expect(result.length).toBe(0);
-    });
+    foo() {
+        return `${this.strProp}-${this.numProp}`;
+    }
+}
 
-    it('should stringify an empty array', () => {
-        const result = decoratedJson.type(Simple).stringifyArray([]);
-        expect(result).toBe('[]');
-    });
+test('array of objects should parse an empty array', t => {
+    const result = decoratedJson.type(Simple).parseArray('[]');
+    t.not(result, undefined);
+    t.is(result.length, 0);
+});
 
-    it('parse result should be the correct type', () => {
-        const expectation = [
-            {strProp: 'delta', numProp: 4},
-            {strProp: 'bravo', numProp: 2},
-            {strProp: 'gamma', numProp: 0},
-        ];
+test('array of objects should stringify an empty array', t => {
+    const result = decoratedJson.type(Simple).stringifyArray([]);
+    t.is(result, '[]');
+});
 
-        const result = decoratedJson.type(Simple).parseArray(JSON.stringify(expectation));
+test('array of objects parse result should be the correct type', t => {
+    const expectation = [
+        {strProp: 'delta', numProp: 4},
+        {strProp: 'bravo', numProp: 2},
+        {strProp: 'gamma', numProp: 0},
+    ];
 
-        expect(result.length).toBe(3, 'Parsed array is of wrong length');
-        result.forEach((obj, index) => {
-            expect(obj instanceof Simple).toBeTruthy(`${index} was not of type Simple`);
-            expect(obj)
-                .toHaveProperties(expectation[index], '${index} was parsed incorrectly');
-        });
-    });
+    const result = decoratedJson.type(Simple).parseArray(JSON.stringify(expectation));
 
-    it('toJson result should contain all elements', () => {
-        const expectation = [
-            {strProp: 'delta', numProp: 4},
-            {strProp: 'bravo', numProp: 2},
-            {strProp: 'gamma', numProp: 0},
-        ];
-
-        const result = decoratedJson
-            .type(Simple)
-            .stringifyArray(expectation.map(obj => new Simple(obj)));
-
-        expect(result).toBe(JSON.stringify(expectation));
-    });
-
-    describe('should error', () => {
-        it('on non-array fromJson', () => {
-            expect(() => decoratedJson.type(Simple).parseArray(false as any))
-                .toThrowError('Got invalid value. Received Boolean, expected Array<Simple>.');
-        });
-
-        it('on non-array toJson', () => {
-            expect(() => decoratedJson.type(Simple).toPlainArray(false as any))
-                .toThrowError('Got invalid value. Received Boolean, expected Array<Simple>.');
-        });
+    t.is(result.length, 3, 'Parsed array is of wrong length');
+    result.forEach((obj, index) => {
+        t.true(obj instanceof Simple);
+        t.not(expectation[index], undefined);
     });
 });
 
-describe('multidimensional arrays', () => {
+test('array of objects toJson result should contain all elements', t => {
+    const expectation = [
+        {strProp: 'delta', numProp: 4},
+        {strProp: 'bravo', numProp: 2},
+        {strProp: 'gamma', numProp: 0},
+    ];
+
+    const result = decoratedJson
+        .type(Simple)
+        .stringifyArray(expectation.map(obj => new Simple(obj)));
+
+    t.is(result, JSON.stringify(expectation));
+});
+
+test('array of objects should error on non-array fromJson', t => {
+    t.throws(() => decoratedJson.type(Simple).parseArray(false as any), {
+        message: 'Got invalid value. Received Boolean, expected Array<Simple>.',
+    });
+});
+
+test('array of objects should error on non-array toJson', t => {
+    t.throws(() => decoratedJson.type(Simple).toPlainArray(false as any), {
+        message: 'Got invalid value. Received Boolean, expected Array<Simple>.',
+    });
+});
+
+(() => {
     interface IWithArrays {
         one: Array<IEverything>;
         two: Array<Array<IEverything>>;
@@ -148,65 +147,62 @@ describe('multidimensional arrays', () => {
         return expected ? new WithArrays(result) : result;
     }
 
-    it('parses', () => {
+    test('multidimensional arrays parse correctly', t => {
         const result = decoratedJson.type(WithArrays).parse(createTestObject(false));
 
-        expect(result.one).toBeOfLength(2);
-        expect(result.two).toBeOfLength(4);
-        expect(result.deep[0][0][0][0][0]).toBeInstanceOf(Array);
-        expect(result.one[0]).toEqual(Everything.expected());
-        expect(result.deep[0][0][0][1][0][0]).toEqual(Everything.expected());
+        t.is(result.one.length, 2);
+        t.is(result.two.length, 4);
+        t.true(Array.isArray(result.deep[0][0][0][0][0]));
+        t.deepEqual(result.one[0], Everything.expected());
+        t.deepEqual(result.deep[0][0][0][1][0][0], Everything.expected());
     });
 
-    it('converts to JSON', () => {
+    test('converts to JSON', t => {
         const result = decoratedJson.type(WithArrays).stringify(createTestObject(true));
 
-        expect(result).toBe(JSON.stringify(createTestObject(true)));
+        t.is(result, JSON.stringify(createTestObject(true)));
     });
+})();
+
+@jsonObject()
+class ArrayPropertyAny {
+    @jsonProperty(array(Any))
+    any: Array<any>;
+
+    @jsonProperty(array(Any))
+    anyNullable?: Array<any> | null;
+}
+const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
+
+test('@jsonProperty(array(Any)) should parse from JSON simple object correctly', t => {
+    const result = arrayPropertyAnyHandler.parse({
+        any: [{foo: 'bar'}],
+        anyNullable: [{foo: 'bar'}],
+    });
+    t.true(Array.isArray(result.any));
+    t.is(result.any[0].foo, 'bar');
+    t.true(Array.isArray(result.anyNullable));
+    t.is(result.anyNullable?.[0].foo, 'bar');
 });
 
-describe('array of any', () => {
-    @jsonObject()
-    class ArrayPropertyAny {
-        @jsonProperty(array(Any))
-        any: Array<any>;
-
-        @jsonProperty(array(Any))
-        anyNullable?: Array<any> | null;
-    }
-
-    const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
-
-    it('should parse from JSON simple object correctly', () => {
-        const result = arrayPropertyAnyHandler.parse({
-            any: [{foo: 'bar'}],
-            anyNullable: [{foo: 'bar'}],
-        });
-        expect(result.any).toBeInstanceOf(Array);
-        expect(result.any[0].foo).toEqual('bar');
-        expect(result.anyNullable).toBeInstanceOf(Array);
-        expect(result.anyNullable?.[0].foo).toEqual('bar');
+test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
+    const foo = {foo: 'bar'};
+    const result = arrayPropertyAnyHandler.parse({
+        any: [foo],
+        anyNullable: [foo],
     });
+    t.true(Array.isArray(result.any));
+    t.deepEqual(result.any[0], foo);
+    t.true(Array.isArray(result.anyNullable));
+    t.deepEqual(result.anyNullable?.[0], foo);
+});
 
-    it('should parse from JSON class instance correctly', () => {
-        const foo = {foo: 'bar'};
-        const result = arrayPropertyAnyHandler.parse({
-            any: [foo],
-            anyNullable: [foo],
-        });
-        expect(result.any).toBeInstanceOf(Array);
-        expect(result.any[0]).toEqual(foo);
-        expect(result.anyNullable).toBeInstanceOf(Array);
-        expect(result.anyNullable?.[0]).toEqual(foo);
-    });
-
-    it('should perform conversion to JSON with referential equality', () => {
-        const foo = {foo: 'bar'};
-        const arrayPropertyAny = new ArrayPropertyAny();
-        arrayPropertyAny.any = [foo];
-        arrayPropertyAny.anyNullable = [foo];
-        const result = arrayPropertyAnyHandler.toPlainJson(arrayPropertyAny);
-        expect(result.any[0]).toEqual(foo);
-        expect(result.anyNullable[0]).toEqual(foo);
-    });
+test('@jsonProperty(array(Any)) should convert with referential equality', t => {
+    const foo = {foo: 'bar'};
+    const arrayPropertyAny = new ArrayPropertyAny();
+    arrayPropertyAny.any = [foo];
+    arrayPropertyAny.anyNullable = [foo];
+    const result = arrayPropertyAnyHandler.toPlainJson(arrayPropertyAny);
+    t.is(result.any[0], foo);
+    t.is(result.anyNullable[0], foo);
 });

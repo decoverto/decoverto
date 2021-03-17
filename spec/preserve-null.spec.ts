@@ -1,49 +1,42 @@
+import test from 'ava';
+
 import {DecoratedJson, jsonObject, jsonProperty} from '../src';
 
 const decoratedJson = new DecoratedJson();
 
-describe('null', () => {
-    describe('should be preserved', () => {
-        @jsonObject()
-        class Person {
-            @jsonProperty(() => String)
-            name: string | null;
-        }
+@jsonObject()
+class NullTest {
+    @jsonProperty(() => String)
+    name: string | null;
+}
 
-        it('while parsing', () => {
-            const obj = decoratedJson.type(Person).parse({name: null});
-            expect(obj).toHaveProperties(['name']);
-            expect(obj.name).toBe(null);
-        });
-
-        it('while converting to JSON', () => {
-            const input = new Person();
-            input.name = null;
-            const json = decoratedJson.type(Person).toPlainJson(input);
-            expect(json).toEqual({name: null});
-        });
-    });
+test('null should be preserved while converting from JSON', t => {
+    const obj = decoratedJson.type(NullTest).parse({name: null});
+    t.is(obj.name, null);
 });
 
-describe('undefined', () => {
-    describe('should be not be assigned', () => {
-        @jsonObject()
-        class Person {
-            @jsonProperty(() => String)
-            name?: string;
-        }
+test('null should be preserved while converting to JSON', t => {
+    const input = new NullTest();
+    input.name = null;
+    const json = decoratedJson.type(NullTest).toPlainJson(input);
+    t.deepEqual(json, {name: null});
+});
 
-        it('while parsing', () => {
-            const obj = decoratedJson.type(Person).parse({name: undefined});
-            expect(obj).toBeInstanceOf(Person);
-            expect(obj).not.toHaveProperties(['name']);
-        });
+@jsonObject()
+class UndefinedTest {
+    @jsonProperty(() => String)
+    name?: string;
+}
 
-        it('while converting to JSON', () => {
-            const input = new Person();
-            input.name = undefined;
-            const json = decoratedJson.type(Person).toPlainJson(input);
-            expect(json).toEqual({});
-        });
-    });
+test('Undefined should not be assigned while converting from JSON', t => {
+    const obj = decoratedJson.type(UndefinedTest).parse({name: undefined});
+    t.true(obj instanceof UndefinedTest);
+    t.false(Object.prototype.hasOwnProperty.call(obj, 'name'));
+});
+
+test('Undefined should not be assigned while converting to JSON', t => {
+    const input = new UndefinedTest();
+    input.name = undefined;
+    const json = decoratedJson.type(UndefinedTest).toPlainJson(input);
+    t.deepEqual(json, {});
 });

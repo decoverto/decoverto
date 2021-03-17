@@ -1,260 +1,234 @@
+import test from 'ava';
+
 import {Any, array, DecoratedJson, jsonObject, jsonProperty, set} from '../src';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
 
-describe('set of objects', () => {
-    @jsonObject()
-    class Simple {
-        @jsonProperty()
-        strProp: string;
+@jsonObject()
+class Simple {
+    @jsonProperty()
+    strProp: string;
 
-        @jsonProperty()
-        numProp: number;
+    @jsonProperty()
+    numProp: number;
 
-        constructor(init?: {strProp: string; numProp: number}) {
-            if (init !== undefined) {
-                this.strProp = init.strProp;
-                this.numProp = init.numProp;
-            }
-        }
-
-        foo() {
-            return `${this.strProp}-${this.numProp}`;
+    constructor(init?: {strProp: string; numProp: number}) {
+        if (init !== undefined) {
+            this.strProp = init.strProp;
+            this.numProp = init.numProp;
         }
     }
 
-    it('parses an empty set', () => {
-        const result = decoratedJson.type(Simple).parseSet('[]');
-        expect(result).toBeDefined();
-        expect(result.size).toBe(0);
-    });
+    foo() {
+        return `${this.strProp}-${this.numProp}`;
+    }
+}
 
-    it('stringifies an empty set', () => {
-        const result = decoratedJson.type(Simple).stringifySet(new Set<Simple>());
-        expect(result).toBe('[]');
-    });
+test('Set of objects parses an empty set', t => {
+    const result = decoratedJson.type(Simple).parseSet('[]');
+    t.not(result, undefined);
+    t.is(result.size, 0);
+});
 
-    it('parsed should be of proper type', () => {
-        const expectation = [
-            {strProp: 'delta', numProp: 4},
-            {strProp: 'bravo', numProp: 2},
-            {strProp: 'gamma', numProp: 0},
-        ];
+test('Set of objects stringifies an empty set', t => {
+    const result = decoratedJson.type(Simple).stringifySet(new Set<Simple>());
+    t.is(result, '[]');
+});
 
-        const result = decoratedJson.type(Simple).parseSet(JSON.stringify(expectation));
+test('Set of objects parsed should be of proper type', t => {
+    const expectation = [
+        {strProp: 'delta', numProp: 4},
+        {strProp: 'bravo', numProp: 2},
+        {strProp: 'gamma', numProp: 0},
+    ];
 
-        expect(result.size).toBe(3, 'Parsed set is of wrong size');
-        result.forEach(obj => {
-            expect(obj).toBeInstanceOf(Simple);
-            expect(expectation.find(expected => expected.strProp === obj.strProp)).toBeDefined();
-        });
-    });
+    const result = decoratedJson.type(Simple).parseSet(JSON.stringify(expectation));
 
-    it('stringified should contain all elements', () => {
-        const expectation = [
-            {strProp: 'delta', numProp: 4},
-            {strProp: 'bravo', numProp: 2},
-            {strProp: 'gamma', numProp: 0},
-        ];
-
-        const input = new Set<Simple>(expectation.map(obj => new Simple(obj)));
-        const result = decoratedJson.type(Simple).stringifySet(input);
-
-        expect(result).toBe(JSON.stringify(expectation));
-    });
-
-    describe('should error', () => {
-        it('on non-array fromJson', () => {
-            expect(() => decoratedJson.type(Simple).parseSet(false as any))
-                .toThrowError('Got invalid value. Received Boolean, expected Array<Simple>.');
-        });
-
-        it('on non-set toJson', () => {
-            expect(() => decoratedJson.type(Simple).toPlainSet([] as any))
-                .toThrowError('Got invalid value. Received Array, expected Set<Simple>.');
-        });
+    t.is(result.size, 3, 'Parsed set is of wrong size');
+    result.forEach(obj => {
+        t.true(obj instanceof Simple);
+        t.not(expectation.find(expected => expected.strProp === obj.strProp), undefined);
     });
 });
 
-describe('set property', () => {
-    @jsonObject()
-    class WithSet {
-        @jsonProperty(set(() => Everything))
-        prop: Set<Everything>;
+test('Set of objects stringified should contain all elements', t => {
+    const expectation = [
+        {strProp: 'delta', numProp: 4},
+        {strProp: 'bravo', numProp: 2},
+        {strProp: 'gamma', numProp: 0},
+    ];
 
-        getSetSize() {
-            return this.prop.size;
-        }
-    }
+    const input = new Set<Simple>(expectation.map(obj => new Simple(obj)));
+    const result = decoratedJson.type(Simple).stringifySet(input);
 
-    it('parses', () => {
-        const object = {prop: [Everything.create(), Everything.create()]};
-        const result = decoratedJson.type(WithSet).parse(JSON.stringify(object));
+    t.is(result, JSON.stringify(expectation));
+});
 
-        expect(result).toBeInstanceOf(WithSet);
-        expect(result.prop).toBeDefined();
-        expect(result.prop).toBeInstanceOf(Set);
-        expect(result.prop.size).toBe(2);
-        expect(result.getSetSize()).toBe(2);
-        expect(Array.from(result.prop)).toEqual([Everything.expected(), Everything.expected()]);
-    });
-
-    it('stringifies', () => {
-        const object = new WithSet();
-        object.prop = new Set<Everything>([Everything.expected(), Everything.expected()]);
-        const result = decoratedJson.type(WithSet).stringify(object);
-
-        expect(result).toBe(JSON.stringify({prop: [Everything.create(), Everything.create()]}));
+test('An error should occur on fromJson with a non-array', t => {
+    t.throws(() => decoratedJson.type(Simple).parseSet(false as any), {
+        message: 'Got invalid value. Received Boolean, expected Array<Simple>.',
     });
 });
 
-describe('set array property', () => {
-    @jsonObject()
-    class Simple {
-        @jsonProperty()
-        strProp: string;
+test('An error should occur on toJson with a non-Set', t => {
+    t.throws(() => decoratedJson.type(Simple).toPlainSet([] as any), {
+        message: 'Got invalid value. Received Array, expected Set<Simple>.',
+    });
+});
 
-        @jsonProperty()
-        numProp: number;
+@jsonObject()
+class WithSet {
+    @jsonProperty(set(() => Everything))
+    prop: Set<Everything>;
 
-        constructor(init?: {strProp: string; numProp: number}) {
-            if (init !== undefined) {
-                this.strProp = init.strProp;
-                this.numProp = init.numProp;
-            }
-        }
-
-        foo() {
-            return `${this.strProp}-${this.numProp}`;
-        }
+    getSetSize() {
+        return this.prop.size;
     }
+}
 
-    @jsonObject()
-    class WithSet {
-        @jsonProperty(set(array(() => Simple)))
-        prop: Set<Array<Simple>>;
+test('@jsonProperty(set(...)) should convert from JSON', t => {
+    const object = {prop: [Everything.create(), Everything.create()]};
+    const result = decoratedJson.type(WithSet).parse(JSON.stringify(object));
 
-        getSetSize() {
-            return this.prop.size;
-        }
+    t.true(result instanceof WithSet);
+    t.not(result.prop, undefined);
+    t.true(result.prop instanceof Set);
+    t.is(result.prop.size, 2);
+    t.is(result.getSetSize(), 2);
+    t.deepEqual(Array.from(result.prop), [Everything.expected(), Everything.expected()]);
+});
+
+test('@jsonProperty(set(...)) should convert to JSON', t => {
+    const object = new WithSet();
+    object.prop = new Set<Everything>([Everything.expected(), Everything.expected()]);
+    const result = decoratedJson.type(WithSet).stringify(object);
+
+    t.is(result, JSON.stringify({prop: [Everything.create(), Everything.create()]}));
+});
+
+@jsonObject()
+class WithSetArray {
+    @jsonProperty(set(array(() => Simple)))
+    prop: Set<Array<Simple>>;
+
+    getSetSize() {
+        return this.prop.size;
     }
+}
 
-    it('parses', () => {
-        const result = decoratedJson.type(WithSet).parse(
-            JSON.stringify(
-                {
-                    prop: [
-                        [
-                            {strProp: 'delta', numProp: 4},
-                            {strProp: 'bravo', numProp: 2},
-                            {strProp: 'gamma', numProp: 0},
-                        ],
-                        [
-                            {strProp: 'alpha', numProp: 3245},
-                            {strProp: 'zeta', numProp: 4358},
-                        ],
+test('@jsonProperty(set(array(...))) should convert from JSON', t => {
+    const result = decoratedJson.type(WithSetArray).parse(
+        JSON.stringify(
+            {
+                prop: [
+                    [
+                        {strProp: 'delta', numProp: 4},
+                        {strProp: 'bravo', numProp: 2},
+                        {strProp: 'gamma', numProp: 0},
                     ],
-                },
-            ),
-        );
-
-        expect(result).toBeInstanceOf(WithSet);
-        expect(result.prop).toBeDefined();
-        expect(result.prop).toBeInstanceOf(Set);
-        expect(result.prop.size).toBe(2);
-        expect(result.getSetSize()).toBe(2);
-        expect(Array.from(result.prop)).toEqual([
-            [
-                new Simple({strProp: 'delta', numProp: 4}),
-                new Simple({strProp: 'bravo', numProp: 2}),
-                new Simple({strProp: 'gamma', numProp: 0}),
-            ],
-            [
-                new Simple({strProp: 'alpha', numProp: 3245}),
-                new Simple({strProp: 'zeta', numProp: 4358}),
-            ],
-        ]);
-    });
-
-    it('stringifies', () => {
-        const object = new WithSet();
-        object.prop = new Set<Array<Simple>>([
-            [new Simple({strProp: 'delta', numProp: 4})],
-            [
-                new Simple({strProp: 'alpha', numProp: 3245}),
-                new Simple({strProp: 'zeta', numProp: 4358}),
-            ],
-        ]);
-        const result = decoratedJson.type(WithSet).stringify(object);
-
-        expect(result).toBe(JSON.stringify({
-            prop: [
-                [
-                    {
-                        strProp: 'delta',
-                        numProp: 4,
-                    },
+                    [
+                        {strProp: 'alpha', numProp: 3245},
+                        {strProp: 'zeta', numProp: 4358},
+                    ],
                 ],
-                [
-                    {
-                        strProp: 'alpha',
-                        numProp: 3245,
-                    },
-                    {
-                        strProp: 'zeta',
-                        numProp: 4358,
-                    },
-                ],
-            ],
-        }));
-    });
+            },
+        ),
+    );
+
+    t.true(result instanceof WithSetArray);
+    t.not(result.prop, undefined);
+    t.true(result.prop instanceof Set);
+    t.is(result.prop.size, 2);
+    t.is(result.getSetSize(), 2);
+    t.deepEqual(Array.from(result.prop), [
+        [
+            new Simple({strProp: 'delta', numProp: 4}),
+            new Simple({strProp: 'bravo', numProp: 2}),
+            new Simple({strProp: 'gamma', numProp: 0}),
+        ],
+        [
+            new Simple({strProp: 'alpha', numProp: 3245}),
+            new Simple({strProp: 'zeta', numProp: 4358}),
+        ],
+    ]);
 });
 
-describe('set of any', () => {
-    @jsonObject()
-    class SetPropertyAny {
+test('@jsonProperty(set(array(...))) should convert to JSON', t => {
+    const object = new WithSetArray();
+    object.prop = new Set<Array<Simple>>([
+        [new Simple({strProp: 'delta', numProp: 4})],
+        [
+            new Simple({strProp: 'alpha', numProp: 3245}),
+            new Simple({strProp: 'zeta', numProp: 4358}),
+        ],
+    ]);
+    const result = decoratedJson.type(WithSetArray).stringify(object);
 
-        @jsonProperty(set(Any))
-        any: Set<any>;
+    t.is(result, JSON.stringify({
+        prop: [
+            [
+                {
+                    strProp: 'delta',
+                    numProp: 4,
+                },
+            ],
+            [
+                {
+                    strProp: 'alpha',
+                    numProp: 3245,
+                },
+                {
+                    strProp: 'zeta',
+                    numProp: 4358,
+                },
+            ],
+        ],
+    }));
+});
 
-        @jsonProperty(set(Any))
-        anyNullable?: Set<any> | null;
-    }
+@jsonObject()
+class SetPropertyAny {
 
-    it('should parse from JSON simple object correctly', () => {
-        const foo = {foo: 'bar'};
-        const result = decoratedJson.type(SetPropertyAny).parse({
-            any: [foo, foo],
-            anyNullable: [foo, foo],
-        });
-        expect(result.any).toBeInstanceOf(Set);
-        expect(result.any.size).toBe(1);
-        expect(result.any.values().next().value).toEqual(foo);
-        expect(result.anyNullable).toBeInstanceOf(Set);
-        expect(result.anyNullable?.size).toBe(1);
-        expect(result.anyNullable?.values().next().value).toEqual(foo);
+    @jsonProperty(set(Any))
+    any: Set<any>;
+
+    @jsonProperty(set(Any))
+    anyNullable?: Set<any> | null;
+}
+
+test('@jsonProperty(set(Any)) should parse simple object correctly', t => {
+    const foo = {foo: 'bar'};
+    const result = decoratedJson.type(SetPropertyAny).parse({
+        any: [foo, foo],
+        anyNullable: [foo, foo],
     });
+    t.true(result.any instanceof Set);
+    t.is(result.any.size, 1);
+    t.is(result.any.values().next().value, foo);
+    t.true(result.anyNullable instanceof Set);
+    t.is(result.anyNullable?.size, 1);
+    t.is(result.anyNullable?.values().next().value, foo);
+});
 
-    it('should parse from JSON with referential equality', () => {
-        const foo = {foo: 'bar'};
-        const result = decoratedJson.type(SetPropertyAny).parse({
-            any: [foo, foo],
-            anyNullable: [foo, foo],
-        });
-        expect(result.any).toBeInstanceOf(Set);
-        expect(result.any.values().next().value).toBe(foo);
-        expect(result.anyNullable).toBeInstanceOf(Set);
-        expect(result.anyNullable?.values().next().value).toBe(foo);
+test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
+    const foo = {foo: 'bar'};
+    const result = decoratedJson.type(SetPropertyAny).parse({
+        any: [foo, foo],
+        anyNullable: [foo, foo],
     });
+    t.true(result.any instanceof Set);
+    t.is(result.any.values().next().value, foo);
+    t.true(result.anyNullable instanceof Set);
+    t.is(result.anyNullable?.values().next().value, foo);
+});
 
-    it('should perform conversion to JSON with referential equality', () => {
-        const foo = {foo: 'bar'};
-        const setPropertyAny = new SetPropertyAny();
-        setPropertyAny.any = new Set([foo, foo]);
-        setPropertyAny.anyNullable = new Set([foo, foo]);
-        const result = decoratedJson.type(SetPropertyAny).toPlainJson(setPropertyAny);
-        expect(result.any.values().next().value).toEqual(foo);
-        expect(result.anyNullable.values().next().value).toEqual(foo);
-    });
+test('@jsonProperty(set(Any)) should convert with referential equality', t => {
+    const foo = {foo: 'bar'};
+    const setPropertyAny = new SetPropertyAny();
+    setPropertyAny.any = new Set([foo, foo]);
+    setPropertyAny.anyNullable = new Set([foo, foo]);
+    const result = decoratedJson.type(SetPropertyAny).toPlainJson(setPropertyAny);
+    t.is(result.any.values().next().value, foo);
+    t.is(result.anyNullable.values().next().value, foo);
 });
