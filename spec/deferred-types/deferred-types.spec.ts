@@ -12,17 +12,17 @@ import {B} from './b.model';
 
 const decoratedJson = new DecoratedJson();
 
-describe('Lazy types', () => {
+describe('Deferred types', () => {
     describe('simple property', () => {
         @jsonObject()
         class Root {
 
-            @jsonProperty(() => Lazy)
-            lazy: Lazy;
+            @jsonProperty(() => Deferred)
+            deferred: Deferred;
         }
 
         @jsonObject()
-        class Lazy {
+        class Deferred {
 
             @jsonProperty()
             name: string;
@@ -32,22 +32,22 @@ describe('Lazy types', () => {
 
         it('should parse from JSON', () => {
             const result = rootHandler.parse({
-                lazy: {
+                deferred: {
                     name: 'hello',
                 },
             });
 
-            expect(result.lazy).toBeInstanceOf(Lazy);
-            expect(result.lazy.name).toBe('hello');
+            expect(result.deferred).toBeInstanceOf(Deferred);
+            expect(result.deferred.name).toBe('hello');
         });
 
         it('should perform conversion to JSON', () => {
             const root = new Root();
-            root.lazy = new Lazy();
-            root.lazy.name = 'hello';
+            root.deferred = new Deferred();
+            root.deferred.name = 'hello';
             const result = rootHandler.toPlainJson(root);
 
-            expect(result.lazy.name).toBe('hello');
+            expect(result.deferred.name).toBe('hello');
         });
     });
 
@@ -55,12 +55,12 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonProperty(array(() => Lazy))
-            lazy: Array<Lazy>;
+            @jsonProperty(array(() => Deferred))
+            deferred: Array<Deferred>;
         }
 
         @jsonObject()
-        class Lazy {
+        class Deferred {
 
             @jsonProperty()
             name: string;
@@ -70,23 +70,23 @@ describe('Lazy types', () => {
 
         it('should parse from JSON', () => {
             const result = rootHandler.parse({
-                lazy: [{name: 'hello'}],
+                deferred: [{name: 'hello'}],
             });
 
-            expect(result.lazy.length).toBe(1);
-            expect(result.lazy[0]).toBeInstanceOf(Lazy);
-            expect(result.lazy[0].name).toBe('hello');
+            expect(result.deferred.length).toBe(1);
+            expect(result.deferred[0]).toBeInstanceOf(Deferred);
+            expect(result.deferred[0].name).toBe('hello');
         });
 
         it('should perform conversion to JSON', () => {
             const root = new Root();
-            const lazy = new Lazy();
-            lazy.name = 'hello';
-            root.lazy = [lazy];
+            const deferred = new Deferred();
+            deferred.name = 'hello';
+            root.deferred = [deferred];
             const result = rootHandler.toPlainJson(root);
 
-            expect(result.lazy.length).toBe(1);
-            expect(result.lazy[0].name).toBe('hello');
+            expect(result.deferred.length).toBe(1);
+            expect(result.deferred[0].name).toBe('hello');
         });
     });
 
@@ -94,12 +94,12 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonProperty(map(() => String, () => LazyValue, {shape: MapShape.Array}))
-            lazy: Map<string, LazyValue>;
+            @jsonProperty(map(() => String, () => DeferredValue, {shape: MapShape.Array}))
+            deferred: Map<string, DeferredValue>;
         }
 
         @jsonObject()
-        class LazyValue {
+        class DeferredValue {
 
             @jsonProperty()
             name: string;
@@ -109,25 +109,25 @@ describe('Lazy types', () => {
 
         it('should parse from JSON', () => {
             const result = rootHandler.parse({
-                lazy: [{key: 'key', value: {name: 'hello'}}],
+                deferred: [{key: 'key', value: {name: 'hello'}}],
             });
 
-            expect(result.lazy.size).toBe(1);
-            expect(result.lazy).toBeInstanceOf(Map);
-            expect(result.lazy.get('key')).toBeInstanceOf(LazyValue);
-            expect(result.lazy.get('key')?.name).toBe('hello');
+            expect(result.deferred.size).toBe(1);
+            expect(result.deferred).toBeInstanceOf(Map);
+            expect(result.deferred.get('key')).toBeInstanceOf(DeferredValue);
+            expect(result.deferred.get('key')?.name).toBe('hello');
         });
 
         it('should perform conversion to JSON', () => {
             const root = new Root();
-            const lazy = new LazyValue();
-            lazy.name = 'hello';
-            root.lazy = new Map<string, LazyValue>([['key', lazy]]);
+            const deferred = new DeferredValue();
+            deferred.name = 'hello';
+            root.deferred = new Map<string, DeferredValue>([['key', deferred]]);
             const result = rootHandler.toPlainJson(root);
 
-            expect(result.lazy.length).toBe(1);
-            expect(result.lazy[0].key).toBe('key');
-            expect(result.lazy[0].value.name).toBe('hello');
+            expect(result.deferred.length).toBe(1);
+            expect(result.deferred[0].key).toBe('key');
+            expect(result.deferred[0].value.name).toBe('hello');
         });
     });
 
@@ -135,12 +135,12 @@ describe('Lazy types', () => {
         @jsonObject()
         class Root {
 
-            @jsonProperty(set(() => Lazy))
-            lazy: Set<Lazy>;
+            @jsonProperty(set(() => Deferred))
+            deferred: Set<Deferred>;
         }
 
         @jsonObject()
-        class Lazy {
+        class Deferred {
 
             @jsonProperty()
             name: string;
@@ -150,24 +150,24 @@ describe('Lazy types', () => {
 
         it('should parse from JSON', () => {
             const result = rootHandler.parse({
-                lazy: [{name: 'hello'}],
+                deferred: [{name: 'hello'}],
             });
 
-            expect(result.lazy.size).toBe(1);
-            expect(result.lazy).toBeInstanceOf(Set);
-            expect(result.lazy.values().next().value).toBeInstanceOf(Lazy);
-            expect(result.lazy.values().next().value.name).toBe('hello');
+            expect(result.deferred.size).toBe(1);
+            expect(result.deferred).toBeInstanceOf(Set);
+            expect(result.deferred.values().next().value).toBeInstanceOf(Deferred);
+            expect(result.deferred.values().next().value.name).toBe('hello');
         });
 
         it('should perform conversion to JSON', () => {
             const root = new Root();
-            const lazy = new Lazy();
-            lazy.name = 'hello';
-            root.lazy = new Set([lazy]);
+            const deferred = new Deferred();
+            deferred.name = 'hello';
+            root.deferred = new Set([deferred]);
             const result = rootHandler.toPlainJson(root);
 
-            expect(result.lazy.length).toBe(1);
-            expect(result.lazy[0].name).toBe('hello');
+            expect(result.deferred.length).toBe(1);
+            expect(result.deferred[0].name).toBe('hello');
         });
     });
 
