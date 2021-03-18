@@ -71,6 +71,8 @@ export function jsonProperty<T extends Function>(
 
         if (type !== undefined) {
             // Do nothing
+        } else if (options.fromJson !== undefined && options.toJson !== undefined) {
+            // Do nothing
         } else if (isReflectMetadataSupported) {
             const reflectCtor = Reflect.getMetadata(
                 'design:type',
@@ -85,9 +87,16 @@ export function jsonProperty<T extends Function>(
                 }));
             }
 
+            if (reflectCtor === Object) {
+                throw new Error(getDiagnostic('jsonPropertyReflectedTypeIsObject', {
+                    typeName,
+                    property,
+                }));
+            }
+
             type = new ConcreteTypeDescriptor(reflectCtor);
-        } else if (options.fromJson === undefined) {
-            throw new Error(getDiagnostic('jsonPropertyNoTypeOrCustomConverters', {
+        } else {
+            throw new Error(getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
                 typeName,
                 property,
             }));

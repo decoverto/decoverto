@@ -4,7 +4,7 @@ import {jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {use} from '../helpers/ava.helper';
 
-test.failing(`An error should be thrown on a @jsonProperty declaration with no thunk, no custom \
+test(`An error should be thrown on a @jsonProperty declaration with no thunk, no custom \
 converters, and no reflect metadata`, t => {
     t.throws(() => {
         @jsonObject()

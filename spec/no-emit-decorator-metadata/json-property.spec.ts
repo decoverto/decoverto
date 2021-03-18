@@ -33,7 +33,7 @@ disabled`, t => {
     });
 });
 
-test.failing(`An error should not be thrown when custom converters are specified and \
+test(`An error should not be thrown when custom converters are specified and \
 emitDecoratorMetadata is disabled`, t => {
     t.notThrows(() => {
         @jsonObject()

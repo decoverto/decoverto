@@ -4,7 +4,7 @@ import {jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {use} from '../helpers/ava.helper';
 
-test.failing(`An error should be thrown on no thunk, no custom converters, and a complex reflected \
+test(`An error should be thrown on no thunk, no custom converters, and a complex reflected \
 type`, t => {
     t.throws(() => {
         @jsonObject()
