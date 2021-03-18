@@ -59,14 +59,3 @@ export function isValueDefined<T>(value: T): value is Exclude<T, undefined | nul
 
 export const isReflectMetadataSupported =
     isObject(Reflect) && typeof Reflect.getMetadata as any === 'function';
-
-/**
- * Gets the name of a function.
- * @param fn The function whose name to get.
- */
-export function nameof(fn: Function & {name?: string}) {
-    if (typeof fn.name as string | undefined === 'string') {
-        return fn.name;
-    }
-    return 'undefined';
-}

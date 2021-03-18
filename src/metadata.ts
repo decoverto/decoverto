@@ -1,5 +1,5 @@
 import {getDiagnostic} from './diagnostics';
-import {isJsonStringifyCompatible, isTypeTypedArray, nameof} from './helpers';
+import {isJsonStringifyCompatible, isTypeTypedArray} from './helpers';
 import {OptionsBase} from './options-base';
 import {TypeDescriptor} from './type-descriptor/type-descriptor';
 import {Serializable} from './types';
@@ -129,7 +129,7 @@ export function injectMetadataInformation(
     metadata: JsonPropertyMetadata,
 ) {
     // For error messages
-    const typeName = nameof(prototype.constructor);
+    const typeName = prototype.constructor.name;
 
     // When a property decorator is applied to a static property, 'constructor' is a constructor
     // function.

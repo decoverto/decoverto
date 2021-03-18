@@ -1,6 +1,6 @@
 import {getDiagnostic} from '../diagnostics';
 import {UnknownTypeError} from '../errors/unknown-type.error';
-import {isObject, nameof} from '../helpers';
+import {isObject} from '../helpers';
 import {JsonObjectMetadata} from '../metadata';
 import {mergeOptions} from '../options-base';
 import {Constructor} from '../types';
@@ -56,7 +56,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
             // Convert by expected properties.
             sourceMetadata.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberValue = source[propKey];
-                const typeName = nameof(sourceMetadata.classType);
+                const typeName = sourceMetadata.classType.name;
                 const objMemberOptions = {};
 
                 let revivedValue;
@@ -177,7 +177,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
 
             sourceMeta.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
-                const typeName = nameof(sourceMeta.classType);
+                const typeName = sourceMeta.classType.name;
                 let json;
                 if (objMemberMetadata.toJson != null) {
                     json = objMemberMetadata.toJson(source[objMemberMetadata.key]);

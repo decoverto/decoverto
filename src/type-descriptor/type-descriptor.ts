@@ -1,5 +1,4 @@
 import {InvalidValueError} from '../errors/invalid-value.error';
-import {nameof} from '../helpers';
 import {OptionsBase} from '../options-base';
 import {Serializable} from '../types';
 
@@ -34,7 +33,7 @@ export abstract class TypeDescriptor<Class = any, Json = any> {
 
     protected throwTypeMismatchError(context: ThrowTypeMismatchErrorInput): never {
         throw new InvalidValueError({
-            actualType: nameof(context.source.constructor),
+            actualType: context.source.constructor.name,
             expectedType: context.expectedType ?? this.getFriendlyName(),
             path: context.path,
         });

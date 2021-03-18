@@ -1,7 +1,6 @@
 import {getDiagnostic} from './diagnostics';
 import {
     isReflectMetadataSupported,
-    nameof,
 } from './helpers';
 import {injectMetadataInformation} from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
@@ -58,7 +57,7 @@ export function jsonProperty<T extends Function>(
     options?: JsonPropertyOptions,
 ): PropertyDecorator {
     return (target, property) => {
-        const typeName = nameof(target.constructor);
+        const typeName = target.constructor.name;
         let type: Typelike<any> | undefined;
 
         if (isTypeLike(optionsOrType)) {
