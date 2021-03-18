@@ -1,3 +1,4 @@
+import {getDiagnostic} from '../diagnostics';
 import {UnknownTypeError} from '../errors/unknown-type.error';
 import {isObject, nameof} from '../helpers';
 import {JsonObjectMetadata} from '../metadata';
@@ -55,20 +56,22 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
             // Convert by expected properties.
             sourceMetadata.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberValue = source[propKey];
-                const objMemberDebugName = `${nameof(sourceMetadata.classType)}.${propKey}`;
+                const typeName = nameof(sourceMetadata.classType);
                 const objMemberOptions = {};
 
                 let revivedValue;
                 if (objMemberMetadata.fromJson != null) {
                     revivedValue = objMemberMetadata.fromJson(objMemberValue);
                 } else if (objMemberMetadata.type === undefined) {
-                    throw new TypeError(`Could not convert '${objMemberMetadata.name}' with \
-unknown type to object. Define a type or the toJson function.`);
+                    throw new TypeError(getDiagnostic('noStrategyToConvertJsonPropertyFromJson', {
+                        property: objMemberMetadata.name,
+                        typeName,
+                    }));
                 } else {
                     revivedValue = objMemberMetadata.type.fromJson({
                         ...context,
                         propertyOptions: objMemberOptions,
-                        path: objMemberDebugName,
+                        path: `${typeName}.${propKey}`,
                         source: objMemberValue,
                     });
                 }
@@ -76,7 +79,10 @@ unknown type to object. Define a type or the toJson function.`);
                 if (revivedValue !== undefined) {
                     sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
-                    throw new TypeError(`Missing required property '${objMemberDebugName}'.`);
+                    throw new TypeError(getDiagnostic('missingRequiredProperty', {
+                        property: objMemberMetadata.name,
+                        typeName,
+                    }));
                 }
             });
 
@@ -171,17 +177,19 @@ unknown type to object. Define a type or the toJson function.`);
 
             sourceMeta.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
-                const objMemberDebugName = `${nameof(sourceMeta.classType)}.${propKey}`;
+                const typeName = nameof(sourceMeta.classType);
                 let json;
                 if (objMemberMetadata.toJson != null) {
                     json = objMemberMetadata.toJson(source[objMemberMetadata.key]);
                 } else if (objMemberMetadata.type === undefined) {
-                    throw new TypeError(`Could not convert '${objMemberMetadata.name}' with \
-unknown type to JSON. Define a type or the toJson function.`);
+                    throw new TypeError(getDiagnostic('noStrategyToConvertJsonPropertyToJson', {
+                        property: objMemberMetadata.name,
+                        typeName,
+                    }));
                 } else {
                     json = objMemberMetadata.type.toJson({
                         ...context,
-                        path: objMemberDebugName,
+                        path: `${typeName}.${propKey}`,
                         propertyOptions: objMemberOptions,
                         source: source[objMemberMetadata.key],
                     });

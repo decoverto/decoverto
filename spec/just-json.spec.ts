@@ -5,7 +5,10 @@ import {DecoratedJson} from '../src';
 const decoratedJson = new DecoratedJson();
 
 test('Invalid string should error on parse', t => {
-    t.throws(() => decoratedJson.type(String).parse('"sdfs"fdsf"'));
+    t.throws(() => decoratedJson.type(String).parse('"sdfs"fdsf"'), {
+        instanceOf: SyntaxError,
+        message: 'Unexpected token f in JSON at position 6',
+    });
 });
 
 test('String toPlainJson should not modify the source', t => {

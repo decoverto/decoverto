@@ -1,6 +1,7 @@
 import test from 'ava';
 
 import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../src';
+import {getDiagnostic} from '../src/diagnostics';
 import {Everything, IEverything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -68,13 +69,21 @@ test('array of objects toJson result should contain all elements', t => {
 
 test('array of objects should error on non-array fromJson', t => {
     t.throws(() => decoratedJson.type(Simple).parseArray(false as any), {
-        message: 'Got invalid value. Received Boolean, expected Array<Simple>.',
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'Boolean',
+            expectedType: 'Array<Simple>',
+            path: '',
+        }),
     });
 });
 
 test('array of objects should error on non-array toJson', t => {
     t.throws(() => decoratedJson.type(Simple).toPlainArray(false as any), {
-        message: 'Got invalid value. Received Boolean, expected Array<Simple>.',
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'Boolean',
+            expectedType: 'Array<Simple>',
+            path: '',
+        }),
     });
 });
 

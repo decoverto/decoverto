@@ -1,3 +1,4 @@
+import {getDiagnostic} from './diagnostics';
 import {shouldOmitParseString} from './helpers';
 import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
@@ -44,9 +45,9 @@ export class TypeHandler<RootType> {
 
         if (rootMetadata === undefined
             || (!rootMetadata.isExplicitlyMarked && !rootMetadata.isHandledWithoutAnnotation)) {
-            throw new TypeError(
-                `The type ${rootConstructor.name} is missing the @jsonObject decorator.`,
-            );
+            throw new TypeError(getDiagnostic('missingJsonObjectDecorator', {
+                typeName: rootConstructor.name,
+            }));
         }
 
         this.rootConstructor = rootConstructor;

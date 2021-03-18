@@ -1,6 +1,7 @@
 import test from 'ava';
 
 import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
+import {getDiagnostic} from '../src/diagnostics';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -225,6 +226,14 @@ test('Converting a class which extends an unannotated base class should succeed'
 
 test(`Converting a class which extends an unannotated base class by providing the base class \
 should fail`, t => {
-    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()));
-    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}'));
+    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()), {
+        message: getDiagnostic('missingJsonObjectDecorator', {
+            typeName: 'JustForOrganizationalPurpose',
+        }),
+    });
+    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}'), {
+        message: getDiagnostic('missingJsonObjectDecorator', {
+            typeName: 'JustForOrganizationalPurpose',
+        }),
+    });
 });

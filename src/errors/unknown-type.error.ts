@@ -1,3 +1,4 @@
+import {getDiagnostic} from '../diagnostics';
 import {ValidationError, ValidationErrorInput} from './validation.error';
 
 export interface UnknownTypeErrorInput extends ValidationErrorInput {
@@ -10,7 +11,6 @@ export class UnknownTypeError extends ValidationError {
             path: input.path,
         });
 
-        this.message = `Could not determine how to convert unknown type ${input.type} at ${
-            input.path}`;
+        this.message = getDiagnostic('unknownTypeError', input);
     }
 }

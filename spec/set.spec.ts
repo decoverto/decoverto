@@ -1,6 +1,7 @@
 import test from 'ava';
 
 import {Any, array, DecoratedJson, jsonObject, jsonProperty, set} from '../src';
+import {getDiagnostic} from '../src/diagnostics';
 import {Everything} from './utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -67,13 +68,21 @@ test('Set of objects stringified should contain all elements', t => {
 
 test('An error should occur on fromJson with a non-array', t => {
     t.throws(() => decoratedJson.type(Simple).parseSet(false as any), {
-        message: 'Got invalid value. Received Boolean, expected Array<Simple>.',
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'Boolean',
+            expectedType: 'Array<Simple>',
+            path: '',
+        }),
     });
 });
 
 test('An error should occur on toJson with a non-Set', t => {
     t.throws(() => decoratedJson.type(Simple).toPlainSet([] as any), {
-        message: 'Got invalid value. Received Array, expected Set<Simple>.',
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'Array',
+            expectedType: 'Set<Simple>',
+            path: '',
+        }),
     });
 });
 

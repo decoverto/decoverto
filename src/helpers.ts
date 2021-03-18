@@ -2,12 +2,6 @@ declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
 }
 
-export const LAZY_TYPE_EXPLANATION = `If the type is not yet defined, for example due to circular \
-references, add '() => ' before it. E.g. @jsonProperty(() => Foo)`;
-
-export const MISSING_REFLECT_CONF_MSG = 'Make sure that you have both "experimentalDecorators"'
-    + ' and "emitDecoratorMetadata" enabled in your tsconfig.json';
-
 /**
  * Determines whether the specified type is a type that can be passed on "as-is" into
  * `JSON.stringify`.

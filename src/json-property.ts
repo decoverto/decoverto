@@ -1,6 +1,6 @@
+import {getDiagnostic} from './diagnostics';
 import {
     isReflectMetadataSupported,
-    LAZY_TYPE_EXPLANATION,
     nameof,
 } from './helpers';
 import {injectMetadataInformation} from './metadata';
@@ -58,7 +58,7 @@ export function jsonProperty<T extends Function>(
     options?: JsonPropertyOptions,
 ): PropertyDecorator {
     return (target, property) => {
-        const decoratorName = `@jsonProperty on ${nameof(target.constructor)}.${String(property)}`;
+        const typeName = nameof(target.constructor);
         let type: Typelike<any> | undefined;
 
         if (isTypeLike(optionsOrType)) {
@@ -79,13 +79,18 @@ export function jsonProperty<T extends Function>(
             ) as Constructor<any> | null | undefined;
 
             if (reflectCtor == null) {
-                throw new Error(`${decoratorName}: cannot resolve detected property constructor at \
-runtime. ${LAZY_TYPE_EXPLANATION}`);
+                throw new Error(getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+                    typeName,
+                    property,
+                }));
             }
 
             type = new ConcreteTypeDescriptor(reflectCtor);
         } else if (options.fromJson === undefined) {
-            throw new Error(`${decoratorName}: Cannot determine type`);
+            throw new Error(getDiagnostic('jsonPropertyNoTypeOrCustomConverters', {
+                typeName,
+                property,
+            }));
         }
 
         injectMetadataInformation(target, property, {

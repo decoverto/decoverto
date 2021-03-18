@@ -1,3 +1,4 @@
+import {getDiagnostic} from '../diagnostics';
 import {ValidationError, ValidationErrorInput} from './validation.error';
 
 export interface InvalidValueErrorInput extends ValidationErrorInput {
@@ -11,7 +12,6 @@ export class InvalidValueError extends ValidationError {
             path: input.path,
         });
 
-        this.message = `Got invalid value${input.path === '' ? '' : ` at ${input.path}`}. Received \
-${input.actualType}, expected ${input.expectedType}.`;
+        this.message = getDiagnostic('invalidValueError', input);
     }
 }

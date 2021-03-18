@@ -1,3 +1,4 @@
+import {getDiagnostic} from './diagnostics';
 import {isJsonStringifyCompatible, isTypeTypedArray, nameof} from './helpers';
 import {OptionsBase} from './options-base';
 import {TypeDescriptor} from './type-descriptor/type-descriptor';
@@ -128,7 +129,7 @@ export function injectMetadataInformation(
     metadata: JsonPropertyMetadata,
 ) {
     // For error messages
-    const decoratorName = `@jsonProperty on ${nameof(prototype.constructor)}.${String(propKey)}`;
+    const typeName = nameof(prototype.constructor);
 
     // When a property decorator is applied to a static property, 'constructor' is a constructor
     // function.
@@ -137,17 +138,26 @@ export function injectMetadataInformation(
     // https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
     // ... and static properties are not supported here, so abort.
     if (typeof prototype === 'function') {
-        throw new Error(`${decoratorName}: cannot use a static property.`);
+        throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnStaticProperty', {
+            property: propKey,
+            typeName,
+        }));
     }
 
     // Methods cannot be converted JSON.
     // symbol indexing is not supported by ts
     if (typeof prototype[propKey as string] === 'function') {
-        throw new Error(`${decoratorName}: cannot use a method property.`);
+        throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnInstanceMethod', {
+            property: propKey,
+            typeName,
+        }));
     }
 
     if (metadata.type === undefined && metadata.fromJson === undefined) {
-        throw new Error(`${decoratorName} has unknown type.`);
+        throw new Error(getDiagnostic('jsonPropertyNoTypeOrCustomConverters', {
+            property: propKey,
+            typeName,
+        }));
     }
 
     // Add jsonObject metadata to 'constructor' if not yet exists ('constructor' is the prototype).
