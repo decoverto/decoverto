@@ -47,6 +47,19 @@ test('Result of parsing @jsonProperty({fromJson: ...}) should not affect toJson'
     );
 });
 
+test('@jsonProperty({fromJson: ...}) with complex type uses specified function', t => {
+    t.notThrows(() => {
+        @jsonObject()
+        class FromJsonComplexType {
+            @jsonProperty({fromJson: () => true})
+            complex: boolean | string | number | URL;
+        }
+
+        const typeHandler = decoratedJson.type(FromJsonComplexType);
+        t.true(typeHandler.parse({complex: false}).complex);
+    });
+});
+
 @jsonObject()
 class ArrayFromJsonTest {
     @jsonProperty(array(() => Number), {

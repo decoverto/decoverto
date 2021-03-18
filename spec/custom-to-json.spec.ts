@@ -36,6 +36,19 @@ test('Converting @jsonProperty({toJson: ...}) to JSON should not affect fromJson
     );
 });
 
+test('@jsonProperty({toJson: ...}) with complex type uses specified function', t => {
+    t.notThrows(() => {
+        @jsonObject()
+        class ToJsonComplexType {
+            @jsonProperty({toJson: () => true})
+            complex: boolean | string | number | URL;
+        }
+
+        const typeHandler = decoratedJson.type(ToJsonComplexType);
+        t.true(typeHandler.toPlainJson(new ToJsonComplexType()).complex);
+    });
+});
+
 @jsonObject()
 class ArrayToJsonTest {
     @jsonProperty(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
