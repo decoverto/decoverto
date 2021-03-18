@@ -1,8 +1,8 @@
 import test from 'ava';
 
-import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../src';
-import {getDiagnostic} from '../src/diagnostics';
-import {Everything, IEverything} from './utils/everything';
+import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {getDiagnostic} from '../../src/diagnostics';
+import {Everything, IEverything} from '../utils/everything';
 
 const decoratedJson = new DecoratedJson();
 

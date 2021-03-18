@@ -8,7 +8,7 @@ import {
     map,
     MapShape,
     set,
-} from '../../src';
+} from '../../../src';
 import {A} from './a.model';
 import {B} from './b.model';
 

@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {shouldOmitParseString} from '../src/helpers';
+import {shouldOmitParseString} from '../../src/helpers';
 
 test('shouldOmitParseString should handle plain numbers', t => {
     t.is(shouldOmitParseString('50', Number), false);

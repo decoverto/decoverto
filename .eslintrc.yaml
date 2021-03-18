@@ -30,6 +30,7 @@ overrides:
 
     rules:
       '@typescript-eslint/no-use-before-define': off
+      ava/no-ignored-test-files: off # The files are included, eslint just doesn't know it
       func-names: off
 
   -

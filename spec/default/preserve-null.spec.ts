@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {DecoratedJson, jsonObject, jsonProperty} from '../src';
+import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
 
 const decoratedJson = new DecoratedJson();
 

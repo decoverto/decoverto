@@ -8,8 +8,8 @@ import {
     jsonObject,
     jsonProperty,
     TypeDescriptor,
-} from '../src';
-import {setAvaContext} from './helpers/ava.helper';
+} from '../../src';
+import {setAvaContext} from '../helpers/ava.helper';
 
 class CustomType {
     value: any;

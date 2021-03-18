@@ -5,14 +5,15 @@ export const Diagnostics = {
     jsonPropertyReflectedTypeIsNull(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1000,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)}: cannot resolve \
-detected property constructor at runtime.`,
+            message: `Cannot determine type on @jsonProperty at ${info.typeName}. \
+${String(info.property)}. Make sure emitDecoratorMetadata is enabled in your tsconfig.json.`,
         };
     },
     jsonPropertyNoTypeOrCustomConverters(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1001,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} has unknown type`,
+            message: `@jsonProperty on ${info.typeName}.${String(info.property)} has an unknown \
+type.`,
         };
     },
     jsonPropertyCannotBeUsedOnStaticProperty(info: {property: string | symbol; typeName: string}) {
@@ -55,6 +56,26 @@ JSON. Define a type or the toJson function.`,
             message: `The type ${info.typeName} is missing the @jsonObject decorator.`,
         };
     },
+    jsonPropertyReflectedTypeIsObject(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1008,
+            message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
+${String(info.property)}. Solutions:
+ - Pass the type to the @jsonProperty decorator, e.g. @jsonProperty(() => String)
+ - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
+        };
+    },
+    jsonPropertyNoTypeNoConvertersNoReflect(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1009,
+            message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
+${String(info.property)}. Solutions:
+ - Enable reflect-metadata
+ - Provide the type as an argument of the @jsonProperty decorator. E.g. \
+@jsonProperty(() => String)
+ - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
+        };
+    },
 
     invalidValueError(info: InvalidValueErrorInput) {
         return {
@@ -66,8 +87,7 @@ ${info.actualType}, expected ${info.expectedType}.`,
     unknownTypeError(info: UnknownTypeErrorInput) {
       return {
           code: 2001,
-          message: `Could not determine how to convert unknown type ${info.type} at ${
-              info.path}`,
+          message: `Could not determine how to convert unknown type ${info.type} at ${info.path}`,
       };
     },
 };

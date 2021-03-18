@@ -33,7 +33,7 @@ Production bundle. Generates types.
 Used by eslint, see [.eslintrc.yaml](../.eslintrc.yaml).
 
 **[tsconfig.spec.json](tsconfig.spec.json)**    
-Governs all test files.
+Base for the tsconfig files in the spec directory.
 
 **[tsconfig.spec-strict.json](tsconfig.spec-strict.json)**    
 A more strict TypeScript configuration which might be annoying if used during development.

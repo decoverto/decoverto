@@ -1,4 +1,4 @@
-import {jsonObject, jsonProperty} from '../../src';
+import {jsonObject, jsonProperty} from '../../../src';
 import {B} from './b.model';
 
 @jsonObject()

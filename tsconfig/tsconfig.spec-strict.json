@@ -2,5 +2,8 @@
     "extends": "./tsconfig.spec.json",
     "compilerOptions": {
         "noUnusedLocals": true
-    }
+    },
+    "include": [
+        "../spec/**/*.ts"
+    ]
 }

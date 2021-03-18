@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {array, DecoratedJson, jsonObject, jsonProperty} from '../src';
+import {array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
 
 const decoratedJson = new DecoratedJson();
 
@@ -36,11 +36,12 @@ test('Converting @jsonProperty({toJson: ...}) to JSON should not affect fromJson
     );
 });
 
-test('@jsonProperty({toJson: ...}) with complex type uses specified function', t => {
+test(`@jsonProperty({fromJson: ..., toJson: ...}) with complex type uses specified toJson \
+function`, t => {
     t.notThrows(() => {
         @jsonObject()
         class ToJsonComplexType {
-            @jsonProperty({toJson: () => true})
+            @jsonProperty({fromJson: () => false, toJson: () => true})
             complex: boolean | string | number | URL;
         }
 

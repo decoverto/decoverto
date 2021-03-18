@@ -12,7 +12,13 @@
             "path": "./tsconfig/tsconfig.app.json"
         },
         {
-            "path": "./tsconfig/tsconfig.spec.json"
+            "path": "./spec/default/tsconfig.spec.json"
+        },
+        {
+            "path": "./spec/no-emit-decorator-metadata/tsconfig.spec.json"
+        },
+        {
+            "path": "./spec/no-reflect-metadata/tsconfig.spec.json"
         }
     ]
 }

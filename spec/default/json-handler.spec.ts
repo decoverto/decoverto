@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {DecoratedJson, JsonHandlerSimple, jsonObject, jsonProperty} from '../src';
+import {DecoratedJson, JsonHandlerSimple, jsonObject, jsonProperty} from '../../src';
 
 @jsonObject()
 class JsonHandlerTest {

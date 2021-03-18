@@ -43,10 +43,6 @@ export interface IEverything {
     numProp: number;
     boolProp: boolean;
     dateProp: Date;
-    // nullable is not supported, use optional instead
-    // nullable: {}|null;
-    optional?: Record<string, unknown>;
-    undefinable: Record<string, unknown> | undefined;
     enum: JustEnum;
     constEnum: ConstEnum;
     strEnum: StrEnum;
@@ -72,14 +68,6 @@ export class Everything implements IEverything {
     boolProp: boolean;
     @jsonProperty()
     dateProp: Date;
-    // @jsonProperty()
-    // nullable: {}|null;
-    @jsonProperty()
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    optional?: {};
-    @jsonProperty()
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    undefinable: {} | undefined;
     @jsonProperty()
     enum: JustEnum;
     @jsonProperty()
@@ -111,8 +99,6 @@ export class Everything implements IEverything {
             numProp: 123,
             boolProp: true,
             dateProp: new Date(1543912019),
-            // nullable: null,
-            undefinable: undefined,
             enum: JustEnum.Four,
             constEnum: ConstEnum.Four,
             strEnum: StrEnum.Four,
@@ -127,8 +113,6 @@ export class Everything implements IEverything {
 
     static expected(): Everything {
         const obj = Everything.create();
-        // properties that are undefined are not present in the resulting JSON
-        delete obj.undefinable;
         return new Everything(obj);
     }
 
