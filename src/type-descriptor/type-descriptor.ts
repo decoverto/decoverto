@@ -44,7 +44,3 @@ export abstract class TypeDescriptor<Class = any, Json = any> {
 export function isTypeLike(type: any): type is Typelike<any> {
     return type != null && (typeof type === 'function' || type instanceof TypeDescriptor);
 }
-
-export function isTypeThunk(candidate: any): candidate is TypeThunk {
-    return typeof candidate === 'function' && candidate.name === '';
-}

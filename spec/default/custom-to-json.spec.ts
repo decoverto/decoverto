@@ -11,10 +11,6 @@ class Person {
 
     @jsonProperty(() => String, {toJson: () => 'Foreman'})
     lastName: string;
-
-    getFullName() {
-        return `${this.firstName} ${this.lastName}`;
-    }
 }
 
 test(`Converting @jsonProperty({toJson: ...}) to JSON  should use the custom fromJson \
@@ -57,10 +53,6 @@ class ArrayToJsonTest {
 
     @jsonProperty()
     str: string;
-
-    sum() {
-        return this.nums.reduce((sum, cur) => sum + cur, 0);
-    }
 }
 
 test('Parsing @jsonProperty(array(() => Number), {toJson: ...}) should use the toJsonJson \

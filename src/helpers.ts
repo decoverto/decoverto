@@ -50,66 +50,11 @@ export function shouldOmitParseString(jsonStr: string, expectedType: Function): 
 }
 
 /**
- * Determines if 'a' is a sub-type of 'b' (or if 'a' equals 'b').
- * @param a The supposed derived type.
- * @param b The supposed base type.
- */
-export function isSubtypeOf(a: Function, b: Function) {
-    return a === b || a.prototype instanceof b;
-}
-
-export type ErrorHandler = (error: Error) => void;
-
-export function logError(message?: any, ...optionalParams: Array<any>) {
-    if (typeof console as any === 'object' && typeof console.error as any === 'function') {
-        console.error(message, ...optionalParams);
-    } else if (typeof console as any === 'object' && typeof console.log as any === 'function') {
-        console.log(`ERROR: ${message}`, ...optionalParams);
-    }
-}
-
-export function logMessage(message?: any, ...optionalParams: Array<any>) {
-    if (typeof console as any === 'object' && typeof console.log as any === 'function') {
-        console.log(message, ...optionalParams);
-    }
-}
-
-export function logWarning(message?: any, ...optionalParams: Array<any>) {
-    if (typeof console as any === 'object' && typeof console.warn as any === 'function') {
-        console.warn(message, ...optionalParams);
-    } else if (typeof console as any === 'object' && typeof console.log as any === 'function') {
-        console.log(`WARNING: ${message}`, ...optionalParams);
-    }
-}
-
-export type NotNull<T> = T extends null ? never : T;
-export type RequiredNoNull<T> = {[P in keyof T]-?: NotNull<T[P]>};
-export type NotUndefined<T> = T extends undefined ? never : T;
-
-/**
  * Checks if the value is considered defined (not undefined and not null).
  * @param value
  */
 export function isValueDefined<T>(value: T): value is Exclude<T, undefined | null> {
     return !(typeof value === 'undefined' || value === null);
-}
-
-export function isNotUndefined<T>(value: T): value is NotUndefined<T> {
-    return value !== undefined;
-}
-
-export function isInstanceOf<T>(value: any, constructor: Function): boolean {
-    if (typeof value === 'number') {
-        return constructor === Number;
-    } else if (typeof value === 'string') {
-        return constructor === String;
-    } else if (typeof value === 'boolean') {
-        return constructor === Boolean;
-    } else if (isObject(value)) {
-        return value instanceof constructor;
-    }
-
-    return false;
 }
 
 export const isReflectMetadataSupported =
