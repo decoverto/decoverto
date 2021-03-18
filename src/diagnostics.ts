@@ -62,6 +62,7 @@ JSON. Define a type or the toJson function.`,
             message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
 ${String(info.property)}. Solutions:
  - Pass the type to the @jsonProperty decorator, e.g. @jsonProperty(() => String)
+ - If the property has a default value, make sure to explicitly type it. E.g. prop: number = 5
  - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
         };
     },
