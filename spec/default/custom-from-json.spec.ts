@@ -6,10 +6,10 @@ const decoratedJson = new DecoratedJson();
 
 @jsonObject()
 class Person {
-    @jsonProperty({fromJson: (json: any) => json[0]})
+    @jsonProperty({fromJson: () => 'Mark'})
     firstName: string;
 
-    @jsonProperty()
+    @jsonProperty(() => String, {fromJson: () => 'Foreman'})
     lastName: string;
 
     getFullName() {
@@ -17,13 +17,13 @@ class Person {
     }
 }
 
-const simpleJson = '{ "firstName": ["John"], "lastName": "Doe" }';
+const simpleJson = '{ "firstName": "John", "lastName": "Doe" }';
 
 test('Parsing @jsonProperty({fromJson: ...}) should use the fromJson function', t => {
     const result = decoratedJson.type(Person)
         .parse(simpleJson);
-    t.is(result.firstName, 'John');
-    t.is(result.lastName, 'Doe');
+    t.is(result.firstName, 'Mark');
+    t.is(result.lastName, 'Foreman');
 });
 
 test('Result of parsing @jsonProperty({fromJson: ...}) should have the correct type', t => {
@@ -35,12 +35,13 @@ test('Result of parsing @jsonProperty({fromJson: ...}) should have the correct t
 test('Result of parsing @jsonProperty({fromJson: ...}) should have with callable methods', t => {
     const result = decoratedJson.type(Person)
         .parse(simpleJson);
-    t.is(result.getFullName(), 'John Doe');
+    t.is(result.getFullName(), 'Mark Foreman');
 });
 
 test('Result of parsing @jsonProperty({fromJson: ...}) should not affect toJson', t => {
-    const result = decoratedJson.type(Person)
-        .parse(simpleJson);
+    const result = new Person();
+    result.firstName = 'John';
+    result.lastName = 'Doe';
     t.is(
         decoratedJson.type(Person).stringify(result),
         '{"firstName":"John","lastName":"Doe"}',

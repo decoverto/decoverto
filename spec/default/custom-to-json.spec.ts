@@ -6,10 +6,10 @@ const decoratedJson = new DecoratedJson();
 
 @jsonObject()
 class Person {
-    @jsonProperty({toJson: (value: string) => value.split(' ')})
+    @jsonProperty({toJson: () => 'Mark'})
     firstName: string;
 
-    @jsonProperty()
+    @jsonProperty(() => String, {toJson: () => 'Foreman'})
     lastName: string;
 
     getFullName() {
@@ -24,8 +24,8 @@ function`, t => {
     person.lastName = 'Surname';
 
     t.deepEqual(JSON.parse(decoratedJson.type(Person).stringify(person)), {
-        firstName: ['Mulit', 'term', 'name'],
-        lastName: 'Surname',
+        firstName: 'Mark',
+        lastName: 'Foreman',
     });
 });
 
