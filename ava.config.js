@@ -13,5 +13,5 @@ export default {
         'ts-node/register',
         'reflect-metadata',
     ],
-    verbose: true,
+    verbose: false,
 };
