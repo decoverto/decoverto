@@ -1,0 +1,11 @@
+{
+    "extends": "../tsconfig/tsconfig.base.json",
+    "compilerOptions": {
+        "strict": true,
+        "module": "CommonJS",
+        "target": "ES2020"
+    },
+    "include": [
+        "**/*.ts"
+    ]
+}

@@ -10,4 +10,7 @@ module.exports = {
     '*.ts': (filenames) => [
         `eslint --fix --cache ${mapFilenames(filenames)}`,
     ],
+    'diagnostics?(.spec).ts': [
+        `yarn run test:diagnostics`,
+    ],
 };

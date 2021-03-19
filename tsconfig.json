@@ -12,6 +12,9 @@
             "path": "./tsconfig/tsconfig.app.json"
         },
         {
+            "path": "./tools/tsconfig.tools.json"
+        },
+        {
             "path": "./spec/default/tsconfig.spec.json"
         },
         {

@@ -37,3 +37,6 @@ Base for the tsconfig files in the spec directory.
 
 **[tsconfig.spec-strict.json](tsconfig.spec-strict.json)**    
 A more strict TypeScript configuration which might be annoying if used during development.
+
+**[../tools/tsconfig.tools.json](../tools/tsconfig.tools.json)**    
+Governs the tool scripts.

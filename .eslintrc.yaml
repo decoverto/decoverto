@@ -58,3 +58,16 @@ overrides:
           types:
             Function: false
             Object: false
+
+  -
+    files:
+      - 'tools/**/*.ts'
+    extends:
+      - '@matthiaskunnen/eslint-config-typescript'
+
+    parser: '@typescript-eslint/parser'
+
+    parserOptions:
+      project:
+        - tsconfig/tsconfig.lint.json
+      sourceType: module
