@@ -17,20 +17,13 @@ class CustomType {
     constructor(value: any) {
         this.value = value;
     }
-
-    hasSucceeded(): boolean {
-        return this.value != null;
-    }
 }
 
 @jsonObject()
 class MappedTypesSpec {
 
     @jsonProperty()
-    one: CustomType;
-
-    @jsonProperty()
-    two: CustomType;
+    property: CustomType;
 }
 
 class CustomTypeDescriptor extends TypeDescriptor<CustomType> {
@@ -57,29 +50,21 @@ test.beforeEach(t => {
     t.context.decoratedJson = new DecoratedJson();
 });
 
-const testData = {
-    one: 1,
-    two: 2,
-};
-
 test('Mapped types are used when converting from JSON', t => {
     t.context.decoratedJson.typeMap.set(CustomType, new CustomTypeDescriptor());
-    const result = t.context.decoratedJson.type(MappedTypesSpec).parse(testData);
+    const result = t.context.decoratedJson.type(MappedTypesSpec).parse({property: 1});
 
-    t.true(result.one instanceof CustomType);
-    t.true(result.one.hasSucceeded());
-    t.true(result.two instanceof CustomType);
-    t.true(result.two.hasSucceeded());
+    t.true(result.property instanceof CustomType);
+    t.is(result.property.value, 1);
 });
 
 test('Mapped types are used when converting to JSON', t => {
     t.context.decoratedJson.typeMap.set(CustomType, new CustomTypeDescriptor());
     const testSubject = new MappedTypesSpec();
-    testSubject.one = new CustomType(1);
-    testSubject.two = new CustomType(2);
+    testSubject.property = new CustomType(1);
     const result = t.context.decoratedJson.type(MappedTypesSpec).toPlainJson(testSubject);
 
-    t.deepEqual(result, testData);
+    t.deepEqual(result, {property: 1});
 });
 
 test('Mapped types can be overwritten with fromJson/toJson property on @jsonProperty', t => {
