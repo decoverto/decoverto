@@ -67,6 +67,59 @@ test('Mapped types are used when converting to JSON', t => {
     t.deepEqual(result, {property: 1});
 });
 
+test.failing('Mapped types are used when value is null', t => {
+    const typeDescriptor = new CustomTypeDescriptor();
+    const fromJsonSpy = sinon.spy(typeDescriptor, 'fromJson');
+    const toJsonSpy = sinon.spy(typeDescriptor, 'toJson');
+    t.context.decoratedJson.typeMap.set(CustomType, typeDescriptor);
+
+    const fromJsonResult = t.context.decoratedJson
+        .type(MappedTypesSpec)
+        .parse({property: null});
+    t.true(fromJsonResult.property instanceof CustomType);
+    t.is(fromJsonResult.property.value, null);
+    t.is(fromJsonSpy.callCount, 1);
+
+    const toJsonSubject = new MappedTypesSpec();
+    toJsonSubject.property = new CustomType(null);
+    const toJsonResult = t.context.decoratedJson
+        .type(MappedTypesSpec)
+        .toPlainJson(toJsonSubject);
+    t.is(toJsonResult.property, null);
+    t.is(toJsonSpy.callCount, 1);
+    t.is(fromJsonSpy.callCount, 1);
+});
+
+test.failing('Mapped types are used when value is undefined', t => {
+    @jsonObject()
+    class MappedTypUndefinedSpec {
+
+        @jsonProperty()
+        property: CustomType;
+    }
+
+    const typeDescriptor = new CustomTypeDescriptor();
+    const fromJsonSpy = sinon.spy(typeDescriptor, 'fromJson');
+    const toJsonSpy = sinon.spy(typeDescriptor, 'toJson');
+    t.context.decoratedJson.typeMap.set(CustomType, typeDescriptor);
+
+    const fromJsonResult = t.context.decoratedJson
+        .type(MappedTypUndefinedSpec)
+        .parse({property: undefined});
+    t.true(fromJsonResult.property instanceof CustomType);
+    t.is(fromJsonResult.property.value, undefined);
+    t.is(fromJsonSpy.callCount, 1);
+
+    const toJsonSubject = new MappedTypUndefinedSpec();
+    toJsonSubject.property = new CustomType(undefined);
+    const toJsonResult = t.context.decoratedJson
+        .type(MappedTypUndefinedSpec)
+        .toPlainJson(toJsonSubject);
+    t.is(toJsonResult.property, undefined);
+    t.is(toJsonSpy.callCount, 1);
+    t.is(fromJsonSpy.callCount, 1);
+});
+
 test('Mapped types can be overwritten with fromJson/toJson property on @jsonProperty', t => {
     const jsonPropertyOptions = {
         fromJson: () => new CustomType(0),
