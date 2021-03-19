@@ -67,7 +67,7 @@ test('Mapped types are used when converting to JSON', t => {
     t.deepEqual(result, {property: 1});
 });
 
-test.failing('Mapped types are used when value is null', t => {
+test('Mapped types are used when value is null', t => {
     const typeDescriptor = new CustomTypeDescriptor();
     const fromJsonSpy = sinon.spy(typeDescriptor, 'fromJson');
     const toJsonSpy = sinon.spy(typeDescriptor, 'toJson');
@@ -90,7 +90,7 @@ test.failing('Mapped types are used when value is null', t => {
     t.is(fromJsonSpy.callCount, 1);
 });
 
-test.failing('Mapped types are used when value is undefined', t => {
+test('Mapped types are used when value is undefined', t => {
     @jsonObject()
     class MappedTypUndefinedSpec {
 

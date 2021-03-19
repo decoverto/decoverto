@@ -16,15 +16,13 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
     fromJson(context: ConversionContext<any | null | undefined>): Class | null | undefined {
         const {source, path} = context;
 
-        if (source === null) {
-            return null;
-        } else if (source === undefined) {
-            return undefined;
-        }
-
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
+            if (source == null) {
+                return source;
+            }
+
             if (!isObject(source)) {
                 throw new UnknownTypeError({
                     path,
@@ -113,16 +111,13 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
 
     toJson(context: ConversionContext<Class | null | undefined>): any {
         const {source, path} = context;
-
-        if (source === null) {
-            return null;
-        } else if (source === undefined) {
-            return undefined;
-        }
-
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
+            if (source == null) {
+                return source;
+            }
+
             if (!isObject(source)) {
                 throw new UnknownTypeError({
                     path,
