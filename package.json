@@ -2,6 +2,12 @@
     "name": "decorated-json",
     "version": "0.1.0",
     "description": "Converts JSON to JS classes and back using decorators",
+    "keywords": [
+        "serialization",
+        "deserialization",
+        "decorators",
+        "json"
+    ],
     "main": "./lib/cjs/index.js",
     "module": "./lib/esm5/index.js",
     "es2015": "./lib/esm/index.js",
