@@ -21,6 +21,40 @@ type`, t => {
     });
 });
 
+test(`An error should be thrown on no thunk, fromJson, and a complex reflected \
+type`, t => {
+    t.throws(() => {
+        @jsonObject()
+        class NoThunkFromJsonComplexReflect {
+            @jsonProperty()
+            complex: string | boolean | null | URL;
+        }
+        use(NoThunkFromJsonComplexReflect);
+    }, {
+        message: getDiagnostic('jsonPropertyReflectedTypeIsObject', {
+            typeName: 'NoThunkFromJsonComplexReflect',
+            property: 'complex',
+        }),
+    });
+});
+
+test(`An error should be thrown on no thunk, toJson, and a complex reflected \
+type`, t => {
+    t.throws(() => {
+        @jsonObject()
+        class NoThunkToJsonComplexReflect {
+            @jsonProperty()
+            complex: string | boolean | null | URL;
+        }
+        use(NoThunkToJsonComplexReflect);
+    }, {
+        message: getDiagnostic('jsonPropertyReflectedTypeIsObject', {
+            typeName: 'NoThunkToJsonComplexReflect',
+            property: 'complex',
+        }),
+    });
+});
+
 test(`An error should not be thrown on thunk, no custom converters, and a simple\
 reflected type`, t => {
     t.notThrows(() => {

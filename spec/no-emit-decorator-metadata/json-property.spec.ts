@@ -45,6 +45,40 @@ emitDecoratorMetadata is disabled`, t => {
     });
 });
 
+test(`An error should be thrown on no thunk, only fromJson, a complex type, and \
+emitDecoratorMetadata disabled`, t => {
+    t.throws(() => {
+        @jsonObject()
+        class FromJsonOnlyWithoutEmitDecoratorMetadata {
+            @jsonProperty({fromJson: () => ''})
+            property: string | number;
+        }
+        use(FromJsonOnlyWithoutEmitDecoratorMetadata);
+    }, {
+        message: getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+            property: 'property',
+            typeName: 'FromJsonOnlyWithoutEmitDecoratorMetadata',
+        }),
+    });
+});
+
+test(`An error should be thrown on no thunk, only toJson, a complex type, and \
+emitDecoratorMetadata disabled`, t => {
+    t.throws(() => {
+        @jsonObject()
+        class ToJsonOnlyWithoutEmitDecoratorMetadata {
+            @jsonProperty({toJson: () => ''})
+            property: string | number;
+        }
+        use(ToJsonOnlyWithoutEmitDecoratorMetadata);
+    }, {
+        message: getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+            property: 'property',
+            typeName: 'ToJsonOnlyWithoutEmitDecoratorMetadata',
+        }),
+    });
+});
+
 test(`An error should not be thrown when both a thunk and custom converters are specified and \
 emitDecoratorMetadata is disabled`, t => {
     t.notThrows(() => {

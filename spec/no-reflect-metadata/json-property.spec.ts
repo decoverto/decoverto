@@ -22,6 +22,42 @@ converters, and no reflect metadata`, t => {
     });
 });
 
+test(`An error should be thrown on a @jsonProperty declaration with no thunk, a single custom \
+converter (fromJson), and no reflect metadata`, t => {
+    t.throws(() => {
+        @jsonObject()
+        class NoReflectMetadataNoThunkFromJson {
+
+            @jsonProperty({fromJson: () => ''})
+            property: string;
+        }
+        use(NoReflectMetadataNoThunkFromJson);
+    }, {
+        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
+            typeName: 'NoReflectMetadataNoThunkFromJson',
+            property: 'property',
+        }),
+    });
+});
+
+test(`An error should be thrown on a @jsonProperty declaration with no thunk, a single custom \
+converter (toJson), and no reflect metadata`, t => {
+    t.throws(() => {
+        @jsonObject()
+        class NoReflectMetadataNoThunkToJson {
+
+            @jsonProperty({toJson: () => ''})
+            property: string;
+        }
+        use(NoReflectMetadataNoThunkToJson);
+    }, {
+        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
+            typeName: 'NoReflectMetadataNoThunkToJson',
+            property: 'property',
+        }),
+    });
+});
+
 test(`An error should not be thrown on a @jsonProperty declaration with a thunk, no custom \
 converters, and no reflect metadata`, t => {
     t.notThrows(() => {
