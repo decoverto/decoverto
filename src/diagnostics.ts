@@ -6,7 +6,11 @@ export const Diagnostics = {
         return {
             code: 1000,
             message: `Cannot determine type on @jsonProperty at ${info.typeName}. \
-${String(info.property)}. Make sure emitDecoratorMetadata is enabled in your tsconfig.json.`,
+${String(info.property)}. Do you have emitDecoratorMetadata enabled in your tsconfig.json?
+Other solutions:
+ - Provide the type as an argument of the @jsonProperty decorator. E.g. \
+@jsonProperty(() => String)
+ - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
         };
     },
     jsonPropertyNoTypeOrCustomConverters(info: {property: string | symbol; typeName: string}) {
