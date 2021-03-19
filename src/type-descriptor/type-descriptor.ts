@@ -33,7 +33,7 @@ export abstract class TypeDescriptor<Class = any, Json = any> {
 
     protected throwTypeMismatchError(context: ThrowTypeMismatchErrorInput): never {
         throw new InvalidValueError({
-            actualType: context.source.constructor.name,
+            actualType: context.source?.constructor?.name,
             expectedType: context.expectedType ?? this.getFriendlyName(),
             path: context.path,
         });
