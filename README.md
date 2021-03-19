@@ -101,8 +101,8 @@ class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string | null 
 
 const decoratedJson = new DecoratedJson();
 
-decoratedJson.converterMap.set(BigInt, new BigIntTypeDescriptor());
-decoratedJson.converterMap.set(Decimal, new DecimalTypeDescriptor());
+decoratedJson.typeMap.set(BigInt, new BigIntTypeDescriptor());
+decoratedJson.typeMap.set(Decimal, new DecimalTypeDescriptor());
 
 @jsonObject()
 class MappedTypes {

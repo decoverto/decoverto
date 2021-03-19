@@ -14,8 +14,8 @@ export type ToPlainResult<T> =
         : any;
 
 export interface TypeHandlerSettings {
-    conversionMap: Map<Serializable<any>, TypeDescriptor>;
     jsonHandler: JsonHandler;
+    typeMap: Map<Serializable<any>, TypeDescriptor>;
 }
 
 /**
@@ -56,8 +56,8 @@ export class TypeHandler<RootType> {
 
     configure(settings: TypeHandlerSettingsInput) {
         this.settings = {
-            conversionMap: settings.conversionMap,
             jsonHandler: settings.jsonHandler ?? new JsonHandlerSimple({}),
+            typeMap: settings.typeMap,
         };
     }
 
@@ -130,7 +130,7 @@ export class TypeHandler<RootType> {
         return typeDescriptor.toJson({
             path: '',
             source: object,
-            typeMap: this.settings.conversionMap,
+            typeMap: this.settings.typeMap,
         });
     }
 
@@ -138,7 +138,7 @@ export class TypeHandler<RootType> {
         return typeDescriptor.fromJson({
             path: '',
             source: object,
-            typeMap: this.settings.conversionMap,
+            typeMap: this.settings.typeMap,
         });
     }
 }

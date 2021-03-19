@@ -63,7 +63,7 @@ const testData = {
 };
 
 test('Mapped types are used when converting from JSON', t => {
-    t.context.decoratedJson.converterMap.set(CustomType, new CustomTypeDescriptor());
+    t.context.decoratedJson.typeMap.set(CustomType, new CustomTypeDescriptor());
     const result = t.context.decoratedJson.type(MappedTypesSpec).parse(testData);
 
     t.true(result.one instanceof CustomType);
@@ -73,7 +73,7 @@ test('Mapped types are used when converting from JSON', t => {
 });
 
 test('Mapped types are used when converting to JSON', t => {
-    t.context.decoratedJson.converterMap.set(CustomType, new CustomTypeDescriptor());
+    t.context.decoratedJson.typeMap.set(CustomType, new CustomTypeDescriptor());
     const testSubject = new MappedTypesSpec();
     testSubject.one = new CustomType(1);
     testSubject.two = new CustomType(2);
@@ -89,7 +89,7 @@ test('Mapped types can be overwritten with fromJson/toJson property on @jsonProp
     };
 
     const customTypeDescriptor = new CustomTypeDescriptor();
-    t.context.decoratedJson.converterMap.set(CustomType, customTypeDescriptor);
+    t.context.decoratedJson.typeMap.set(CustomType, customTypeDescriptor);
 
     const customTypeDescriptorFromJson = sinon.spy(customTypeDescriptor, 'fromJson');
     const customTypeDescriptorToJson = sinon.spy(customTypeDescriptor, 'toJson');
@@ -133,7 +133,7 @@ test('Mapped types work on array', t => {
     }
 
     const customTypeDescriptor = new CustomTypeDescriptor();
-    t.context.decoratedJson.converterMap.set(CustomType, customTypeDescriptor);
+    t.context.decoratedJson.typeMap.set(CustomType, customTypeDescriptor);
     const mappedTypeWithArrayHandler = t.context.decoratedJson.type(MappedTypeWithArray);
 
     const customTypeDescriptorToJson = sinon.spy(customTypeDescriptor, 'toJson');

@@ -26,7 +26,7 @@ interface DecoratedJsonSettings {
 
 export class DecoratedJson {
 
-    readonly converterMap = new Map<Serializable<any>, TypeDescriptor>([
+    readonly typeMap = new Map<Serializable<any>, TypeDescriptor>([
         [Boolean, new DirectTypeDescriptor(Boolean)],
         [Date, new DateTypeDescriptor()],
         [Number, new DirectTypeDescriptor(Number)],
@@ -53,8 +53,8 @@ export class DecoratedJson {
 
     type<T>(type: Serializable<T>): TypeHandler<T> {
         return new TypeHandler<T>(type, {
-            conversionMap: this.converterMap,
             jsonHandler: this.settings.jsonHandler,
+            typeMap: this.typeMap,
         });
     }
 }
