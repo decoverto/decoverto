@@ -33,7 +33,7 @@ test('ArrayBuffer to JSON should handle null', t => {
     t.is(decoratedJson.type(ArrayBufferSpec).toPlainJson(subject).property, null);
 });
 
-test.failing('ArrayBuffer errors if fromJson source type is not string', t => {
+test('ArrayBuffer errors if fromJson source type is not string', t => {
     t.throws(() => decoratedJson.type(ArrayBufferSpec).parse({property: 123}), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Number',

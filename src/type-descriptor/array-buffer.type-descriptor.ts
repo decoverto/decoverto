@@ -17,7 +17,10 @@ export class ArrayBufferTypeDescriptor
         }
 
         if (typeof context.source !== 'string') {
-            this.throwTypeMismatchError(context);
+            this.throwTypeMismatchError({
+                ...context,
+                expectedType: 'String',
+            });
         }
         return createArrayBufferFromString(context.source);
     }
