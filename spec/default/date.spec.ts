@@ -58,7 +58,7 @@ test('Parsing a date with null as source value should result in null', t => {
     t.is(decoratedJson.type(DateSpec).parse({date: null}).date, null);
 });
 
-test.failing('Parsing a date with undefined as source value should result in undefined', t => {
+test('Parsing a date with undefined as source value should result in undefined', t => {
     t.is(decoratedJson.type(DateSpec).parse({date: undefined}).date, undefined);
 });
 

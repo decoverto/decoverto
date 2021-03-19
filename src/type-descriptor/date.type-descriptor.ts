@@ -12,8 +12,8 @@ export class DateTypeDescriptor
     fromJson(context: ConversionContext<Date | string | number | null | undefined>) {
         const {path, source} = context;
 
-        if (source === null) {
-            return null;
+        if (source == null) {
+            return source;
         } else if (typeof source === 'number') {
             const isInteger = source % 1 === 0;
 
