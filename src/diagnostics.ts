@@ -43,7 +43,7 @@ object. Define a type or the fromJson function.`,
     },
     noStrategyToConvertJsonPropertyToJson(info: {property: string; typeName: string}) {
         return {
-            code: 1004,
+            code: 1005,
             message: `Could not convert '${info.typeName}.${info.property}' with unknown type to
 JSON. Define a type or the toJson function.`,
         };
