@@ -15,6 +15,10 @@ export type ToPlainResult<T> =
 
 export interface TypeHandlerSettings {
     jsonHandler: JsonHandler;
+
+    /**
+     * Maps a type to its respective type descriptor.
+     */
     typeMap: Map<Serializable<any>, TypeDescriptor>;
 }
 

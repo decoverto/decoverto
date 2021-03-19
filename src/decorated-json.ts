@@ -26,6 +26,9 @@ interface DecoratedJsonSettings {
 
 export class DecoratedJson {
 
+    /**
+     * Maps a type to its respective type descriptor.
+     */
     readonly typeMap = new Map<Serializable<any>, TypeDescriptor>([
         [Boolean, new DirectTypeDescriptor(Boolean)],
         [Date, new DateTypeDescriptor()],
