@@ -10,9 +10,6 @@ test('quoted builtins should parse', t => {
     t.is(decoratedJson.type(String).parse('"str"'), 'str');
     t.is(decoratedJson.type(Number).parse('45834'), 45834);
     t.is(decoratedJson.type(Boolean).parse('true'), true);
-    t.deepEqual(decoratedJson.type(Date).parse('1543915254'), new Date(1543915254));
-    t.deepEqual(decoratedJson.type(Date).parse('-1543915254'), new Date(-1543915254));
-    t.deepEqual(decoratedJson.type(Date).parse('"1970-01-18T20:51:55.254Z"'), new Date(1543915254));
 
     const dataBuffer = Uint8Array.from([100, 117, 112, 97]) as any;
     t.deepEqual(decoratedJson.type(ArrayBuffer).parse('"畤慰"'), dataBuffer.buffer);
@@ -24,18 +21,6 @@ test('quoted builtins should convert to JSON', t => {
     t.is(decoratedJson.type(String).stringify('str'), '"str"');
     t.is(decoratedJson.type(Number).stringify(45834), '45834');
     t.is(decoratedJson.type(Boolean).stringify(true), 'true');
-    t.is(
-        decoratedJson.type(Date).stringify(new Date(1543915254)),
-        `"${new Date(1543915254).toISOString()}"`,
-    );
-    t.is(
-        decoratedJson.type(Date).stringify(new Date(-1543915254)),
-        `"${new Date(-1543915254).toISOString()}"`,
-    );
-    t.is(
-        decoratedJson.type(Date).stringify(new Date('2018-12-04T09:20:54')),
-        `"${new Date('2018-12-04T09:20:54').toISOString()}"`,
-    );
 
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer);

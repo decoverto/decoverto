@@ -42,7 +42,6 @@ export interface IEverything {
     strProp: string;
     numProp: number;
     boolProp: boolean;
-    dateProp: Date;
     enum: JustEnum;
     constEnum: ConstEnum;
     strEnum: StrEnum;
@@ -66,8 +65,6 @@ export class Everything implements IEverything {
     numProp: number;
     @jsonProperty()
     boolProp: boolean;
-    @jsonProperty()
-    dateProp: Date;
     @jsonProperty()
     enum: JustEnum;
     @jsonProperty()
@@ -98,7 +95,6 @@ export class Everything implements IEverything {
             strProp: 'string',
             numProp: 123,
             boolProp: true,
-            dateProp: new Date(1543912019),
             enum: JustEnum.Four,
             constEnum: ConstEnum.Four,
             strEnum: StrEnum.Four,
