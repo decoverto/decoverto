@@ -69,7 +69,7 @@ export function jsonProperty<T extends Function>(
         options = options ?? {};
 
         if (type !== undefined) {
-            // Do nothing
+            type = ensureTypeDescriptor(type);
         } else if (options.fromJson != null && options.toJson != null) {
             // Do nothing
         } else if (isReflectMetadataSupported) {
@@ -102,7 +102,7 @@ export function jsonProperty<T extends Function>(
         }
 
         injectMetadataInformation(target, property, {
-            type: type === undefined ? undefined : ensureTypeDescriptor(type),
+            type: type,
             isRequired: options.isRequired,
             options: extractOptionBase(options),
             key: property.toString(),
