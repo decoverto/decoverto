@@ -83,3 +83,20 @@ no thunk, and no reflect metadata`, t => {
         use(CustomConvertersNoThunkNoReflect);
     });
 });
+
+test('@jsonProperty with converters null should error', t => {
+    t.throws(() => {
+        @jsonObject()
+        class NullConverters {
+
+            @jsonProperty({fromJson: null, toJson: null})
+            null: string;
+        }
+        use(NullConverters);
+    }, {
+        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
+            typeName: 'NullConverters',
+            property: 'null',
+        }),
+    });
+});

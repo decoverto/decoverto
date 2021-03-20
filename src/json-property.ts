@@ -70,7 +70,7 @@ export function jsonProperty<T extends Function>(
 
         if (type !== undefined) {
             // Do nothing
-        } else if (options.fromJson !== undefined && options.toJson !== undefined) {
+        } else if (options.fromJson != null && options.toJson != null) {
             // Do nothing
         } else if (isReflectMetadataSupported) {
             const reflectCtor = Reflect.getMetadata(
