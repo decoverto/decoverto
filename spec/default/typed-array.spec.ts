@@ -222,7 +222,7 @@ test('Typed arrays from JSON should round up correctly', fromJsonMacro, {
     },
 });
 
-test.failing('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJsonMacro, {
+test('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJsonMacro, {
     subject: {
         float32: ['NaN', 0, '-0', '+∞', '-∞'],
         float64: ['NaN', 0, '-0', '+∞', '-∞'],
@@ -310,7 +310,7 @@ test('Typed array to JSON should error if the source value does not match the ex
     });
 });
 
-test.failing('Typed arrays to JSON should handle NaN, +0, -0, +∞, and -∞', toJsonMacro, {
+test('Typed arrays to JSON should handle NaN, +0, -0, +∞, and -∞', toJsonMacro, {
     subject: {
         float32: [NaN, 0, -0, Infinity, -Infinity],
         float64: [NaN, 0, -0, Infinity, -Infinity],
@@ -349,8 +349,7 @@ const fromJsonAndBackShouldEqualMacro: Macro<[TypedArrayObjectData]> = (t, data)
     t.deepEqual(actual, expected);
 };
 
-test.failing(`Typed arrays converted to JSON and back should \
-equal`, fromJsonAndBackShouldEqualMacro, {
+test('Typed arrays converted to JSON and back should equal', fromJsonAndBackShouldEqualMacro, {
     float32: [5, 0.5, NaN, 0, -0, Infinity, -Infinity],
     float64: [5, 0.5, NaN, 0, -0, Infinity, -Infinity],
     int8: [5, 0, -0],
