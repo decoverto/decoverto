@@ -2,6 +2,7 @@ import test from 'ava';
 
 import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
+import {createPassThroughMacro} from '../helpers/macros';
 
 const decoratedJson = new DecoratedJson();
 
@@ -48,18 +49,34 @@ class DateSpec {
 const timestamp2000 = 946684800000;
 const iso2000 = 946684800000;
 const date2000 = new Date(timestamp2000);
+const passThroughMacro = createPassThroughMacro({
+    class: DateSpec,
+    createSubject: value => ({date: value}),
+});
 
 test('Parsing a date with a date as source value should keep the source value', t => {
     const date = new Date();
     t.is(decoratedJson.type(DateSpec).parse({date: date}).date, date);
 });
 
-test('Parsing a date with null as source value should result in null', t => {
-    t.is(decoratedJson.type(DateSpec).parse({date: null}).date, null);
+test('Date', passThroughMacro, {
+    type: 'fromJson',
+    value: null,
 });
 
-test('Parsing a date with undefined as source value should result in undefined', t => {
-    t.is(decoratedJson.type(DateSpec).parse({date: undefined}).date, undefined);
+test('Date', passThroughMacro, {
+    type: 'toJson',
+    value: null,
+});
+
+test('Date', passThroughMacro, {
+    type: 'fromJson',
+    value: undefined,
+});
+
+test('Date', passThroughMacro, {
+    type: 'toJson',
+    value: undefined,
 });
 
 test('Parsing a date with a timestamp as source value should succeed', t => {

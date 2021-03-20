@@ -2,6 +2,7 @@ import test from 'ava';
 
 import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
+import {createPassThroughMacro} from '../helpers/macros';
 
 const decoratedJson = new DecoratedJson();
 
@@ -12,25 +13,29 @@ class ArrayBufferSpec {
     property?: ArrayBuffer | null;
 }
 
-test('ArrayBuffer from JSON should handle undefined', t => {
-    t.is(decoratedJson.type(ArrayBufferSpec).parse({property: undefined}).property, undefined);
+const passThroughMacro = createPassThroughMacro({
+    class: ArrayBufferSpec,
+    createSubject: value => ({property: value}),
 });
 
-test('ArrayBuffer from JSON should handle null', t => {
-    t.is(decoratedJson.type(ArrayBufferSpec).parse({property: null}).property, null);
+test('ArrayBuffer', passThroughMacro, {
+    type: 'fromJson',
+    value: null,
 });
 
-test('ArrayBuffer to JSON should handle undefined', t => {
-    t.is(
-        decoratedJson.type(ArrayBufferSpec).toPlainJson(new ArrayBufferSpec()).property,
-        undefined,
-    );
+test('ArrayBuffer', passThroughMacro, {
+    type: 'toJson',
+    value: null,
 });
 
-test('ArrayBuffer to JSON should handle null', t => {
-    const subject = new ArrayBufferSpec();
-    subject.property = null;
-    t.is(decoratedJson.type(ArrayBufferSpec).toPlainJson(subject).property, null);
+test('ArrayBuffer', passThroughMacro, {
+    type: 'fromJson',
+    value: undefined,
+});
+
+test('ArrayBuffer', passThroughMacro, {
+    type: 'toJson',
+    value: undefined,
 });
 
 test('ArrayBuffer errors if fromJson source type is not string', t => {
