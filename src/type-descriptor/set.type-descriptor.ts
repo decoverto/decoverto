@@ -15,7 +15,7 @@ export class SetTypeDescriptor<Class extends Object>
         context: ConversionContext<Array<any> | null | undefined>,
     ): Set<Class | null | undefined> | null | undefined {
         if (context.source == null) {
-            return null;
+            return context.source;
         }
 
         if (!Array.isArray(context.source)) {
@@ -44,7 +44,7 @@ export class SetTypeDescriptor<Class extends Object>
      */
     toJson(context: ConversionContext<Set<Class | null | undefined> | null | undefined>) {
         if (context.source == null) {
-            return null;
+            return context.source;
         }
 
         if (!(context.source as any instanceof Set)) {

@@ -2,6 +2,7 @@ import test from 'ava';
 
 import {Any, array, DecoratedJson, jsonObject, jsonProperty, set} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
+import {createPassThroughMacro} from '../helpers/macros';
 import {Everything} from '../utils/everything';
 
 const decoratedJson = new DecoratedJson();
@@ -95,6 +96,31 @@ class WithSet {
         return this.prop.size;
     }
 }
+
+const passThroughMacro = createPassThroughMacro({
+    class: WithSet,
+    createSubject: value => ({prop: value}),
+});
+
+test('@jsonProperty(set(...))', passThroughMacro, {
+    type: 'fromJson',
+    value: null,
+});
+
+test('@jsonProperty(set(...))', passThroughMacro, {
+    type: 'toJson',
+    value: null,
+});
+
+test('@jsonProperty(set(...))', passThroughMacro, {
+    type: 'fromJson',
+    value: undefined,
+});
+
+test('@jsonProperty(set(...))', passThroughMacro, {
+    type: 'toJson',
+    value: undefined,
+});
 
 test('@jsonProperty(set(...)) should convert from JSON', t => {
     const object = {prop: [Everything.create(), Everything.create()]};
