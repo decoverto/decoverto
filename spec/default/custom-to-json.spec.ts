@@ -55,7 +55,7 @@ class ArrayToJsonTest {
     str: string;
 }
 
-test('Parsing @jsonProperty(array(() => Number), {toJson: ...}) should use the toJsonJson \
+test('Parsing @jsonProperty(array(() => Number), {toJson: ...}) should use the toJson \
 function', t => {
     const testInstance = new ArrayToJsonTest();
     testInstance.nums = [3, 45, 34];
@@ -75,7 +75,7 @@ toJson`, t => {
     );
 });
 
-test('Converting @jsonProperty(array(() => Class), {toJsonJson: function}) should succeed', t => {
+test('Converting @jsonProperty(array(() => Class), {toJson: function}) should succeed', t => {
     @jsonObject()
     class Inner {
         @jsonProperty()
