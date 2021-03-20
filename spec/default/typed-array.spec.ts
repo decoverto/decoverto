@@ -33,9 +33,20 @@ class TypedArraySpec {
 
     @jsonProperty(() => Uint32Array)
     uint32?: Uint32Array | null;
+
+    convertToHumanReadable(): TypedArrayObjectData {
+        const result = {} as TypedArrayObjectData;
+
+        typedArrayPropertyMap.forEach(([property]) => {
+            const value = this[property];
+            result[property] = value == null ? value : Array.from(value);
+        });
+
+        return result;
+    }
 }
 
-type TypedArraySpecProperties = keyof TypedArraySpec;
+type TypedArraySpecProperties = Exclude<keyof TypedArraySpec, 'convertToHumanReadable'>;
 
 const typedArrayPropertyMap: Array<[TypedArraySpecProperties, Constructor<any>]> = [
     ['float32', Float32Array],
@@ -110,9 +121,9 @@ const fromJsonMacro: Macro<[FromJsonMacro]> = (t, options) => {
         t.true(actualValue instanceof constructor, `Expect ${property} to be instance of ${
             constructor.name}.`);
         // First check the more human readable version for a nicer diff
-        t.deepEqual(Array.from(actualValue), expectedValue);
+        t.deepEqual(Array.from(actualValue), expectedValue, `Expect ${property} to be equal`);
         // Check the TypedArray. Just in case since the previous check should catch any difference
-        t.deepEqual(actualValue, new constructor(expectedValue));
+        t.deepEqual(actualValue, new constructor(expectedValue), `Expect ${property} to be equal`);
     };
 
     typedArrayPropertyMap.forEach(([property, constructor]) => {
@@ -211,17 +222,17 @@ test('Typed arrays from JSON should round up correctly', fromJsonMacro, {
     },
 });
 
-test('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJsonMacro, {
+test.failing('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJsonMacro, {
     subject: {
-        float32: [NaN, 0, -0, Infinity, -Infinity],
-        float64: [NaN, 0, -0, Infinity, -Infinity],
-        int8: [NaN, 0, -0, Infinity, -Infinity],
-        uint8: [NaN, 0, -0, Infinity, -Infinity],
-        uint8Clamped: [NaN, 0, -0, Infinity, -Infinity],
-        int16: [NaN, 0, -0, Infinity, -Infinity],
-        uint16: [NaN, 0, -0, Infinity, -Infinity],
-        int32: [NaN, 0, -0, Infinity, -Infinity],
-        uint32: [NaN, 0, -0, Infinity, -Infinity],
+        float32: ['NaN', 0, '-0', '+∞', '-∞'],
+        float64: ['NaN', 0, '-0', '+∞', '-∞'],
+        int8: [0, 0, 0, 0, 0],
+        uint8: [0, 0, 0, 0, 0],
+        uint8Clamped: [0, 0, 0, 255, 0],
+        int16: [0, 0, 0, 0, 0],
+        uint16: [0, 0, 0, 0, 0],
+        int32: [0, 0, 0, 0, 0],
+        uint32: [0, 0, 0, 0, 0],
     },
     expected: {
         float32: [NaN, 0, -0, Infinity, -Infinity],
@@ -297,4 +308,56 @@ test('Typed array to JSON should error if the source value does not match the ex
             path: 'TypedArraySpec.int8',
         }),
     });
+});
+
+test.failing('Typed arrays to JSON should handle NaN, +0, -0, +∞, and -∞', toJsonMacro, {
+    subject: {
+        float32: [NaN, 0, -0, Infinity, -Infinity],
+        float64: [NaN, 0, -0, Infinity, -Infinity],
+        int8: [5, -5],
+        uint8: [5],
+        uint8Clamped: [5],
+        int16: [5, -5],
+        uint16: [5],
+        int32: [5, -5],
+        uint32: [5],
+    },
+    expected: {
+        float32: ['NaN', 0, '-0', '+∞', '-∞'],
+        float64: ['NaN', 0, '-0', '+∞', '-∞'],
+        int8: [5, -5],
+        uint8: [5],
+        uint8Clamped: [5],
+        int16: [5, -5],
+        uint16: [5],
+        int32: [5, -5],
+        uint32: [5],
+    },
+});
+
+const fromJsonAndBackShouldEqualMacro: Macro<[TypedArrayObjectData]> = (t, data) => {
+    const expected = new TypedArraySpec();
+    typedArrayPropertyMap.forEach(([property, constructor]) => {
+        expected[property] = new constructor(data[property]);
+    });
+    const typeHandler = decoratedJson.type(TypedArraySpec);
+    const actual = typeHandler.parse(typeHandler.stringify(expected));
+    const humanReadableActual = actual.convertToHumanReadable();
+    const humanReadableExpected = expected.convertToHumanReadable();
+
+    t.deepEqual(humanReadableActual, humanReadableExpected);
+    t.deepEqual(actual, expected);
+};
+
+test.failing(`Typed arrays converted to JSON and back should \
+equal`, fromJsonAndBackShouldEqualMacro, {
+    float32: [5, 0.5, NaN, 0, -0, Infinity, -Infinity],
+    float64: [5, 0.5, NaN, 0, -0, Infinity, -Infinity],
+    int8: [5, 0, -0],
+    uint8: [5, 0],
+    uint8Clamped: [5, 0],
+    int16: [5, 0, -0],
+    uint16: [5, 0],
+    int32: [5, 0, -0],
+    uint32: [5, 0],
 });
