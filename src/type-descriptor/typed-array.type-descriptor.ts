@@ -5,28 +5,28 @@ export class TypedArrayTypeDescriptor extends SimpleTypeDescriptor {
 
     fromJson(context: ConversionContext<any | null>): any | null | undefined {
         if (context.source == null) {
-            return null;
+            return context.source;
         }
 
         const {source} = context;
 
-        if (Array.isArray(source) && source.every(elem => !isNaN(elem))) {
-            if ([Float32Array, Float64Array].includes(this.type as any)) {
-                return new this.type(source);
-            } else {
-                return new this.type(source.map(value => Math.trunc(value)));
-            }
+        if (!Array.isArray(source)) {
+            this.throwTypeMismatchError({
+                ...context,
+                expectedType: 'a numeric array',
+            });
         }
 
-        this.throwTypeMismatchError({
-            ...context,
-            expectedType: 'a numeric array',
-        });
+        return new this.type(source);
     }
 
     toJson(context: ConversionContext<any | null | undefined>): any | null | undefined {
         if (context.source == null) {
-            return null;
+            return context.source;
+        }
+
+        if (!(context.source instanceof this.type)) {
+            this.throwTypeMismatchError(context);
         }
 
         return Array.from(context.source);

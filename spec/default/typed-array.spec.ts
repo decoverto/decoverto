@@ -72,12 +72,12 @@ test('Typed arrays', passThroughMacro, {
     value: null,
 });
 
-test.failing('Typed arrays', passThroughMacro, {
+test('Typed arrays', passThroughMacro, {
     type: 'fromJson',
     value: undefined,
 });
 
-test.failing('Typed arrays', passThroughMacro, {
+test('Typed arrays', passThroughMacro, {
     type: 'toJson',
     value: undefined,
 });
@@ -186,7 +186,7 @@ test('Typed arrays from JSON should round down correctly', fromJsonMacro, {
     },
 });
 
-test.failing('Typed arrays from JSON should round up correctly', fromJsonMacro, {
+test('Typed arrays from JSON should round up correctly', fromJsonMacro, {
     subject: {
         float32: [1.5],
         float64: [1.5],
@@ -211,7 +211,7 @@ test.failing('Typed arrays from JSON should round up correctly', fromJsonMacro, 
     },
 });
 
-test.failing('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJsonMacro, {
+test('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJsonMacro, {
     subject: {
         float32: [NaN, 0, -0, Infinity, -Infinity],
         float64: [NaN, 0, -0, Infinity, -Infinity],
@@ -285,8 +285,7 @@ test('Typed arrays to JSON should process valid values', toJsonMacro, {
     },
 });
 
-test.failing(`Typed array to JSON should error if the source value does not match the expected \
-type`, t => {
+test('Typed array to JSON should error if the source value does not match the expected type', t => {
     t.throws(() => {
         const subject = new TypedArraySpec();
         subject.int8 = new Float32Array([5]) as any;
