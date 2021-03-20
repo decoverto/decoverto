@@ -18,28 +18,28 @@ const decoratedJson = new DecoratedJson();
 class DeferredSimple {
 
     @jsonProperty(() => Deferred)
-    deferred: Deferred;
+    deferred: any;
 }
 
 @jsonObject()
 class DeferredArray {
 
     @jsonProperty(array(() => Deferred))
-    deferred: Array<Deferred>;
+    deferred: Array<any>;
 }
 
 @jsonObject()
 class DeferredMap {
 
     @jsonProperty(map(() => String, () => Deferred, {shape: MapShape.Array}))
-    deferred: Map<string, Deferred>;
+    deferred: Map<string, any>;
 }
 
 @jsonObject()
 class DeferredSet {
 
     @jsonProperty(set(() => Deferred))
-    deferred: Set<Deferred>;
+    deferred: Set<any>;
 }
 
 // Must be declared beneath other classes to test deferred typed
