@@ -6,7 +6,7 @@ import {Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decoratedJsonMetadata');
 
-export interface JsonPropertyMetadata {
+export interface JsonPropertyMetadataBase {
 
     /** Name of the property as it appears in JSON. */
     jsonName: string;
@@ -14,24 +14,43 @@ export interface JsonPropertyMetadata {
     /** Name of the property as it appears in the class. */
     key: string;
 
-    /** Type descriptor of the property. */
-    type?: TypeDescriptor;
-
     /** If set, indicates that the property must be present when converting from JSON. */
     isRequired?: boolean | null;
 
     options?: OptionsBase | null;
+}
+
+export interface JsonPropertyOnlyConvertersMetadata extends JsonPropertyMetadataBase {
 
     /**
-     * When set, this method will be used to convert the value **from** JSON.
+     * This method will be used to convert the value **from** JSON.
+     */
+    fromJson: ((json: any) => any);
+
+    /**
+     * This method will be used to convert the value **to** JSON.
+     */
+    toJson: ((value: any) => any);
+}
+
+export interface JsonPropertyOverridingConvertersMetadata extends JsonPropertyMetadataBase {
+
+    /**
+     * When set, this will override the default strategy used to convert values **from** JSON.
      */
     fromJson?: ((json: any) => any) | null;
 
     /**
-     * When set, this method will be used to convert the value **to** JSON.
+     * When set, this will override the default strategy used to convert values **to** JSON.
      */
     toJson?: ((value: any) => any) | null;
+
+    type: TypeDescriptor;
 }
+
+export type JsonPropertyMetadata =
+    | JsonPropertyOnlyConvertersMetadata
+    | JsonPropertyOverridingConvertersMetadata;
 
 export class JsonObjectMetadata {
 
@@ -154,13 +173,6 @@ export function injectMetadataInformation(
     // Methods cannot be converted JSON.
     if (typeof prototype[propKey as string] === 'function') {
         throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnInstanceMethod', {
-            property: propKey,
-            typeName,
-        }));
-    }
-
-    if (metadata.type === undefined && metadata.fromJson === undefined) {
-        throw new Error(getDiagnostic('jsonPropertyNoTypeOrCustomConverters', {
             property: propKey,
             typeName,
         }));

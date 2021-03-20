@@ -13,13 +13,6 @@ Other solutions:
  - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
         };
     },
-    jsonPropertyNoTypeOrCustomConverters(info: {property: string | symbol; typeName: string}) {
-        return {
-            code: 1001,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} has an unknown \
-type.`,
-        };
-    },
     jsonPropertyCannotBeUsedOnStaticProperty(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1002,
@@ -32,20 +25,6 @@ a static property.`,
             code: 1003,
             message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
 an instance method.`,
-        };
-    },
-    noStrategyToConvertJsonPropertyFromJson(info: {property: string; typeName: string}) {
-        return {
-            code: 1004,
-            message: `Could not convert '${info.typeName}.${info.property}' with unknown type to
-object. Define a type or the fromJson function.`,
-        };
-    },
-    noStrategyToConvertJsonPropertyToJson(info: {property: string; typeName: string}) {
-        return {
-            code: 1005,
-            message: `Could not convert '${info.typeName}.${info.property}' with unknown type to
-JSON. Define a type or the toJson function.`,
         };
     },
     missingRequiredProperty(info: {property: string; typeName: string}) {

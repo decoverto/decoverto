@@ -101,14 +101,18 @@ export function jsonProperty<T extends Function>(
             }));
         }
 
+        // TypeScript limitation, when the previous if statement has concluded, either `type` is
+        // defined or both converters are.
+        const conditionalOptions = type === undefined
+            ? {fromJson: options.fromJson!, toJson: options.toJson!}
+            : {fromJson: options.fromJson, toJson: options.toJson, type};
+
         injectMetadataInformation(target, property, {
-            type: type,
+            ...conditionalOptions,
             isRequired: options.isRequired,
             options: extractOptionBase(options),
             key: property.toString(),
             jsonName: options.jsonName ?? property.toString(),
-            fromJson: options.fromJson,
-            toJson: options.toJson,
         });
     };
 }

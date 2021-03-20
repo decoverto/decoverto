@@ -1,7 +1,11 @@
 import {getDiagnostic} from '../diagnostics';
 import {UnknownTypeError} from '../errors/unknown-type.error';
 import {isObject} from '../helpers';
-import {JsonObjectMetadata} from '../metadata';
+import {
+    JsonObjectMetadata,
+    JsonPropertyMetadata,
+    JsonPropertyOverridingConvertersMetadata,
+} from '../metadata';
 import {mergeOptions} from '../options-base';
 import {Constructor} from '../types';
 import {SimpleTypeDescriptor} from './simple.type-descriptor';
@@ -57,22 +61,14 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                 const typeName = sourceMetadata.classType.name;
                 const objMemberOptions = {};
 
-                let revivedValue;
-                if (objMemberMetadata.fromJson != null) {
-                    revivedValue = objMemberMetadata.fromJson(objMemberValue);
-                } else if (objMemberMetadata.type === undefined) {
-                    throw new TypeError(getDiagnostic('noStrategyToConvertJsonPropertyFromJson', {
-                        property: objMemberMetadata.jsonName,
-                        typeName,
-                    }));
-                } else {
-                    revivedValue = objMemberMetadata.type.fromJson({
+                const revivedValue = this.shouldUseType(objMemberMetadata, 'fromJson')
+                    ? objMemberMetadata.type.fromJson({
                         ...context,
                         propertyOptions: objMemberOptions,
                         path: `${typeName}.${propKey}`,
                         source: objMemberValue,
-                    });
-                }
+                    })
+                    : objMemberMetadata.fromJson(objMemberValue);
 
                 if (revivedValue !== undefined) {
                     sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
@@ -173,22 +169,14 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
             sourceMeta.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
                 const typeName = sourceMeta.classType.name;
-                let json;
-                if (objMemberMetadata.toJson != null) {
-                    json = objMemberMetadata.toJson(source[objMemberMetadata.key]);
-                } else if (objMemberMetadata.type === undefined) {
-                    throw new TypeError(getDiagnostic('noStrategyToConvertJsonPropertyToJson', {
-                        property: objMemberMetadata.jsonName,
-                        typeName,
-                    }));
-                } else {
-                    json = objMemberMetadata.type.toJson({
+                const json = this.shouldUseType(objMemberMetadata, 'toJson')
+                    ? objMemberMetadata.type.toJson({
                         ...context,
                         path: `${typeName}.${propKey}`,
                         propertyOptions: objMemberOptions,
                         source: source[objMemberMetadata.key],
-                    });
-                }
+                    })
+                    : objMemberMetadata.toJson(source[objMemberMetadata.key]);
 
                 if (json !== undefined) {
                     targetObject[objMemberMetadata.jsonName] = json;
@@ -201,5 +189,16 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
 
     private getConverter(context: ConversionContext<any>): TypeDescriptor | undefined {
         return context.typeMap.get(this.type);
+    }
+
+    /**
+     * Returns true if the property should be converted using the TypeDescriptor rather than the
+     * converter. False otherwise.
+     */
+    private shouldUseType(
+        metadata: JsonPropertyMetadata,
+        method: 'fromJson' | 'toJson',
+    ): metadata is JsonPropertyOverridingConvertersMetadata {
+        return 'type' in metadata && metadata[method] == null;
     }
 }
