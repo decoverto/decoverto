@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {jsonObject, jsonProperty} from '../../src';
+import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {use} from '../helpers/ava.helper';
 
@@ -101,4 +101,27 @@ reflected type`, t => {
         }
         use(CustomConvertersThunkComplexReflect);
     });
+});
+
+@jsonObject()
+class NameDifferenceSpec {
+
+    @jsonProperty(() => String, {jsonName: 'jsonProperty'})
+    classProperty: string;
+}
+
+test('Difference in naming between class property and json should be handled by fromJson', t => {
+    const result = new DecoratedJson().type(NameDifferenceSpec).parse({
+        jsonProperty: 'hello',
+    });
+    t.is(result.classProperty, 'hello');
+    t.is((result as any).jsonProperty, undefined);
+});
+
+test('Difference in naming between class property and json should be handled by toJson', t => {
+    const testSubject = new NameDifferenceSpec();
+    testSubject.classProperty = 'hello';
+    const result = new DecoratedJson().type(NameDifferenceSpec).toPlainJson(testSubject);
+    t.is(result.jsonProperty, 'hello');
+    t.is(result.classProperty, undefined);
 });
