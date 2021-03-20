@@ -2,6 +2,7 @@
 import {Macro} from 'ava';
 
 import {Constructor, DecoratedJson} from '../../src';
+import {isObject} from '../../src/helpers';
 
 export interface CreatePassThroughMacro<T> {
     class: Constructor<any>;
@@ -29,7 +30,7 @@ export function createPassThroughMacro<T>(
     };
     macro.title = (providedTitle, options) => {
         return `${providedTitle} ${options.type === 'fromJson' ? 'from JSON' : 'to JSON'} should \
-pass ${options.value}`;
+pass${isObject(options.value) ? ' and referentially equal' : ''} ${JSON.stringify(options.value)}`;
     };
 
     return macro;

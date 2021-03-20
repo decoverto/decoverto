@@ -1,6 +1,7 @@
 import test from 'ava';
 
 import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {createPassThroughMacro} from '../helpers/macros';
 
 const decoratedJson = new DecoratedJson();
 
@@ -12,6 +13,14 @@ class SimplePropertyAny {
     @jsonProperty(Any)
     anyNullable?: any | null;
 }
+
+const passThroughMacro = createPassThroughMacro({
+    class: SimplePropertyAny,
+    createSubject: value => ({
+        any: value,
+        anyNullable: value,
+    }),
+});
 
 test('@jsonProperty(Any) should parse simple object correctly', t => {
     const result = decoratedJson.type(SimplePropertyAny).parse({
@@ -32,16 +41,34 @@ test('@jsonProperty(Any) should parse class instance correctly', t => {
     t.deepEqual(result.anyNullable, foo);
 });
 
-test('@jsonProperty(Any) should convert with referential equality', t => {
-    const foo = {foo: 'bar'};
-    const simplePropertyAny = new SimplePropertyAny();
-    simplePropertyAny.any = foo;
-    simplePropertyAny.anyNullable = foo;
-    const result = decoratedJson
-        .type(SimplePropertyAny)
-        .toPlainJson(simplePropertyAny);
-    t.is(result.any, foo);
-    t.is(result.anyNullable, foo);
+test('@jsonProperty(Any)', passThroughMacro, {
+    type: 'fromJson',
+    value: null,
+});
+
+test('@jsonProperty(Any)', passThroughMacro, {
+    type: 'toJson',
+    value: null,
+});
+
+test('@jsonProperty(Any)', passThroughMacro, {
+    type: 'fromJson',
+    value: undefined,
+});
+
+test('@jsonProperty(Any)', passThroughMacro, {
+    type: 'toJson',
+    value: undefined,
+});
+
+test('@jsonProperty(Any)', passThroughMacro, {
+    type: 'fromJson',
+    value: {foo: 'bar'},
+});
+
+test('@jsonProperty(Any)', passThroughMacro, {
+    type: 'toJson',
+    value: {foo: 'bar'},
 });
 
 test('Any should handle complex structures', t => {
