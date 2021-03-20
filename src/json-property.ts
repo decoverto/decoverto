@@ -23,8 +23,8 @@ export interface JsonPropertyOptions extends OptionsBase {
     /** When set, indicates that the property must be present when converting from JSON. */
     isRequired?: boolean | null;
 
-    /** When set, the key on the JSON that should be used instead of the class property name. */
-    name?: string | null;
+    /** The jsonName on the JSON that should be used instead of the class property jsonName. */
+    jsonName?: string | null;
 
     /**
      * When set, this method will be used to convert the value **from** JSON.
@@ -106,7 +106,7 @@ export function jsonProperty<T extends Function>(
             isRequired: options.isRequired,
             options: extractOptionBase(options),
             key: property.toString(),
-            name: options.name ?? property.toString(),
+            jsonName: options.jsonName ?? property.toString(),
             fromJson: options.fromJson,
             toJson: options.toJson,
         });

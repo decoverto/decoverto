@@ -252,7 +252,7 @@ import {jsonObject, jsonProperty} from 'decorated-json';
 
 @jsonObject()
 class MyDataClass {
-    @jsonProperty({name: 'api_option'})
+    @jsonProperty({jsonName: 'api_option'})
     ownOption: string;
 }
 ```

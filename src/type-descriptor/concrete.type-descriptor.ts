@@ -62,7 +62,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                     revivedValue = objMemberMetadata.fromJson(objMemberValue);
                 } else if (objMemberMetadata.type === undefined) {
                     throw new TypeError(getDiagnostic('noStrategyToConvertJsonPropertyFromJson', {
-                        property: objMemberMetadata.name,
+                        property: objMemberMetadata.jsonName,
                         typeName,
                     }));
                 } else {
@@ -78,7 +78,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                     sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
                     throw new TypeError(getDiagnostic('missingRequiredProperty', {
-                        property: objMemberMetadata.name,
+                        property: objMemberMetadata.jsonName,
                         typeName,
                     }));
                 }
@@ -178,7 +178,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                     json = objMemberMetadata.toJson(source[objMemberMetadata.key]);
                 } else if (objMemberMetadata.type === undefined) {
                     throw new TypeError(getDiagnostic('noStrategyToConvertJsonPropertyToJson', {
-                        property: objMemberMetadata.name,
+                        property: objMemberMetadata.jsonName,
                         typeName,
                     }));
                 } else {
@@ -191,7 +191,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                 }
 
                 if (json !== undefined) {
-                    targetObject[objMemberMetadata.name] = json;
+                    targetObject[objMemberMetadata.jsonName] = json;
                 }
             });
         }

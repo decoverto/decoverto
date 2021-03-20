@@ -8,10 +8,10 @@ export const metadataFieldKey = Symbol('decoratedJsonMetadata');
 
 export interface JsonPropertyMetadata {
 
-    /** Property name as it appears in JSON. */
-    name: string;
+    /** Name of the property as it appears in JSON. */
+    jsonName: string;
 
-    /** Property name as it appears on the class. */
+    /** Name of the property as it appears in the class. */
     key: string;
 
     /** Type descriptor of the property. */
@@ -168,5 +168,5 @@ export function injectMetadataInformation(
     // clear metadata of undefined properties to save memory
     (Object.keys(metadata) as Array<keyof JsonPropertyMetadata>)
         .forEach((key) => (metadata[key] === undefined) && delete metadata[key]);
-    objectMetadata.properties.set(metadata.name, metadata);
+    objectMetadata.properties.set(metadata.jsonName, metadata);
 }
