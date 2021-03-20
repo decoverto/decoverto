@@ -6,14 +6,31 @@ import {isObject} from '../../src/helpers';
 
 export interface CreatePassThroughMacro<T> {
     class: Constructor<any>;
-    createSubject: (value: T) => any;
+
+    /**
+     * Function used to create the test subject, e.g. value => ({date: value}).
+     */
+    createSubject: (value: T) => Record<string, unknown>;
 }
 
 export interface PassThroughMacro<T> {
+    /**
+     * Whether to test `parse` or `toPlainJson`.
+     */
     type: 'fromJson' | 'toJson';
+
+    /**
+     * Will be used to create the test subject and perform the strict equal check.
+     */
     value: T;
 }
 
+/**
+ * The pass through macro tests whether running `parse` and `toPlainJson` on an object preserves the
+ * value. This is handy to test whether, for example, the converter functions return `null` when
+ * given `null` as source and `undefined` when given `undefined`. It will perform a strict equal
+ * check between the properties of the `parse/toPlainJson` result and the given value.
+ */
 export function createPassThroughMacro<T>(
     createOptions: CreatePassThroughMacro<T>,
 ): Macro<[PassThroughMacro<T>]> {
