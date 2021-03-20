@@ -131,21 +131,27 @@ export function injectMetadataInformation(
     // For error messages
     const typeName = prototype.constructor.name;
 
-    // When a property decorator is applied to a static property, 'constructor' is a constructor
+    // When a property decorator is applied to a static member, 'constructor' is a constructor
     // function.
     // See:
     // eslint-disable-next-line max-len
     // https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
-    // ... and static properties are not supported here, so abort.
+    // ... and static members are not supported here, so abort.
     if (typeof prototype === 'function') {
-        throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnStaticProperty', {
-            property: propKey,
-            typeName,
-        }));
+        if (typeof (prototype as any)[propKey] === 'function') {
+            throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnStaticMethod', {
+                property: propKey,
+                typeName: prototype.prototype.constructor.name,
+            }));
+        } else {
+            throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnStaticProperty', {
+                property: propKey,
+                typeName: prototype.prototype.constructor.name,
+            }));
+        }
     }
 
     // Methods cannot be converted JSON.
-    // symbol indexing is not supported by ts
     if (typeof prototype[propKey as string] === 'function') {
         throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnInstanceMethod', {
             property: propKey,

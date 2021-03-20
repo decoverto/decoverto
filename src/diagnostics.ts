@@ -81,6 +81,13 @@ ${String(info.property)}. Solutions:
  - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
         };
     },
+    jsonPropertyCannotBeUsedOnStaticMethod(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1010,
+            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
+a static method.`,
+        };
+    },
 
     invalidValueError(info: InvalidValueErrorInput) {
         return {

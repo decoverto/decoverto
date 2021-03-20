@@ -125,3 +125,58 @@ test('Difference in naming between class property and json should be handled by 
     t.is(result.jsonProperty, 'hello');
     t.is(result.classProperty, undefined);
 });
+
+test('@jsonProperty on a static property should error', t => {
+    t.throws(() => {
+        @jsonObject()
+        class StaticPropertySpec {
+
+            @jsonProperty()
+            static static: string;
+        }
+        use(StaticPropertySpec);
+    }, {
+        message: getDiagnostic('jsonPropertyCannotBeUsedOnStaticProperty', {
+            typeName: 'StaticPropertySpec',
+            property: 'static',
+        }),
+    });
+});
+
+test('@jsonProperty on a static method should error', t => {
+    t.throws(() => {
+        @jsonObject()
+        class StaticMethodSpec {
+
+            @jsonProperty()
+            static static(): void {
+                // Nothing
+            }
+        }
+        use(StaticMethodSpec);
+    }, {
+        message: getDiagnostic('jsonPropertyCannotBeUsedOnStaticMethod', {
+            typeName: 'StaticMethodSpec',
+            property: 'static',
+        }),
+    });
+});
+
+test('@jsonProperty on an instance method should error', t => {
+    t.throws(() => {
+        @jsonObject()
+        class InstanceMethodSpec {
+
+            @jsonProperty()
+            instance(): void {
+                // Nothing
+            }
+        }
+        use(InstanceMethodSpec);
+    }, {
+        message: getDiagnostic('jsonPropertyCannotBeUsedOnInstanceMethod', {
+            typeName: 'InstanceMethodSpec',
+            property: 'instance',
+        }),
+    });
+});
