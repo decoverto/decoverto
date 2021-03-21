@@ -183,8 +183,5 @@ export function injectMetadataInformation(
     // with '@jsonObject' as well.
     const objectMetadata = JsonObjectMetadata.ensurePresentInPrototype(prototype);
 
-    // clear metadata of undefined properties to save memory
-    (Object.keys(metadata) as Array<keyof JsonPropertyMetadata>)
-        .forEach((key) => (metadata[key] === undefined) && delete metadata[key]);
     objectMetadata.properties.set(metadata.jsonName, metadata);
 }
