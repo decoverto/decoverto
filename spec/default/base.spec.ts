@@ -209,6 +209,14 @@ test('Converting a class which extends an unannotated base class should succeed'
     t.deepEqual(decoratedJson.type(Child).parse('{}'), new Child());
 });
 
+test('Creating a type handler for an object without prototype should error', t => {
+    t.throws(() => decoratedJson.type(Object.create(null)), {
+        message: getDiagnostic('missingJsonObjectDecorator', {
+            typeName: 'undefined',
+        }),
+    });
+});
+
 test(`Converting a class which extends an unannotated base class by providing the base class \
 should fail`, t => {
     t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()), {
