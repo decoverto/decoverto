@@ -28,3 +28,4 @@ temp
 **\nuget
 **\nupkg
 __*
+*.local.*
