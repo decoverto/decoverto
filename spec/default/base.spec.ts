@@ -183,18 +183,6 @@ test('should parse from JSON', t => {
     t.deepEqual(parsed, expected);
 });
 
-test.failing('should parse from JSON ignoring readonly properties', t => {
-    // this is not supported currently
-    const parsed = decoratedJson.type(SomeClass).parse(
-        '{"prop":"other value","getterOnly":"ignored","setterOnly":"ok"}',
-    );
-
-    const expected = new SomeClass();
-    expected.prop = 'other value';
-    expected.setterOnly = 'ok';
-    t.deepEqual(parsed, expected);
-});
-
 class JustForOrganizationalPurpose {
 
 }
