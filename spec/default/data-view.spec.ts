@@ -28,7 +28,7 @@ test('DataView', passThroughMacro, {
     value: null,
 });
 
-test.failing('DataView', passThroughMacro, {
+test('DataView', passThroughMacro, {
     type: 'fromJson',
     value: undefined,
 });
@@ -38,7 +38,7 @@ test('DataView', passThroughMacro, {
     value: undefined,
 });
 
-test.failing('DataView errors if fromJson source type is not string', t => {
+test('DataView errors if fromJson source type is not string', t => {
     t.throws(() => decoratedJson.type(DataViewSpec).parse({property: 123}), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Number',

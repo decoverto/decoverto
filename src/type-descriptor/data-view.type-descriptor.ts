@@ -13,12 +13,16 @@ export class DataViewTypeDescriptor
         context: ConversionContext<string | any | null | undefined>,
     ): DataView | null | undefined {
         if (context.source == null) {
-            return null;
+            return context.source;
         }
 
         if (typeof context.source !== 'string') {
-            this.throwTypeMismatchError(context);
+            this.throwTypeMismatchError({
+                ...context,
+                expectedType: 'String',
+            });
         }
+
         return new DataView(createArrayBufferFromString(context.source));
     }
 
