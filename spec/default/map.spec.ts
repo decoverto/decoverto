@@ -1,6 +1,16 @@
 import test from 'ava';
 
-import {array, DecoratedJson, jsonObject, jsonProperty, map, MapShape} from '../../src';
+import {
+    Any,
+    array,
+    DecoratedJson,
+    jsonObject,
+    jsonProperty,
+    map,
+    MapShape,
+} from '../../src';
+import {getDiagnostic} from '../../src/diagnostics';
+import {createPassThroughMacro} from '../helpers/macros';
 
 const decoratedJson = new DecoratedJson();
 
@@ -33,6 +43,31 @@ class DictMap {
         return this.prop.size;
     }
 }
+
+const passThroughMacro = createPassThroughMacro({
+    class: DictMap,
+    createSubject: value => ({prop: value}),
+});
+
+test('@jsonProperty(map(...))', passThroughMacro, {
+    type: 'fromJson',
+    value: null,
+});
+
+test('@jsonProperty(map(...))', passThroughMacro, {
+    type: 'toJson',
+    value: null,
+});
+
+test('@jsonProperty(map(...))', passThroughMacro, {
+    type: 'fromJson',
+    value: undefined,
+});
+
+test('@jsonProperty(map(...))', passThroughMacro, {
+    type: 'toJson',
+    value: undefined,
+});
 
 test('Map with dictionary shape converts from JSON', t => {
     const result = decoratedJson.type(DictMap).parse(
@@ -71,6 +106,20 @@ test('Map with dictionary shape converts to JSON', t => {
     }));
 });
 
+test.failing('Map from JSON with dictionary shape errors when an array type is provided', t => {
+    t.throws(() => {
+        decoratedJson.type(DictMap).parse({
+            prop: [{key: 'key', value: 'value'}],
+        });
+    }, {
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'Array',
+            path: `${DictMap.name}.prop`,
+            expectedType: 'Object notation',
+        }),
+    });
+});
+
 @jsonObject()
 class DictionaryArrayShape {
     @jsonProperty(map(() => String, () => Simple, {shape: MapShape.Array}))
@@ -97,6 +146,86 @@ test('Map with array shape converts to JSON', t => {
     t.true(result.map instanceof Array);
     t.is(result.map[0].key, 'one');
     t.is(result.map[0].value.numProp, 4);
+});
+
+@jsonObject()
+class KeyAndValueEdgeCasesTest {
+
+    @jsonProperty(map(Any, Any, {shape: MapShape.Array}))
+    map: Map<any, any>;
+}
+
+test.failing('Map from JSON preserves null keys', t => {
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
+        map: [
+            {key: null, value: 'yes'},
+        ],
+    });
+    t.true(result.map.has(null));
+    t.is(result.map.get(null), 'yes');
+});
+
+test('Map from JSON preserves null values', t => {
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
+        map: [
+            {key: 'yes', value: null},
+        ],
+    });
+    t.is(result.map.get('yes'), null);
+});
+
+test.failing('Map to JSON preserves null keys', t => {
+    const subject = new KeyAndValueEdgeCasesTest();
+    subject.map = new Map<any, any>([
+        [null, 'yes'],
+    ]);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    t.is(result.map[0].key, null);
+    t.is(result.map[0].value, 'yes');
+});
+
+test('Map to JSON preserves null values', t => {
+    const subject = new KeyAndValueEdgeCasesTest();
+    subject.map = new Map<any, any>([
+        ['yes', null],
+    ]);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    t.is(result.map[0].key, 'yes');
+    t.is(result.map[0].value, null);
+});
+
+test.failing('Map to JSON, undefined keys turn into null', t => {
+    const subject = new KeyAndValueEdgeCasesTest();
+    subject.map = new Map<any, any>([
+        [undefined, 'yes'],
+    ]);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    t.is(result.map[0].key, null);
+    t.is(result.map[0].value, 'yes');
+});
+
+test.failing('Map to JSON, undefined values turn into null', t => {
+    const subject = new KeyAndValueEdgeCasesTest();
+    subject.map = new Map<any, any>([
+        ['yes', undefined],
+    ]);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    t.is(result.map[0].key, 'yes');
+    t.is(result.map[0].value, null);
+});
+
+test.failing('Map from JSON with array shape errors when an object shape is provided', t => {
+    t.throws(() => {
+        decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
+            map: {key: 'value'},
+        });
+    }, {
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'Object',
+            path: `${KeyAndValueEdgeCasesTest.name}.map`,
+            expectedType: 'Array notation',
+        }),
+    });
 });
 
 @jsonObject()
@@ -150,4 +279,9 @@ test('Map with an array as value converts to JSON', t => {
             two: [{strProp: 'gamma', numProp: 7}, {strProp: 'alpha', numProp: 2}],
         },
     }));
+});
+
+test('Map friendly name is correct', t => {
+    const mapTypeDescriptor = map(() => String, () => Simple, {shape: MapShape.Array});
+    t.is(mapTypeDescriptor.getFriendlyName(), 'Map<String, Simple>');
 });
