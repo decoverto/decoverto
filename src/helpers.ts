@@ -49,13 +49,5 @@ export function shouldOmitParseString(jsonStr: string, expectedType: Function): 
     return expectsTypesConvertedAsStrings && !hasQuotes;
 }
 
-/**
- * Checks if the value is considered defined (not undefined and not null).
- * @param value
- */
-export function isValueDefined<T>(value: T): value is Exclude<T, undefined | null> {
-    return !(typeof value === 'undefined' || value === null);
-}
-
 export const isReflectMetadataSupported =
     isObject(Reflect) && typeof Reflect.getMetadata as any === 'function';

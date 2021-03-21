@@ -1,4 +1,4 @@
-import {isObject, isValueDefined} from '../helpers';
+import {isObject} from '../helpers';
 import {
     ConversionContext,
     TypeDescriptor,
@@ -73,10 +73,9 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
         }
 
         if (!this.isExpectedMapShape(source)) {
-            const expectedType = this.shape === MapShape.Array ? Array : Object;
             this.throwTypeMismatchError({
                 ...context,
-                expectedType: `${expectedType} notation`,
+                expectedType: `${this.shape} notation`,
             });
         }
 
@@ -90,17 +89,14 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
                     source: element.key,
                 });
 
-                // Undefined/null keys not supported, skip if so.
-                if (isValueDefined(key)) {
-                    resultMap.set(
-                        key,
-                        this.valueType.fromJson({
-                            ...context,
-                            path: `${path}[${index}].value`,
-                            source: element.value,
-                        }),
-                    );
-                }
+                resultMap.set(
+                    key,
+                    this.valueType.fromJson({
+                        ...context,
+                        path: `${path}[${index}].value`,
+                        source: element.value,
+                    }),
+                );
             });
         } else {
             Object.keys(source).forEach((key, index) => {
@@ -109,16 +105,14 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
                     path: `${path}[${index}].key`,
                     source: key,
                 });
-                if (isValueDefined(resultKey)) {
-                    resultMap.set(
-                        resultKey,
-                        this.valueType.fromJson({
-                            ...context,
-                            path: `${path}[${index}].value`,
-                            source: source[key],
-                        }),
-                    );
-                }
+                resultMap.set(
+                    resultKey,
+                    this.valueType.fromJson({
+                        ...context,
+                        path: `${path}[${index}].value`,
+                        source: source[key],
+                    }),
+                );
             });
         }
 
@@ -147,23 +141,19 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
                     ...context,
                     path: `${context.path}[].value`,
                     source: key,
-                }),
+                }) ?? null,
                 value: this.valueType.toJson({
                     ...context,
                     path: `${context.path}[].value`,
                     source: value,
-                }),
+                }) ?? null,
             };
 
             // We are not going to emit entries with undefined keys OR undefined values.
-            const keyDefined = isValueDefined(resultKeyValuePairObj.key);
-            const valueDefined = resultKeyValuePairObj.value !== undefined;
-            if (keyDefined && valueDefined) {
-                if (Array.isArray(result)) {
-                    result.push(resultKeyValuePairObj);
-                } else {
-                    result[resultKeyValuePairObj.key] = resultKeyValuePairObj.value;
-                }
+            if (Array.isArray(result)) {
+                result.push(resultKeyValuePairObj);
+            } else {
+                result[resultKeyValuePairObj.key] = resultKeyValuePairObj.value;
             }
         });
 
@@ -176,7 +166,7 @@ export class MapTypeDescriptor<Key extends Object, Value extends Object>
 
     private isExpectedMapShape(source: any): boolean {
         return (this.shape === MapShape.Array && Array.isArray(source))
-            || (this.shape === MapShape.Object && isObject(source));
+            || (this.shape === MapShape.Object && isObject(source) && !Array.isArray(source));
     }
 }
 

@@ -106,7 +106,7 @@ test('Map with dictionary shape converts to JSON', t => {
     }));
 });
 
-test.failing('Map from JSON with dictionary shape errors when an array type is provided', t => {
+test('Map from JSON with dictionary shape errors when an array type is provided', t => {
     t.throws(() => {
         decoratedJson.type(DictMap).parse({
             prop: [{key: 'key', value: 'value'}],
@@ -155,7 +155,7 @@ class KeyAndValueEdgeCasesTest {
     map: Map<any, any>;
 }
 
-test.failing('Map from JSON preserves null keys', t => {
+test('Map from JSON preserves null keys', t => {
     const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
         map: [
             {key: null, value: 'yes'},
@@ -174,7 +174,7 @@ test('Map from JSON preserves null values', t => {
     t.is(result.map.get('yes'), null);
 });
 
-test.failing('Map to JSON preserves null keys', t => {
+test('Map to JSON preserves null keys', t => {
     const subject = new KeyAndValueEdgeCasesTest();
     subject.map = new Map<any, any>([
         [null, 'yes'],
@@ -194,7 +194,7 @@ test('Map to JSON preserves null values', t => {
     t.is(result.map[0].value, null);
 });
 
-test.failing('Map to JSON, undefined keys turn into null', t => {
+test('Map to JSON, undefined keys turn into null', t => {
     const subject = new KeyAndValueEdgeCasesTest();
     subject.map = new Map<any, any>([
         [undefined, 'yes'],
@@ -204,7 +204,7 @@ test.failing('Map to JSON, undefined keys turn into null', t => {
     t.is(result.map[0].value, 'yes');
 });
 
-test.failing('Map to JSON, undefined values turn into null', t => {
+test('Map to JSON, undefined values turn into null', t => {
     const subject = new KeyAndValueEdgeCasesTest();
     subject.map = new Map<any, any>([
         ['yes', undefined],
@@ -214,7 +214,7 @@ test.failing('Map to JSON, undefined values turn into null', t => {
     t.is(result.map[0].value, null);
 });
 
-test.failing('Map from JSON with array shape errors when an object shape is provided', t => {
+test('Map from JSON with array shape errors when an object shape is provided', t => {
     t.throws(() => {
         decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
             map: {key: 'value'},
