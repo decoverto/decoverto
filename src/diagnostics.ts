@@ -1,7 +1,9 @@
 import {InvalidValueErrorInput} from './errors/invalid-value.error';
 import {UnknownTypeErrorInput} from './errors/unknown-type.error';
+import {Serializable} from './types';
 
 export const Diagnostics = {
+    // Setup errors; decorators and such
     jsonPropertyReflectedTypeIsNull(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1000,
@@ -13,45 +15,9 @@ Other solutions:
  - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
         };
     },
-    jsonPropertyCannotBeUsedOnStaticProperty(info: {property: string | symbol; typeName: string}) {
-        return {
-            code: 1002,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
-a static property.`,
-        };
-    },
-    jsonPropertyCannotBeUsedOnInstanceMethod(info: {property: string | symbol; typeName: string}) {
-        return {
-            code: 1003,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
-an instance method.`,
-        };
-    },
-    missingRequiredProperty(info: {property: string; typeName: string}) {
-        return {
-            code: 1006,
-            message: `Missing required property '${info.property}'.`,
-        };
-    },
-    missingJsonObjectDecorator(info: {typeName: string}) {
-        return {
-            code: 1007,
-            message: `The type ${info.typeName} is missing the @jsonObject decorator.`,
-        };
-    },
-    jsonPropertyReflectedTypeIsObject(info: {property: string | symbol; typeName: string}) {
-        return {
-            code: 1008,
-            message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
-${String(info.property)}. Solutions:
- - Pass the type to the @jsonProperty decorator, e.g. @jsonProperty(() => String)
- - If the property has a default value, make sure to explicitly type it. E.g. prop: number = 5
- - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
-        };
-    },
     jsonPropertyNoTypeNoConvertersNoReflect(info: {property: string | symbol; typeName: string}) {
         return {
-            code: 1009,
+            code: 1001,
             message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
 ${String(info.property)}. Solutions:
  - Enable reflect-metadata
@@ -60,26 +26,66 @@ ${String(info.property)}. Solutions:
  - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
         };
     },
+    jsonPropertyReflectedTypeIsObject(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1002,
+            message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
+${String(info.property)}. Solutions:
+ - Pass the type to the @jsonProperty decorator, e.g. @jsonProperty(() => String)
+ - If the property has a default value, make sure to explicitly type it. E.g. prop: number = 5
+ - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
+        };
+    },
+    jsonPropertyCannotBeUsedOnStaticProperty(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1003,
+            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
+a static property.`,
+        };
+    },
+    jsonPropertyCannotBeUsedOnInstanceMethod(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1004,
+            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
+an instance method.`,
+        };
+    },
     jsonPropertyCannotBeUsedOnStaticMethod(info: {property: string | symbol; typeName: string}) {
         return {
-            code: 1010,
+            code: 1005,
             message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
 a static method.`,
         };
     },
 
-    invalidValueError(info: InvalidValueErrorInput) {
+    // Initialization errors, e.g. new DecoratedJson
+    unknownTypeCreatingTypeHandler(info: {type: Serializable<any>}) {
         return {
             code: 2000,
+            message: `The type ${info.type.name} cannot be used to create a new type handler. It \
+missing the @jsonObject decorator and not in the converter map.`,
+        };
+    },
+
+    // Conversion errors
+    invalidValueError(info: InvalidValueErrorInput) {
+        return {
+            code: 3000,
             message: `Got invalid value${info.path === '' ? '' : ` at ${info.path}`}. Received \
 ${info.actualType}, expected ${info.expectedType}.`,
         };
     },
     unknownTypeError(info: UnknownTypeErrorInput) {
       return {
-          code: 2001,
+          code: 3001,
           message: `Could not determine how to convert unknown type ${info.type} at ${info.path}`,
       };
+    },
+    missingRequiredProperty(info: {property: string; typeName: string}) {
+        return {
+            code: 3002,
+            message: `Missing required property '${info.property}'.`,
+        };
     },
 };
 

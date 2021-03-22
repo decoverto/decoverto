@@ -199,8 +199,8 @@ test('Converting a class which extends an unannotated base class should succeed'
 
 test('Creating a type handler for an object without prototype should error', t => {
     t.throws(() => decoratedJson.type(Object.create(null)), {
-        message: getDiagnostic('missingJsonObjectDecorator', {
-            typeName: 'undefined',
+        message: getDiagnostic('unknownTypeCreatingTypeHandler', {
+            type: Object.create(null),
         }),
     });
 });
@@ -208,13 +208,13 @@ test('Creating a type handler for an object without prototype should error', t =
 test(`Converting a class which extends an unannotated base class by providing the base class \
 should fail`, t => {
     t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).stringify(new Child()), {
-        message: getDiagnostic('missingJsonObjectDecorator', {
-            typeName: 'JustForOrganizationalPurpose',
+        message: getDiagnostic('unknownTypeCreatingTypeHandler', {
+            type: JustForOrganizationalPurpose,
         }),
     });
     t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}'), {
-        message: getDiagnostic('missingJsonObjectDecorator', {
-            typeName: 'JustForOrganizationalPurpose',
+        message: getDiagnostic('unknownTypeCreatingTypeHandler', {
+            type: JustForOrganizationalPurpose,
         }),
     });
 });

@@ -42,8 +42,8 @@ export class TypeHandler<RootType> {
 
         if (!settings.converterMap.has(this.rootConstructor)
             && (rootMetadata === undefined || !rootMetadata.isExplicitlyMarked)) {
-            throw new TypeError(getDiagnostic('missingJsonObjectDecorator', {
-                typeName: rootConstructor.name,
+            throw new TypeError(getDiagnostic('unknownTypeCreatingTypeHandler', {
+                type: rootConstructor,
             }));
         }
 
