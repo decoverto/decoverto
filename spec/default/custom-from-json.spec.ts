@@ -21,20 +21,20 @@ const simpleJson = '{ "firstName": "John", "lastName": "Doe" }';
 
 test('Parsing @jsonProperty({fromJson: ...}) should use the fromJson function', t => {
     const result = decoratedJson.type(Person)
-        .parse(simpleJson);
+        .parseJson(simpleJson);
     t.is(result.firstName, 'Mark');
     t.is(result.lastName, 'Foreman');
 });
 
 test('Result of parsing @jsonProperty({fromJson: ...}) should have the correct type', t => {
     const result = decoratedJson.type(Person)
-        .parse(simpleJson);
+        .parseJson(simpleJson);
     t.true(result instanceof Person);
 });
 
 test('Result of parsing @jsonProperty({fromJson: ...}) should have with callable methods', t => {
     const result = decoratedJson.type(Person)
-        .parse(simpleJson);
+        .parseJson(simpleJson);
     t.is(result.getFullName(), 'Mark Foreman');
 });
 
@@ -58,7 +58,7 @@ function`, t => {
         }
 
         const typeHandler = decoratedJson.type(ToJsonComplexType);
-        t.false(typeHandler.parse({complex: ''}).complex);
+        t.false(typeHandler.parsePlain({complex: ''}).complex);
     });
 });
 
@@ -82,20 +82,20 @@ const arrayFromJsonHandler = decoratedJson.type(ArrayFromJsonTest);
 
 test(`Parsing @jsonProperty(array(() => Number), {fromJson: ...}) should use the fromJson \
 function`, t => {
-    const result = arrayFromJsonHandler.parse(arrayJson);
+    const result = arrayFromJsonHandler.parseJson(arrayJson);
     t.deepEqual(result.nums, [1, 2, 3, 4, 5]);
     t.is(result.str, 'Some string');
 });
 
 test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should have with \
 callable methods`, t => {
-    const result = arrayFromJsonHandler.parse(arrayJson);
+    const result = arrayFromJsonHandler.parseJson(arrayJson);
     t.is(result.sum?.(), 15);
 });
 
 test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
 toJson`, t => {
-    const result = arrayFromJsonHandler.stringify(arrayFromJsonHandler.parse(arrayJson));
+    const result = arrayFromJsonHandler.stringify(arrayFromJsonHandler.parseJson(arrayJson));
     t.is(result, '{"nums":[1,2,3,4,5],"str":"Some string"}');
 });
 
@@ -117,7 +117,7 @@ test('Converting @jsonProperty(array(() => Class), {fromJson: function}) should 
             return;
         }
 
-        return decoratedJson.type(Inner).parseArray(
+        return decoratedJson.type(Inner).parsePlainAsArray(
             values.filter(value => value.shouldConvertToObject),
         );
     }
@@ -131,7 +131,7 @@ test('Converting @jsonProperty(array(() => Class), {fromJson: function}) should 
         str: string;
     }
 
-    const result = decoratedJson.type(Obj).parse(JSON.stringify({
+    const result = decoratedJson.type(Obj).parseJson(JSON.stringify({
         inners: [
             {
                 prop: 'something',

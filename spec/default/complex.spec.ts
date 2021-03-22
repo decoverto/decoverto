@@ -14,7 +14,7 @@ test('Complex @jsonProperty should parse', t => {
 
     const typeHandler = decoratedJson.type(ComplexProperty);
     const firstDate = new Date('2021-03-15T07:44:13.907Z');
-    const result = typeHandler.parse({
+    const result = typeHandler.parsePlain({
         arrayOfMapsOfDateArrayAny: [
             [
                 {key: firstDate, value: [{foo: true}]},

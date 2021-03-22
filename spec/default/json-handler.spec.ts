@@ -44,7 +44,7 @@ test('JsonHandlerSimple should use reviver', t => {
         }),
     });
     const typeHandler = decoratedJson.type(JsonHandlerTest);
-    const parsed = typeHandler.parse(JSON.stringify({foo: 'unchanged'}));
+    const parsed = typeHandler.parseJson(JSON.stringify({foo: 'unchanged'}));
     t.is(parsed.foo, 'changed');
 });
 
@@ -67,7 +67,7 @@ const customJsonHandler = new DecoratedJson({
 }).type(JsonHandlerTest);
 
 test('Custom JSON handler should use the custom parse function', t => {
-    t.is(customJsonHandler.parse(JSON.stringify({foo: 'unchanged'})).foo, 'changed');
+    t.is(customJsonHandler.parseJson(JSON.stringify({foo: 'unchanged'})).foo, 'changed');
 });
 
 test('Custom JSON handler should use the custom stringify function', t => {

@@ -39,7 +39,7 @@ test('DataView', passThroughMacro, {
 });
 
 test('DataView errors if fromJson source type is not string', t => {
-    t.throws(() => decoratedJson.type(DataViewSpec).parse({property: 123}), {
+    t.throws(() => decoratedJson.type(DataViewSpec).parsePlain({property: 123}), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Number',
             expectedType: 'String',

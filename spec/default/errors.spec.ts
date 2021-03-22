@@ -17,7 +17,7 @@ test('An error should be thrown when it is unknown how to convert a type', t => 
     }
 
     const testNonDeterminableTypesHandler = decoratedJson.type(TestNonDeterminableTypes);
-    t.throws(() => testNonDeterminableTypesHandler.parse({bar: 'bar'}), {
+    t.throws(() => testNonDeterminableTypesHandler.parsePlain({bar: 'bar'}), {
         message: getDiagnostic('unknownTypeError', {
             path: 'TestNonDeterminableTypes.bar',
             type: 'CustomType',

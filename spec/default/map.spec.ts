@@ -70,7 +70,7 @@ test('@jsonProperty(map(...))', passThroughMacro, {
 });
 
 test('Map with dictionary shape converts from JSON', t => {
-    const result = decoratedJson.type(DictMap).parse(
+    const result = decoratedJson.type(DictMap).parseJson(
         JSON.stringify(
             {
                 prop: {
@@ -108,7 +108,7 @@ test('Map with dictionary shape converts to JSON', t => {
 
 test('Map from JSON with dictionary shape errors when an array type is provided', t => {
     t.throws(() => {
-        decoratedJson.type(DictMap).parse({
+        decoratedJson.type(DictMap).parsePlain({
             prop: [{key: 'key', value: 'value'}],
         });
     }, {
@@ -127,7 +127,7 @@ class DictionaryArrayShape {
 }
 
 test('Map with array shape converts from JSON', t => {
-    const result = decoratedJson.type(DictionaryArrayShape).parse({
+    const result = decoratedJson.type(DictionaryArrayShape).parsePlain({
         map: [
             {key: 'one', value: {numProp: 4, strPop: 'value1'}},
         ],
@@ -142,7 +142,7 @@ test('Map with array shape converts to JSON', t => {
     object.map = new Map<string, Simple>([
         ['one', new Simple({numProp: 4, strProp: 'delta'})],
     ]);
-    const result = decoratedJson.type(DictionaryArrayShape).toPlainJson(object);
+    const result = decoratedJson.type(DictionaryArrayShape).toPlain(object);
     t.true(result.map instanceof Array);
     t.is(result.map[0].key, 'one');
     t.is(result.map[0].value.numProp, 4);
@@ -156,7 +156,7 @@ class KeyAndValueEdgeCasesTest {
 }
 
 test('Map from JSON preserves null keys', t => {
-    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parsePlain({
         map: [
             {key: null, value: 'yes'},
         ],
@@ -166,7 +166,7 @@ test('Map from JSON preserves null keys', t => {
 });
 
 test('Map from JSON preserves null values', t => {
-    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).parsePlain({
         map: [
             {key: 'yes', value: null},
         ],
@@ -179,7 +179,7 @@ test('Map to JSON preserves null keys', t => {
     subject.map = new Map<any, any>([
         [null, 'yes'],
     ]);
-    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlain(subject);
     t.is(result.map[0].key, null);
     t.is(result.map[0].value, 'yes');
 });
@@ -189,7 +189,7 @@ test('Map to JSON preserves null values', t => {
     subject.map = new Map<any, any>([
         ['yes', null],
     ]);
-    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlain(subject);
     t.is(result.map[0].key, 'yes');
     t.is(result.map[0].value, null);
 });
@@ -199,7 +199,7 @@ test('Map to JSON, undefined keys turn into null', t => {
     subject.map = new Map<any, any>([
         [undefined, 'yes'],
     ]);
-    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlain(subject);
     t.is(result.map[0].key, null);
     t.is(result.map[0].value, 'yes');
 });
@@ -209,14 +209,14 @@ test('Map to JSON, undefined values turn into null', t => {
     subject.map = new Map<any, any>([
         ['yes', undefined],
     ]);
-    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlainJson(subject);
+    const result = decoratedJson.type(KeyAndValueEdgeCasesTest).toPlain(subject);
     t.is(result.map[0].key, 'yes');
     t.is(result.map[0].value, null);
 });
 
 test('Map from JSON with array shape errors when an object shape is provided', t => {
     t.throws(() => {
-        decoratedJson.type(KeyAndValueEdgeCasesTest).parse({
+        decoratedJson.type(KeyAndValueEdgeCasesTest).parsePlain({
             map: {key: 'value'},
         });
     }, {
@@ -239,7 +239,7 @@ class DictArrayMap {
 }
 
 test('Map with an array as value converts from JSON', t => {
-    const result = decoratedJson.type(DictArrayMap).parse(
+    const result = decoratedJson.type(DictArrayMap).parseJson(
         JSON.stringify(
             {
                 prop: {

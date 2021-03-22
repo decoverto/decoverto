@@ -15,7 +15,7 @@ export interface CreatePassThroughMacro<T> {
 
 export interface PassThroughMacro<T> {
     /**
-     * Whether to test `parse` or `toPlainJson`.
+     * Whether to test `parse` or `toPlain`.
      */
     type: 'fromJson' | 'toJson';
 
@@ -26,10 +26,10 @@ export interface PassThroughMacro<T> {
 }
 
 /**
- * The pass through macro tests whether running `parse` and `toPlainJson` on an object preserves the
+ * The pass through macro tests whether running `parse` and `toPlain` on an object preserves the
  * value. This is handy to test whether, for example, the converter functions return `null` when
  * given `null` as source and `undefined` when given `undefined`. It will perform a strict equal
- * check between the properties of the `parse/toPlainJson` result and the given value.
+ * check between the properties of the `parse/toPlain` result and the given value.
  */
 export function createPassThroughMacro<T>(
     createOptions: CreatePassThroughMacro<T>,
@@ -38,8 +38,8 @@ export function createPassThroughMacro<T>(
     const macro: Macro<[PassThroughMacro<T>]> = (t, options) => {
         const subject = createOptions.createSubject(options.value);
         const result = options.type === 'fromJson'
-            ? typeHandler.parse(subject)
-            : typeHandler.toPlainJson(Object.assign(new createOptions.class(), subject));
+            ? typeHandler.parsePlain(subject)
+            : typeHandler.toPlain(Object.assign(new createOptions.class(), subject));
 
         Object.keys(subject).forEach(key => {
             t.is(result[key], options.value);

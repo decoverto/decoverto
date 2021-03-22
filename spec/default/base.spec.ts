@@ -7,14 +7,14 @@ import {Everything} from '../utils/everything';
 const decoratedJson = new DecoratedJson();
 
 test('quoted builtins should parse', t => {
-    t.is(decoratedJson.type(String).parse('"str"'), 'str');
-    t.is(decoratedJson.type(Number).parse('45834'), 45834);
-    t.is(decoratedJson.type(Boolean).parse('true'), true);
+    t.is(decoratedJson.type(String).parseJson('"str"'), 'str');
+    t.is(decoratedJson.type(Number).parseJson('45834'), 45834);
+    t.is(decoratedJson.type(Boolean).parseJson('true'), true);
 
     const dataBuffer = Uint8Array.from([100, 117, 112, 97]) as any;
-    t.deepEqual(decoratedJson.type(ArrayBuffer).parse('"畤慰"'), dataBuffer.buffer);
-    t.deepEqual(decoratedJson.type(DataView).parse('"畤慰"'), new DataView(dataBuffer.buffer));
-    t.deepEqual(decoratedJson.type(Uint8Array).parse('[100,117,112,97]'), dataBuffer);
+    t.deepEqual(decoratedJson.type(ArrayBuffer).parseJson('"畤慰"'), dataBuffer.buffer);
+    t.deepEqual(decoratedJson.type(DataView).parseJson('"畤慰"'), new DataView(dataBuffer.buffer));
+    t.deepEqual(decoratedJson.type(Uint8Array).parseJson('[100,117,112,97]'), dataBuffer);
 });
 
 test('quoted builtins should convert to JSON', t => {
@@ -49,7 +49,7 @@ class Person {
 test('Converting a single class from JSON should succeed', t => {
     const result = decoratedJson
         .type(Person)
-        .parse('{ "firstName": "John", "lastName": "Doe" }');
+        .parseJson('{ "firstName": "John", "lastName": "Doe" }');
     t.true(result instanceof Person);
     t.not(result.getFullName.bind(result), undefined);
     t.is(result.getFullName(), 'John Doe');
@@ -67,7 +67,7 @@ test('Single class converted to JSON should contain all data', t => {
 
 test('All basic types should be able to be converted from json', t => {
     const everything = Everything.create();
-    const object = decoratedJson.type(Everything).parse(JSON.stringify(everything));
+    const object = decoratedJson.type(Everything).parseJson(JSON.stringify(everything));
     t.deepEqual(object, Everything.expected());
 });
 
@@ -96,7 +96,7 @@ test('class with defaults in property expression should use defaults', t => {
         present: number = 10;
     }
 
-    const parsed = decoratedJson.type(WithDefaults).parse('{"present":5}');
+    const parsed = decoratedJson.type(WithDefaults).parseJson('{"present":5}');
     const expected = new WithDefaults();
     expected.present = 5;
     t.deepEqual(parsed, expected);
@@ -129,7 +129,7 @@ test('class with defaults in constructors should use defaults', t => {
         }
     }
 
-    const parsed = decoratedJson.type(WithCtr).parse('{"present":5}');
+    const parsed = decoratedJson.type(WithCtr).parseJson('{"present":5}');
     const expected = new WithCtr();
     expected.present = 5;
     t.deepEqual(parsed, expected);
@@ -173,7 +173,7 @@ test('toJson should work for class with getters and setters', t => {
 });
 
 test('should parse from JSON', t => {
-    const parsed = decoratedJson.type(SomeClass).parse(
+    const parsed = decoratedJson.type(SomeClass).parseJson(
         '{"prop":"other value","setterOnly":"ok"}',
     );
 
@@ -194,7 +194,7 @@ class Child extends JustForOrganizationalPurpose {
 
 test('Converting a class which extends an unannotated base class should succeed', t => {
     t.is(decoratedJson.type(Child).stringify(new Child()), '{}');
-    t.deepEqual(decoratedJson.type(Child).parse('{}'), new Child());
+    t.deepEqual(decoratedJson.type(Child).parseJson('{}'), new Child());
 });
 
 test('Creating a type handler for an object without prototype should error', t => {
@@ -212,7 +212,7 @@ should fail`, t => {
             type: JustForOrganizationalPurpose,
         }),
     });
-    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).parse('{}'), {
+    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).parseJson('{}'), {
         message: getDiagnostic('unknownTypeCreatingTypeHandler', {
             type: JustForOrganizationalPurpose,
         }),

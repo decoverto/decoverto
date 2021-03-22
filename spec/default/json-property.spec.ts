@@ -111,7 +111,7 @@ class NameDifferenceSpec {
 }
 
 test('Difference in naming between class property and json should be handled by fromJson', t => {
-    const result = new DecoratedJson().type(NameDifferenceSpec).parse({
+    const result = new DecoratedJson().type(NameDifferenceSpec).parsePlain({
         jsonProperty: 'hello',
     });
     t.is(result.classProperty, 'hello');
@@ -121,7 +121,7 @@ test('Difference in naming between class property and json should be handled by 
 test('Difference in naming between class property and json should be handled by toJson', t => {
     const testSubject = new NameDifferenceSpec();
     testSubject.classProperty = 'hello';
-    const result = new DecoratedJson().type(NameDifferenceSpec).toPlainJson(testSubject);
+    const result = new DecoratedJson().type(NameDifferenceSpec).toPlain(testSubject);
     t.is(result.jsonProperty, 'hello');
     t.is(result.classProperty, undefined);
 });

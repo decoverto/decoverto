@@ -27,7 +27,7 @@ function`, t => {
 
 test('Converting @jsonProperty({toJson: ...}) to JSON should not affect fromJson', t => {
     t.deepEqual(
-        decoratedJson.type(Person).parse('{"firstName":"name","lastName":"last"}'),
+        decoratedJson.type(Person).parseJson('{"firstName":"name","lastName":"last"}'),
         Object.assign(new Person(), {firstName: 'name', lastName: 'last'}),
     );
 });
@@ -42,7 +42,7 @@ function`, t => {
         }
 
         const typeHandler = decoratedJson.type(ToJsonComplexType);
-        t.true(typeHandler.toPlainJson(new ToJsonComplexType()).complex);
+        t.true(typeHandler.toPlain(new ToJsonComplexType()).complex);
     });
 });
 
@@ -70,7 +70,7 @@ function', t => {
 test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
 toJson`, t => {
     t.deepEqual(
-        decoratedJson.type(ArrayToJsonTest).parse('{"nums":[4,5,6,7],"str":"string"}'),
+        decoratedJson.type(ArrayToJsonTest).parseJson('{"nums":[4,5,6,7],"str":"string"}'),
         Object.assign(new ArrayToJsonTest(), {nums: [4, 5, 6, 7], str: 'string'}),
     );
 });
@@ -90,7 +90,7 @@ test('Converting @jsonProperty(array(() => Class), {toJson: function}) should su
     }
 
     function objArrayToJson(values: Array<Inner>) {
-        return decoratedJson.type(Inner).toPlainArray(
+        return decoratedJson.type(Inner).arrayToPlain(
             values.filter(value => value.shouldConvertToJson),
         );
     }

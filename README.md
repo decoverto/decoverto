@@ -53,7 +53,11 @@ const typeHandler = decoratedJson.type(MyDataClass);
 const instance = new MyDataClass();
 
 const json = typeHandler.stringify(instance);
-const instance2 = typeHandler.parse(json);
+const instance2 = typeHandler.parsePlain({
+    prop1: 10,
+    prop2: 'string',
+});
+const instance3 = typeHandler.parseJson('{"prop1": 10, "prop2": "string"}');
 
 instance2 instanceof MyDataClass; // true
 ```
@@ -114,7 +118,7 @@ class MappedTypes {
     money: Decimal;
 }
 
-const result = decoratedJson.type(MappedTypes).parse({
+const result = decoratedJson.type(MappedTypes).parsePlain({
     cryptoKey: '1234567890123456789',
     money: '12345.67',
 });
@@ -211,9 +215,9 @@ Without ReflectDecorators, `@jsonProperty` requires an additional type argument,
 
 ### Using js objects instead of strings
 
-Sometimes instead of stringifying data you might want to get a normal javascript object. This can be especially useful when working with a framework like angular which does the stringification for you or when you want to stringify using a different library then a builtin `JSON.stringify`.
+Instead of stringifying data you might want to get a normal javascript object literal. This can be especially useful when working with a framework like Angular which handles parsing and stringification for you.
 
-To do that DecoratedJSON exposes `toPlainJson` and friends. The return value is the one that is normally passed to stringification. For conversion from JSON; all `parse` methods apart from strings also accept javascript objects.
+To achieve this, DecoratedJSON exposes `toPlain` and friends. These methods return the _plain form_ of the object as it is before it would be passed to stringification. The _plain form_ can also be turned back into instances of the type using the `parsePlain` methods.
 
 ### Options
 

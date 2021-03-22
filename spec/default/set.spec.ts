@@ -28,7 +28,7 @@ class Simple {
 }
 
 test('Set of objects parses an empty set', t => {
-    const result = decoratedJson.type(Simple).parseSet('[]');
+    const result = decoratedJson.type(Simple).parseJsonAsSet('[]');
     t.not(result, undefined);
     t.is(result.size, 0);
 });
@@ -45,7 +45,7 @@ test('Set of objects parsed should be of proper type', t => {
         {strProp: 'gamma', numProp: 0},
     ];
 
-    const result = decoratedJson.type(Simple).parseSet(JSON.stringify(expectation));
+    const result = decoratedJson.type(Simple).parseJsonAsSet(JSON.stringify(expectation));
 
     t.is(result.size, 3, 'Parsed set is of wrong size');
     result.forEach(obj => {
@@ -68,7 +68,7 @@ test('Set of objects stringified should contain all elements', t => {
 });
 
 test('An error should occur on fromJson with a non-array', t => {
-    t.throws(() => decoratedJson.type(Simple).parseSet(false as any), {
+    t.throws(() => decoratedJson.type(Simple).parsePlainAsSet(false as any), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Boolean',
             expectedType: 'Array<Simple>',
@@ -78,7 +78,7 @@ test('An error should occur on fromJson with a non-array', t => {
 });
 
 test('An error should occur on toJson with a non-Set', t => {
-    t.throws(() => decoratedJson.type(Simple).toPlainSet([] as any), {
+    t.throws(() => decoratedJson.type(Simple).setToPlain([] as any), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Array',
             expectedType: 'Set<Simple>',
@@ -124,7 +124,7 @@ test('@jsonProperty(set(...))', passThroughMacro, {
 
 test('@jsonProperty(set(...)) should convert from JSON', t => {
     const object = {prop: [Everything.create(), Everything.create()]};
-    const result = decoratedJson.type(WithSet).parse(JSON.stringify(object));
+    const result = decoratedJson.type(WithSet).parseJson(JSON.stringify(object));
 
     t.true(result instanceof WithSet);
     t.not(result.prop, undefined);
@@ -153,7 +153,7 @@ class WithSetArray {
 }
 
 test('@jsonProperty(set(array(...))) should convert from JSON', t => {
-    const result = decoratedJson.type(WithSetArray).parse(
+    const result = decoratedJson.type(WithSetArray).parseJson(
         JSON.stringify(
             {
                 prop: [
@@ -234,7 +234,7 @@ class SetPropertyAny {
 
 test('@jsonProperty(set(Any)) should parse simple object correctly', t => {
     const foo = {foo: 'bar'};
-    const result = decoratedJson.type(SetPropertyAny).parse({
+    const result = decoratedJson.type(SetPropertyAny).parsePlain({
         any: [foo, foo],
         anyNullable: [foo, foo],
     });
@@ -248,7 +248,7 @@ test('@jsonProperty(set(Any)) should parse simple object correctly', t => {
 
 test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
-    const result = decoratedJson.type(SetPropertyAny).parse({
+    const result = decoratedJson.type(SetPropertyAny).parsePlain({
         any: [foo, foo],
         anyNullable: [foo, foo],
     });
@@ -263,7 +263,7 @@ test('@jsonProperty(set(Any)) should convert with referential equality', t => {
     const setPropertyAny = new SetPropertyAny();
     setPropertyAny.any = new Set([foo, foo]);
     setPropertyAny.anyNullable = new Set([foo, foo]);
-    const result = decoratedJson.type(SetPropertyAny).toPlainJson(setPropertyAny);
+    const result = decoratedJson.type(SetPropertyAny).toPlain(setPropertyAny);
     t.is(result.any.values().next().value, foo);
     t.is(result.anyNullable.values().next().value, foo);
 });

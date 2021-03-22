@@ -11,14 +11,14 @@ class NullTest {
 }
 
 test('null should be preserved while converting from JSON', t => {
-    const obj = decoratedJson.type(NullTest).parse({name: null});
+    const obj = decoratedJson.type(NullTest).parsePlain({name: null});
     t.is(obj.name, null);
 });
 
 test('null should be preserved while converting to JSON', t => {
     const input = new NullTest();
     input.name = null;
-    const json = decoratedJson.type(NullTest).toPlainJson(input);
+    const json = decoratedJson.type(NullTest).toPlain(input);
     t.deepEqual(json, {name: null});
 });
 
@@ -29,7 +29,7 @@ class UndefinedTest {
 }
 
 test('Undefined should not be assigned while converting from JSON', t => {
-    const obj = decoratedJson.type(UndefinedTest).parse({name: undefined});
+    const obj = decoratedJson.type(UndefinedTest).parsePlain({name: undefined});
     t.true(obj instanceof UndefinedTest);
     t.false(Object.prototype.hasOwnProperty.call(obj, 'name'));
 });
@@ -37,6 +37,6 @@ test('Undefined should not be assigned while converting from JSON', t => {
 test('Undefined should not be assigned while converting to JSON', t => {
     const input = new UndefinedTest();
     input.name = undefined;
-    const json = decoratedJson.type(UndefinedTest).toPlainJson(input);
+    const json = decoratedJson.type(UndefinedTest).toPlain(input);
     t.deepEqual(json, {});
 });

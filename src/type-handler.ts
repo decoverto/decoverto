@@ -3,12 +3,11 @@ import {ConcreteConverter} from './converters/concrete.converter';
 import {Converter} from './converters/converter';
 import {SetConverter} from './converters/set.converter';
 import {getDiagnostic} from './diagnostics';
-import {shouldOmitParseString} from './helpers';
 import {JsonHandler} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
 import {Serializable} from './types';
 
-export type ToPlainResult<T> =
+export type Plain<T> =
     T extends Record<string, unknown>
         ? {[k in keyof T]?: T[k]} | {[k: string]: any}
         : any;
@@ -59,68 +58,119 @@ export class TypeHandler<RootType> {
     }
 
     /**
-     * Converts a JSON string to the root class type.
-     * @param object The JSON to parse and convert.
+     * Converts a JSON string to an instance of RootType.
+     * @example
+     * handler.parse('"foo"');
+     * @example
+     * type(String).parse('{"bar": "foo"}');
      */
-    parse(object: any): RootType {
-        const json = this.toJsonObject(object, this.rootConstructor);
-        return this.toObjectSingleValue(json, this.rootConverter);
-    }
-
-    parseArray(object: Array<any> | string): Array<RootType> {
-        const json = this.toJsonObject(object, Array);
-        return this.toObjectSingleValue(json, new ArrayConverter(this.rootConverter));
-    }
-
-    parseSet(object: Array<any> | string): Set<RootType> {
-        const json = this.toJsonObject(object, Set);
-        return this.toObjectSingleValue(json, new SetConverter(this.rootConverter));
+    parseJson(string: string): RootType {
+        return this.parsePlain(this.settings.jsonHandler.parse(string));
     }
 
     /**
-     * Converts an instance of the specified class type to a plain JSON object.
+     * Converts a JSON string to an array of RootType instances.
+     * @example
+     * type(String).parseJsonAsArray('["foo", "bar"]');
      */
-    toPlainJson(object: RootType): ToPlainResult<RootType> {
+    parseJsonAsArray(array: string): Array<RootType> {
+        return this.parsePlainAsArray(this.settings.jsonHandler.parse(array));
+    }
+
+    /**
+     * Converts a JSON string to a set of RootType instances.
+     * @example
+     * type(String).parseJsonAsSet('["foo", "bar"]');
+     */
+    parseJsonAsSet(array: string): Set<RootType> {
+        return this.parsePlainAsSet(this.settings.jsonHandler.parse(array));
+    }
+
+    /**
+     * Converts the plain form of RootType to an instance.
+     * @example
+     * handler.parsePlain({foo: 'bar'});
+     * @example
+     * type(String).parsePlain('string');
+     */
+    parsePlain(value: any): RootType {
+        return this.toObjectSingleValue(value, this.rootConverter);
+    }
+
+    /**
+     * Converts an array of plain forms of RootType to an array of instances.
+     * @example
+     * handler.parsePlainAsArray([{foo: 'bar'}]);
+     * @example
+     * type(String).parsePlainAsArray(['string']);
+     */
+    parsePlainAsArray(array: Array<any>): Array<RootType> {
+        return this.toObjectSingleValue(array, new ArrayConverter(this.rootConverter));
+    }
+
+    /**
+     * Converts an array of plain forms of RootType to a set of instances.
+     * @example
+     * handler.parsePlainAsSet([{foo: 'bar'}]);
+     * @example
+     * type(String).parsePlainAsSet(['string']);
+     */
+    parsePlainAsSet(array: Array<any>): Set<RootType> {
+        return this.toObjectSingleValue(array, new SetConverter(this.rootConverter));
+    }
+
+    /**
+     * Converts an instance of RootType to a JSON string.
+     * @example
+     * handler.stringify(example); // '{"foo": "bar"}'
+     */
+    stringify(object: RootType): string {
+        return this.settings.jsonHandler.stringify(this.toPlain(object));
+    }
+
+    /**
+     * Converts an array of RootType instances to a JSON string.
+     * @example
+     * handler.stringifyArray([example]); // '[{"foo": "bar"}]'
+     */
+    stringifyArray(object: Array<RootType>): string {
+        return this.settings.jsonHandler.stringify(this.arrayToPlain(object));
+    }
+
+    /**
+     * Converts a set of RootType instances to a JSON string.
+     * @example
+     * handler.stringifySet(new Set([example])); // '[{"foo": "bar"}]
+     */
+    stringifySet(object: Set<RootType>): string {
+        return this.settings.jsonHandler.stringify(this.setToPlain(object));
+    }
+
+    /**
+     * Converts an instance of RootType to its plain form.
+     * @example
+     * handler.toPlain(example); // {foo: 'bar'}
+     */
+    toPlain(object: RootType): Plain<RootType> {
         return this.toJsonSingleValue(object, this.rootConverter);
     }
 
-    toPlainArray(object: Array<RootType>): Array<ToPlainResult<RootType>> {
+    /**
+     * Converts an array of RootType to an array of its plain form.
+     * @example
+     * handler.arrayToPlain([example]); // [{foo: 'bar'}]
+     */
+    arrayToPlain(object: Array<RootType>): Array<Plain<RootType>> {
         return this.toJsonSingleValue(object, new ArrayConverter(this.rootConverter));
     }
 
-    toPlainSet(object: Set<RootType>): Array<ToPlainResult<RootType>> {
+    /**
+     * Converts a set of RootType to an array of its plain form.
+     * @example
+     * handler.arrayToPlain(new Set([example])); // [{foo: 'bar'}]
+     */
+    setToPlain(object: Set<RootType>): Array<Plain<RootType>> {
         return this.toJsonSingleValue(object, new SetConverter(this.rootConverter));
-    }
-
-    /**
-     * Converts an instance of the specified class type to a JSON string.
-     * @param object The instance to convert to a JSON string.
-     */
-    stringify(object: RootType): string {
-        const result = this.toPlainJson(object);
-
-        return this.settings.jsonHandler.stringify(result);
-    }
-
-    stringifyArray(object: Array<RootType>): string {
-        return this.settings.jsonHandler.stringify(this.toPlainArray(object));
-    }
-
-    stringifySet(object: Set<RootType>): string {
-        return this.settings.jsonHandler.stringify(this.toPlainSet(object));
-    }
-
-    /**
-     * Turn the given value into a JSON object. If the value is already an object, it will be
-     * returned unchanged.
-     * @internal
-     */
-    toJsonObject<T>(json: any, expectedType: Serializable<T>): any {
-        if (typeof json !== 'string' || shouldOmitParseString(json, expectedType)) {
-            return json;
-        }
-
-        return this.settings.jsonHandler.parse(json);
     }
 
     private toJsonSingleValue(object: any, converter: Converter) {

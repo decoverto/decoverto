@@ -108,7 +108,7 @@ interface ToJsonMacro {
 
 const fromJsonMacro: Macro<[FromJsonMacro]> = (t, options) => {
     const {expected, subject} = options;
-    const result = decoratedJson.type(TypedArraySpec).parse(subject);
+    const result = decoratedJson.type(TypedArraySpec).parsePlain(subject);
     const testProperty = (constructor: Constructor<any>, property: TypedArraySpecProperties) => {
         const actualValue = result[property];
         const expectedValue = expected[property];
@@ -143,7 +143,7 @@ const toJsonMacro: Macro<[ToJsonMacro]> = (t, options) => {
     });
 
     const subject = Object.assign(new TypedArraySpec(), subjectValues);
-    const actual = decoratedJson.type(TypedArraySpec).toPlainJson(subject);
+    const actual = decoratedJson.type(TypedArraySpec).toPlain(subject);
     t.deepEqual(actual, expected);
 };
 
@@ -252,7 +252,7 @@ const fromJsonNotAnArrayError: Macro<[keyof TypedArraySpec]> = (t, property) => 
     const typeHandler = decoratedJson.type(TypedArraySpec);
 
     invalidValues.forEach(invalidValue => {
-        t.throws(() => typeHandler.parse({[property]: invalidValue}), {
+        t.throws(() => typeHandler.parsePlain({[property]: invalidValue}), {
             message: getDiagnostic('invalidValueError', {
                 path: `${TypedArraySpec.name}.${property}`,
                 actualType: invalidValue.constructor.name,
@@ -341,7 +341,7 @@ const fromJsonAndBackShouldEqualMacro: Macro<[TypedArrayObjectData]> = (t, data)
         expected[property] = new constructor(data[property]);
     });
     const typeHandler = decoratedJson.type(TypedArraySpec);
-    const actual = typeHandler.parse(typeHandler.stringify(expected));
+    const actual = typeHandler.parseJson(typeHandler.stringify(expected));
     const humanReadableActual = actual.convertToHumanReadable();
     const humanReadableExpected = expected.convertToHumanReadable();
 

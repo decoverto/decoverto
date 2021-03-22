@@ -56,7 +56,7 @@ const mapTypeHandler = decoratedJson.type(DeferredMap);
 const setTypeHandler = decoratedJson.type(DeferredSet);
 
 test('Converting a simple object with a not yet defined type from JSON should succeed', t => {
-    const result = simpleTypeHandler.parse({
+    const result = simpleTypeHandler.parsePlain({
         deferred: {
             name: 'hello',
         },
@@ -70,13 +70,13 @@ test('Converting a simple object with a not yet defined type to JSON should succ
     const root = new DeferredSimple();
     root.deferred = new Deferred();
     root.deferred.name = 'hello';
-    const result = simpleTypeHandler.toPlainJson(root);
+    const result = simpleTypeHandler.toPlain(root);
 
     t.is(result.deferred.name, 'hello');
 });
 
 test('Converting an array of objects with a not yet defined type from JSON should succeed', t => {
-    const result = arrayTypeHandler.parse({
+    const result = arrayTypeHandler.parsePlain({
         deferred: [{name: 'hello'}],
     });
 
@@ -90,14 +90,14 @@ test('Converting an array of objects with a not yet defined type to JSON should 
     const deferred = new Deferred();
     deferred.name = 'hello';
     root.deferred = [deferred];
-    const result = arrayTypeHandler.toPlainJson(root);
+    const result = arrayTypeHandler.toPlain(root);
 
     t.is(result.deferred.length, 1);
     t.is(result.deferred[0].name, 'hello');
 });
 
 test('Converting a map with a not yet defined value type from JSON should succeed', t => {
-    const result = mapTypeHandler.parse({
+    const result = mapTypeHandler.parsePlain({
         deferred: [{key: 'key', value: {name: 'hello'}}],
     });
 
@@ -112,7 +112,7 @@ test('Converting a map with a not yet defined value type to JSON should succeed'
     const deferred = new Deferred();
     deferred.name = 'hello';
     root.deferred = new Map<string, Deferred>([['key', deferred]]);
-    const result = mapTypeHandler.toPlainJson(root);
+    const result = mapTypeHandler.toPlain(root);
 
     t.is(result.deferred.length, 1);
     t.is(result.deferred[0].key, 'key');
@@ -120,7 +120,7 @@ test('Converting a map with a not yet defined value type to JSON should succeed'
 });
 
 test('Converting a set of objects with a not yet defined type from JSON should succeed', t => {
-    const result = setTypeHandler.parse({
+    const result = setTypeHandler.parsePlain({
         deferred: [{name: 'hello'}],
     });
 
@@ -135,14 +135,14 @@ test('Converting a set of objects with a not yet defined type to JSON should suc
     const deferred = new Deferred();
     deferred.name = 'hello';
     root.deferred = new Set([deferred]);
-    const result = setTypeHandler.toPlainJson(root);
+    const result = setTypeHandler.toPlain(root);
 
     t.is(result.deferred.length, 1);
     t.is(result.deferred[0].name, 'hello');
 });
 
 test('Conversion should succeed on circular models in separate files', t => {
-    const result = decoratedJson.type(A).parse({
+    const result = decoratedJson.type(A).parsePlain({
         b: {
             a: {
                 b: {

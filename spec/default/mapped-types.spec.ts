@@ -53,7 +53,7 @@ test.beforeEach(t => {
 
 test('Mapped types are used when converting from JSON', t => {
     t.context.decoratedJson.converterMap.set(CustomType, new CustomConverter());
-    const result = t.context.decoratedJson.type(MappedTypesSpec).parse({property: 1});
+    const result = t.context.decoratedJson.type(MappedTypesSpec).parsePlain({property: 1});
 
     t.true(result.property instanceof CustomType);
     t.is(result.property.value, 1);
@@ -63,7 +63,7 @@ test('Mapped types are used when converting to JSON', t => {
     t.context.decoratedJson.converterMap.set(CustomType, new CustomConverter());
     const testSubject = new MappedTypesSpec();
     testSubject.property = new CustomType(1);
-    const result = t.context.decoratedJson.type(MappedTypesSpec).toPlainJson(testSubject);
+    const result = t.context.decoratedJson.type(MappedTypesSpec).toPlain(testSubject);
 
     t.deepEqual(result, {property: 1});
 });
@@ -76,7 +76,7 @@ test('Mapped types are used when value is null', t => {
 
     const fromJsonResult = t.context.decoratedJson
         .type(MappedTypesSpec)
-        .parse({property: null});
+        .parsePlain({property: null});
     t.true(fromJsonResult.property instanceof CustomType);
     t.is(fromJsonResult.property.value, null);
     t.is(fromJsonSpy.callCount, 1);
@@ -85,7 +85,7 @@ test('Mapped types are used when value is null', t => {
     toJsonSubject.property = new CustomType(null);
     const toJsonResult = t.context.decoratedJson
         .type(MappedTypesSpec)
-        .toPlainJson(toJsonSubject);
+        .toPlain(toJsonSubject);
     t.is(toJsonResult.property, null);
     t.is(toJsonSpy.callCount, 1);
     t.is(fromJsonSpy.callCount, 1);
@@ -106,7 +106,7 @@ test('Mapped types are used when value is undefined', t => {
 
     const fromJsonResult = t.context.decoratedJson
         .type(MappedTypUndefinedSpec)
-        .parse({property: undefined});
+        .parsePlain({property: undefined});
     t.true(fromJsonResult.property instanceof CustomType);
     t.is(fromJsonResult.property.value, undefined);
     t.is(fromJsonSpy.callCount, 1);
@@ -115,7 +115,7 @@ test('Mapped types are used when value is undefined', t => {
     toJsonSubject.property = new CustomType(undefined);
     const toJsonResult = t.context.decoratedJson
         .type(MappedTypUndefinedSpec)
-        .toPlainJson(toJsonSubject);
+        .toPlain(toJsonSubject);
     t.is(toJsonResult.property, undefined);
     t.is(toJsonSpy.callCount, 1);
     t.is(fromJsonSpy.callCount, 1);
@@ -146,7 +146,7 @@ test('Mapped types can be overwritten with fromJson/toJson property on @jsonProp
 
     const overriddenTypeHandler = t.context.decoratedJson.type(OverriddenConverters);
 
-    const parsed = overriddenTypeHandler.parse({data: 5, simple: 5});
+    const parsed = overriddenTypeHandler.parsePlain({data: 5, simple: 5});
     t.is(customConverterFromJson.callCount, 1);
     t.is(customConverterToJson.callCount, 0);
     t.is(jsonPropertyOptionsFromJson.callCount, 1);
@@ -154,7 +154,7 @@ test('Mapped types can be overwritten with fromJson/toJson property on @jsonProp
     t.is(parsed.overwritten.value, 0);
     t.is(parsed.simple.value, 5);
 
-    const plain = overriddenTypeHandler.toPlainJson(parsed);
+    const plain = overriddenTypeHandler.toPlain(parsed);
     t.is(customConverterFromJson.callCount, 1);
     t.is(customConverterToJson.callCount, 1);
     t.is(jsonPropertyOptionsFromJson.callCount, 1);
@@ -177,11 +177,11 @@ test('Mapped types work on array', t => {
 
     const customConverterToJson = sinon.spy(customConverter, 'toJson');
     const customConverterFromJson = sinon.spy(customConverter, 'fromJson');
-    const parsed = mappedTypeWithArrayHandler.parse({array: [1, 5]});
+    const parsed = mappedTypeWithArrayHandler.parsePlain({array: [1, 5]});
     t.is(customConverterFromJson.callCount, 2);
     t.deepEqual(parsed.array.map(c => c.value), [1, 5]);
 
-    const plain = mappedTypeWithArrayHandler.toPlainJson(parsed);
+    const plain = mappedTypeWithArrayHandler.toPlain(parsed);
     t.is(customConverterToJson.callCount, 2);
     t.deepEqual(plain.array, [1, 5]);
 });
@@ -198,5 +198,5 @@ test('Mapped types work on .type(String)', t => {
     }
 
     t.context.decoratedJson.converterMap.set(String, new StringConverterTest(String as any));
-    t.is(t.context.decoratedJson.type(String).parse('hmmm'), 'fromJson');
+    t.is(t.context.decoratedJson.type(String).parsePlain('hmmm'), 'fromJson');
 });
