@@ -1,9 +1,9 @@
 import test from 'ava';
 
-import {TypeDescriptor} from '../../src';
+import {Converter} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 
-export class ThrowTypeMismatchErrorSpec extends TypeDescriptor {
+export class ThrowTypeMismatchErrorSpec extends Converter {
     test(value: any) {
         this.throwTypeMismatchError({
             path: '',

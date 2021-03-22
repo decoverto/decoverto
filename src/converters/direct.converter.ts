@@ -1,11 +1,11 @@
-import {SimpleTypeDescriptor} from './simple.type-descriptor';
-import {ConversionContext} from './type-descriptor';
+import {ConversionContext} from './converter';
+import {SimpleConverter} from './simple.converter';
 
 /**
  * Passes types without modification for both fromJson and toJson but errors if the type of the
  * source does not match the expected type. E.g. a number was expected but a string received.
  */
-export class DirectTypeDescriptor extends SimpleTypeDescriptor {
+export class DirectConverter extends SimpleConverter {
 
     fromJson(context: ConversionContext<any>): any {
         this.errorOnTypeMismatch(context);

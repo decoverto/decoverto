@@ -282,6 +282,6 @@ test('Map with an array as value converts to JSON', t => {
 });
 
 test('Map friendly name is correct', t => {
-    const mapTypeDescriptor = map(() => String, () => Simple, {shape: MapShape.Array});
-    t.is(mapTypeDescriptor.getFriendlyName(), 'Map<String, Simple>');
+    const mapConverter = map(() => String, () => Simple, {shape: MapShape.Array});
+    t.is(mapConverter.getFriendlyName(), 'Map<String, Simple>');
 });

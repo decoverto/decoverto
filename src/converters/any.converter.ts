@@ -1,6 +1,6 @@
-import {ConversionContext, TypeDescriptor} from './type-descriptor';
+import {ConversionContext, Converter} from './converter';
 
-export class AnyTypeDescriptor extends TypeDescriptor {
+export class AnyConverter extends Converter {
 
     fromJson(params: ConversionContext<any>): any {
         return params.source;
@@ -15,4 +15,4 @@ export class AnyTypeDescriptor extends TypeDescriptor {
     }
 }
 
-export const Any = new AnyTypeDescriptor();
+export const Any = new AnyConverter();

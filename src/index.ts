@@ -8,12 +8,12 @@ export {
     InitializerCallback,
 } from './json-object';
 export {jsonProperty, JsonPropertyOptions} from './json-property';
-export * from './type-descriptor/any.type-descriptor';
-export * from './type-descriptor/array.type-descriptor';
-export * from './type-descriptor/concrete.type-descriptor';
-export * from './type-descriptor/list.type-descriptor';
-export * from './type-descriptor/map.type-descriptor';
-export * from './type-descriptor/set.type-descriptor';
-export * from './type-descriptor/simple.type-descriptor';
-export * from './type-descriptor/type-descriptor';
+export * from './converters/any.converter';
+export * from './converters/array.converter';
+export * from './converters/concrete.converter';
+export * from './converters/list.converter';
+export * from './converters/map.converter';
+export * from './converters/set.converter';
+export * from './converters/simple.converter';
+export * from './converters/converter';
 export * from './types';

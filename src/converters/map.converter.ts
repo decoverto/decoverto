@@ -1,10 +1,10 @@
 import {isObject} from '../helpers';
 import {
     ConversionContext,
-    TypeDescriptor,
+    Converter,
     Typelike,
-} from './type-descriptor';
-import {ensureTypeDescriptor} from './type-descriptor.utils';
+} from './converter';
+import {toConverter} from './converter.utils';
 
 export const enum MapShape {
     /**
@@ -49,14 +49,14 @@ export type MapJson =
     | Record<string, any> | null | undefined
 ;
 
-export class MapTypeDescriptor<Key extends Object, Value extends Object>
-    extends TypeDescriptor<Map<Key, Value> | null | undefined, MapJson> {
+export class MapConverter<Key extends Object, Value extends Object>
+    extends Converter<Map<Key, Value> | null | undefined, MapJson> {
 
     readonly shape: MapShape;
 
     constructor(
-        readonly keyType: TypeDescriptor<Key>,
-        readonly valueType: TypeDescriptor<Value>,
+        readonly keyType: Converter<Key>,
+        readonly valueType: Converter<Value>,
         readonly options: MapOptions,
     ) {
         super();
@@ -174,10 +174,10 @@ export function map<K, V>(
     keyType: Typelike<K>,
     valueType: Typelike<V>,
     options: MapOptions,
-): MapTypeDescriptor<K, V> {
-    return new MapTypeDescriptor(
-        ensureTypeDescriptor(keyType),
-        ensureTypeDescriptor(valueType),
+): MapConverter<K, V> {
+    return new MapConverter(
+        toConverter(keyType),
+        toConverter(valueType),
         options,
     );
 }

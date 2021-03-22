@@ -1,9 +1,9 @@
 import {InvalidValueError} from '../errors/invalid-value.error';
-import {SimpleTypeDescriptor} from './simple.type-descriptor';
-import {ConversionContext} from './type-descriptor';
+import {ConversionContext} from './converter';
+import {SimpleConverter} from './simple.converter';
 
-export class DateTypeDescriptor
-    extends SimpleTypeDescriptor<Date | string | number, Date | null | undefined> {
+export class DateConverter
+    extends SimpleConverter<Date | string | number, Date | null | undefined> {
 
     constructor() {
         super(Date);

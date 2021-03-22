@@ -1,12 +1,12 @@
-import {ListTypeDescriptor} from './list.type-descriptor';
 import {
     ConversionContext,
     Typelike,
-} from './type-descriptor';
-import {ensureTypeDescriptor} from './type-descriptor.utils';
+} from './converter';
+import {toConverter} from './converter.utils';
+import {ListConverter} from './list.converter';
 
-export class ArrayTypeDescriptor<Class extends Object>
-    extends ListTypeDescriptor<
+export class ArrayConverter<Class extends Object>
+    extends ListConverter<
         Array<Class | null | undefined> | null | undefined,
         Class | null | undefined
     > {
@@ -70,6 +70,6 @@ export class ArrayTypeDescriptor<Class extends Object>
     }
 }
 
-export function array<T>(elementType: Typelike<T>): ArrayTypeDescriptor<T> {
-    return new ArrayTypeDescriptor(ensureTypeDescriptor(elementType));
+export function array<T>(elementType: Typelike<T>): ArrayConverter<T> {
+    return new ArrayConverter(toConverter(elementType));
 }

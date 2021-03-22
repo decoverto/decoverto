@@ -1,17 +1,17 @@
+import {ConcreteConverter} from './converters/concrete.converter';
+import {
+    Converter,
+    isTypeLike,
+    Typelike,
+    TypeThunk,
+} from './converters/converter';
+import {toConverter} from './converters/converter.utils';
 import {getDiagnostic} from './diagnostics';
 import {
     isReflectMetadataSupported,
 } from './helpers';
 import {injectMetadataInformation} from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
-import {ConcreteTypeDescriptor} from './type-descriptor/concrete.type-descriptor';
-import {
-    isTypeLike,
-    TypeDescriptor,
-    Typelike,
-    TypeThunk,
-} from './type-descriptor/type-descriptor';
-import {ensureTypeDescriptor} from './type-descriptor/type-descriptor.utils';
 import {Constructor} from './types';
 
 declare abstract class Reflect {
@@ -48,7 +48,7 @@ export function jsonProperty(options: JsonPropertyOptions): PropertyDecorator;
  * extra options.
  */
 export function jsonProperty(
-    type?: TypeThunk | TypeDescriptor,
+    type?: TypeThunk | Converter,
     options?: JsonPropertyOptions,
 ): PropertyDecorator;
 
@@ -58,18 +58,18 @@ export function jsonProperty<T extends Function>(
 ): PropertyDecorator {
     return (target, property) => {
         const typeName = target.constructor.name;
-        let type: Typelike<any> | undefined;
+        let converter: Typelike<any> | undefined;
 
         if (isTypeLike(optionsOrType)) {
-            type = optionsOrType;
+            converter = optionsOrType;
         } else {
             options = optionsOrType;
         }
 
         options = options ?? {};
 
-        if (type !== undefined) {
-            type = ensureTypeDescriptor(type);
+        if (converter !== undefined) {
+            converter = toConverter(converter);
         } else if (options.fromJson != null && options.toJson != null) {
             // Do nothing
         } else if (isReflectMetadataSupported) {
@@ -93,7 +93,7 @@ export function jsonProperty<T extends Function>(
                 }));
             }
 
-            type = new ConcreteTypeDescriptor(reflectCtor);
+            converter = new ConcreteConverter(reflectCtor);
         } else {
             throw new Error(getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
                 typeName,
@@ -101,11 +101,11 @@ export function jsonProperty<T extends Function>(
             }));
         }
 
-        // TypeScript limitation, when the previous if statement has concluded, either `type` is
-        // defined or both converters are.
-        const conditionalOptions = type === undefined
+        // TypeScript limitation, when the previous if statement has concluded, either `converter`
+        // is defined or both overriding converters are.
+        const conditionalOptions = converter === undefined
             ? {fromJson: options.fromJson!, toJson: options.toJson!}
-            : {fromJson: options.fromJson, toJson: options.toJson, type};
+            : {converter, fromJson: options.fromJson, toJson: options.toJson};
 
         injectMetadataInformation(target, property, {
             ...conditionalOptions,

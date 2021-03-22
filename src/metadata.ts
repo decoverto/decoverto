@@ -1,7 +1,7 @@
+import {Converter} from './converters/converter';
 import {getDiagnostic} from './diagnostics';
 import {isJsonStringifyCompatible, isTypeTypedArray} from './helpers';
 import {OptionsBase} from './options-base';
-import {TypeDescriptor} from './type-descriptor/type-descriptor';
 import {Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decoratedJsonMetadata');
@@ -35,6 +35,8 @@ export interface JsonPropertyOnlyConvertersMetadata extends JsonPropertyMetadata
 
 export interface JsonPropertyOverridingConvertersMetadata extends JsonPropertyMetadataBase {
 
+    converter: Converter;
+
     /**
      * When set, this will override the default strategy used to convert values **from** JSON.
      */
@@ -44,8 +46,6 @@ export interface JsonPropertyOverridingConvertersMetadata extends JsonPropertyMe
      * When set, this will override the default strategy used to convert values **to** JSON.
      */
     toJson?: ((value: any) => any) | null;
-
-    type: TypeDescriptor;
 }
 
 export type JsonPropertyMetadata =

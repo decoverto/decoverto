@@ -1,12 +1,12 @@
-import {ListTypeDescriptor} from './list.type-descriptor';
 import {
     ConversionContext,
     Typelike,
-} from './type-descriptor';
-import {ensureTypeDescriptor} from './type-descriptor.utils';
+} from './converter';
+import {toConverter} from './converter.utils';
+import {ListConverter} from './list.converter';
 
-export class SetTypeDescriptor<Class extends Object>
-    extends ListTypeDescriptor<
+export class SetConverter<Class extends Object>
+    extends ListConverter<
         Set<Class | null | undefined> | null | undefined,
         Class | null | undefined
     > {
@@ -69,6 +69,6 @@ export class SetTypeDescriptor<Class extends Object>
     }
 }
 
-export function set<T>(elementType: Typelike<T>): SetTypeDescriptor<T> {
-    return new SetTypeDescriptor(ensureTypeDescriptor(elementType));
+export function set<T>(elementType: Typelike<T>): SetConverter<T> {
+    return new SetConverter(toConverter(elementType));
 }

@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {Any, AnyTypeDescriptor, array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Any, AnyConverter, array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
 import {createPassThroughMacro} from '../helpers/macros';
 
 const decoratedJson = new DecoratedJson();
@@ -104,5 +104,5 @@ test('Any should handle complex structures', t => {
 });
 
 test(`Any should have 'Any' as friendly name`, t => {
-    t.is(new AnyTypeDescriptor().getFriendlyName(), 'Any');
+    t.is(new AnyConverter().getFriendlyName(), 'Any');
 });

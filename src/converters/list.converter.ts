@@ -1,13 +1,13 @@
-import {ConversionContext, TypeDescriptor} from './type-descriptor';
+import {ConversionContext, Converter} from './converter';
 
 /**
  * Abstract class to be used for any type that is represented as an array in JSON. E.g. Array, Set.
  */
-export abstract class ListTypeDescriptor<ClassWrapper, Class, Json = any>
-    extends TypeDescriptor<ClassWrapper, Array<Json> | null | undefined> {
+export abstract class ListConverter<ClassWrapper, Class, Json = any>
+    extends Converter<ClassWrapper, Array<Json> | null | undefined> {
 
     constructor(
-        readonly type: TypeDescriptor<Class>,
+        readonly type: Converter<Class>,
     ) {
         super();
     }

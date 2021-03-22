@@ -8,14 +8,15 @@ import {
 } from '../metadata';
 import {mergeOptions} from '../options-base';
 import {Constructor} from '../types';
-import {SimpleTypeDescriptor} from './simple.type-descriptor';
-import {ConversionContext, TypeDescriptor} from './type-descriptor';
+import {ConversionContext, Converter} from './converter';
+import {SimpleConverter} from './simple.converter';
 
 /**
- * A concrete type descriptor converts instances of user defined classes.
+ * This converter is responsible for traversing objects and converting them and their
+ * properties.
  */
-export class ConcreteTypeDescriptor<Class extends Object = any>
-    extends SimpleTypeDescriptor<Class> {
+export class ConcreteConverter<Class extends Object = any>
+    extends SimpleConverter<Class> {
 
     fromJson(context: ConversionContext<any | null | undefined>): Class | null | undefined {
         const {source, path} = context;
@@ -62,7 +63,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                 const objMemberOptions = {};
 
                 const revivedValue = this.shouldUseType(objMemberMetadata, 'fromJson')
-                    ? objMemberMetadata.type.fromJson({
+                    ? objMemberMetadata.converter.fromJson({
                         ...context,
                         propertyOptions: objMemberOptions,
                         path: `${typeName}.${propKey}`,
@@ -91,7 +92,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
             const targetObject: Record<string, unknown> = {};
 
             Object.keys(source).forEach(sourceKey => {
-                targetObject[sourceKey] = new ConcreteTypeDescriptor(
+                targetObject[sourceKey] = new ConcreteConverter(
                     // @todo investigate any
                     (source[sourceKey] as any).constructor,
                 ).fromJson({
@@ -170,7 +171,7 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
                 const typeName = sourceMeta.classType.name;
                 const json = this.shouldUseType(objMemberMetadata, 'toJson')
-                    ? objMemberMetadata.type.toJson({
+                    ? objMemberMetadata.converter.toJson({
                         ...context,
                         path: `${typeName}.${propKey}`,
                         propertyOptions: objMemberOptions,
@@ -187,18 +188,18 @@ export class ConcreteTypeDescriptor<Class extends Object = any>
         return targetObject;
     }
 
-    private getConverter(context: ConversionContext<any>): TypeDescriptor | undefined {
-        return context.typeMap.get(this.type);
+    private getConverter(context: ConversionContext<any>): Converter | undefined {
+        return context.converterMap.get(this.type);
     }
 
     /**
-     * Returns true if the property should be converted using the TypeDescriptor rather than the
-     * converter. False otherwise.
+     * Returns true if the property should be converted using the mapped converter rather than the
+     * overriding converters. False otherwise.
      */
     private shouldUseType(
         metadata: JsonPropertyMetadata,
         method: 'fromJson' | 'toJson',
     ): metadata is JsonPropertyOverridingConvertersMetadata {
-        return 'type' in metadata && metadata[method] == null;
+        return 'converter' in metadata && metadata[method] == null;
     }
 }

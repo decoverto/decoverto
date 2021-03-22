@@ -1,11 +1,11 @@
+import {ArrayConverter} from './converters/array.converter';
+import {ConcreteConverter} from './converters/concrete.converter';
+import {Converter} from './converters/converter';
+import {SetConverter} from './converters/set.converter';
 import {getDiagnostic} from './diagnostics';
 import {shouldOmitParseString} from './helpers';
 import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
-import {ArrayTypeDescriptor} from './type-descriptor/array.type-descriptor';
-import {ConcreteTypeDescriptor} from './type-descriptor/concrete.type-descriptor';
-import {SetTypeDescriptor} from './type-descriptor/set.type-descriptor';
-import {TypeDescriptor} from './type-descriptor/type-descriptor';
 import {Serializable} from './types';
 
 export type ToPlainResult<T> =
@@ -17,9 +17,9 @@ export interface TypeHandlerSettings {
     jsonHandler: JsonHandler;
 
     /**
-     * Maps a type to its respective type descriptor.
+     * Maps a type to its respective converter.
      */
-    typeMap: Map<Serializable<any>, TypeDescriptor>;
+    converterMap: Map<Serializable<any>, Converter>;
 }
 
 /**
@@ -32,7 +32,7 @@ export type TypeHandlerSettingsInput =
 export class TypeHandler<RootType> {
 
     private settings!: TypeHandlerSettings;
-    private readonly rootTypeDescriptor: ConcreteTypeDescriptor;
+    private readonly rootConverter: ConcreteConverter;
 
     /**
      * Creates a new DecoratedJson instance to perform conversion to and from JSON for the given
@@ -44,7 +44,7 @@ export class TypeHandler<RootType> {
         private readonly rootConstructor: Serializable<RootType>,
         settings: TypeHandlerSettingsInput,
     ) {
-        this.rootTypeDescriptor = new ConcreteTypeDescriptor<RootType>(rootConstructor);
+        this.rootConverter = new ConcreteConverter<RootType>(rootConstructor);
         const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
 
         if (rootMetadata === undefined
@@ -61,7 +61,7 @@ export class TypeHandler<RootType> {
     configure(settings: TypeHandlerSettingsInput) {
         this.settings = {
             jsonHandler: settings.jsonHandler ?? new JsonHandlerSimple({}),
-            typeMap: settings.typeMap,
+            converterMap: settings.converterMap,
         };
     }
 
@@ -71,32 +71,32 @@ export class TypeHandler<RootType> {
      */
     parse(object: any): RootType {
         const json = this.toJsonObject(object, this.rootConstructor);
-        return this.toObjectSingleValue(json, this.rootTypeDescriptor);
+        return this.toObjectSingleValue(json, this.rootConverter);
     }
 
     parseArray(object: Array<any> | string): Array<RootType> {
         const json = this.toJsonObject(object, Array);
-        return this.toObjectSingleValue(json, new ArrayTypeDescriptor(this.rootTypeDescriptor));
+        return this.toObjectSingleValue(json, new ArrayConverter(this.rootConverter));
     }
 
     parseSet(object: Array<any> | string): Set<RootType> {
         const json = this.toJsonObject(object, Set);
-        return this.toObjectSingleValue(json, new SetTypeDescriptor(this.rootTypeDescriptor));
+        return this.toObjectSingleValue(json, new SetConverter(this.rootConverter));
     }
 
     /**
      * Converts an instance of the specified class type to a plain JSON object.
      */
     toPlainJson(object: RootType): ToPlainResult<RootType> {
-        return this.toJsonSingleValue(object, this.rootTypeDescriptor);
+        return this.toJsonSingleValue(object, this.rootConverter);
     }
 
     toPlainArray(object: Array<RootType>): Array<ToPlainResult<RootType>> {
-        return this.toJsonSingleValue(object, new ArrayTypeDescriptor(this.rootTypeDescriptor));
+        return this.toJsonSingleValue(object, new ArrayConverter(this.rootConverter));
     }
 
     toPlainSet(object: Set<RootType>): Array<ToPlainResult<RootType>> {
-        return this.toJsonSingleValue(object, new SetTypeDescriptor(this.rootTypeDescriptor));
+        return this.toJsonSingleValue(object, new SetConverter(this.rootConverter));
     }
 
     /**
@@ -130,19 +130,19 @@ export class TypeHandler<RootType> {
         return this.settings.jsonHandler.parse(json);
     }
 
-    private toJsonSingleValue(object: any, typeDescriptor: TypeDescriptor) {
-        return typeDescriptor.toJson({
+    private toJsonSingleValue(object: any, converter: Converter) {
+        return converter.toJson({
             path: '',
             source: object,
-            typeMap: this.settings.typeMap,
+            converterMap: this.settings.converterMap,
         });
     }
 
-    private toObjectSingleValue(object: any, typeDescriptor: TypeDescriptor) {
-        return typeDescriptor.fromJson({
+    private toObjectSingleValue(object: any, converter: Converter) {
+        return converter.fromJson({
             path: '',
             source: object,
-            typeMap: this.settings.typeMap,
+            converterMap: this.settings.converterMap,
         });
     }
 }

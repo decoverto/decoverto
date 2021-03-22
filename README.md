@@ -65,11 +65,11 @@ _Note: this example assumes you are using ReflectDecorators. Without it, `@jsonP
 At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. To tackle this use case, DecoratedJson allows mapping a type to a custom converter. Example:
 
 ```typescript
-import {ConversionContext, DecoratedJson, jsonObject, jsonProperty, SimpleTypeDescriptor} from 'decorated-json';
+import {ConversionContext, DecoratedJson, jsonObject, jsonProperty, SimpleConverter} from 'decorated-json';
 import * as Decimal from 'decimal.js'; // Or any other library your type originates from
 
 
-class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string | null | undefined> {
+class BigIntConverter extends SimpleConverter<bigint, string | null | undefined> {
 
     constructor() {
         super(BigInt);
@@ -84,7 +84,7 @@ class BigIntTypeDescriptor extends SimpleTypeDescriptor<bigint, string | null | 
     }
 }
 
-class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string | null | undefined> {
+class DecimalConverter extends SimpleConverter<Decimal, string | null | undefined> {
 
     constructor() {
         super(Decimal);
@@ -101,8 +101,8 @@ class DecimalTypeDescriptor extends SimpleTypeDescriptor<Decimal, string | null 
 
 const decoratedJson = new DecoratedJson();
 
-decoratedJson.typeMap.set(BigInt, new BigIntTypeDescriptor());
-decoratedJson.typeMap.set(Decimal, new DecimalTypeDescriptor());
+decoratedJson.converterMap.set(BigInt, new BigIntConverter());
+decoratedJson.converterMap.set(Decimal, new DecimalConverter());
 
 @jsonObject()
 class MappedTypes {
@@ -126,7 +126,7 @@ Do note that in order to prevent the values from being parsed as `Number`, losin
 
 ### Collections
 
-Creating collections such as `Array`, `Map`, an `Set` can be accomplished by their respective descriptors. Example:
+Creating collections such as `Array`, `Map`, an `Set` can be accomplished by their respective converters. Example:
 
 ```typescript
 import {jsonObject, array, map, set, MapShape} from 'decorated-json';

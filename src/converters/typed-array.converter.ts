@@ -1,5 +1,5 @@
-import {SimpleTypeDescriptor} from './simple.type-descriptor';
-import {ConversionContext} from './type-descriptor';
+import {ConversionContext} from './converter';
+import {SimpleConverter} from './simple.converter';
 
 export type TypedArray =
     | Float32Array
@@ -15,7 +15,7 @@ export type TypedArray =
 export type TypedArrayStrings = '+∞' | '-0' | '-∞' | 'NaN';
 export type TypedArrayItemJson = number | TypedArrayStrings;
 
-export class TypedArrayTypeDescriptor extends SimpleTypeDescriptor<TypedArray> {
+export class TypedArrayConverter extends SimpleConverter<TypedArray> {
 
     fromJson(context: ConversionContext<any | null>): TypedArray | null | undefined {
         if (context.source == null) {
