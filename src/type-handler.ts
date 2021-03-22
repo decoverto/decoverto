@@ -40,8 +40,8 @@ export class TypeHandler<RootType> {
         this.rootConverter = new ConcreteConverter<RootType>(rootConstructor);
         const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
 
-        if (rootMetadata === undefined
-            || (!rootMetadata.isExplicitlyMarked && !rootMetadata.isHandledWithoutAnnotation)) {
+        if (!settings.converterMap.has(this.rootConstructor)
+            && (rootMetadata === undefined || !rootMetadata.isExplicitlyMarked)) {
             throw new TypeError(getDiagnostic('missingJsonObjectDecorator', {
                 typeName: rootConstructor.name,
             }));

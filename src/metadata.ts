@@ -1,6 +1,5 @@
 import {Converter} from './converters/converter';
 import {getDiagnostic} from './diagnostics';
-import {isJsonStringifyCompatible, isTypeTypedArray} from './helpers';
 import {OptionsBase} from './options-base';
 import {Serializable} from './types';
 
@@ -63,12 +62,6 @@ export class JsonObjectMetadata {
      */
     isExplicitlyMarked: boolean = false;
 
-    /**
-     * Indicates whether this type is handled without annotation. This is usually
-     * used for the builtin types (except for Maps, Sets, and normal Arrays).
-     */
-    isHandledWithoutAnnotation: boolean = false;
-
     /** Name used to encode polymorphic type */
     name?: string | null;
 
@@ -92,23 +85,8 @@ export class JsonObjectMetadata {
             return;
         }
 
-        let metadata: JsonObjectMetadata | undefined;
         if (Object.prototype.hasOwnProperty.call(prototype, metadataFieldKey)) {
-            // The class prototype contains own jsonObject metadata
-            metadata = prototype[metadataFieldKey as any];
-        }
-
-        // Ignore implicitly added jsonObject (through jsonProperty)
-        if (metadata?.isExplicitlyMarked === true) {
-            return metadata;
-        }
-
-        // In the end maybe it is something which we can handle directly
-        if (JsonObjectMetadata.doesHandleWithoutAnnotation(ctor)) {
-            const primitiveMeta = new JsonObjectMetadata(ctor);
-            primitiveMeta.isExplicitlyMarked = true;
-            // we do not store the metadata here to not modify builtin prototype
-            return primitiveMeta;
+            return prototype[metadataFieldKey as any];
         }
     }
 
@@ -134,11 +112,6 @@ export class JsonObjectMetadata {
             value: objectMetadata,
         });
         return objectMetadata;
-    }
-
-    private static doesHandleWithoutAnnotation(ctor: Function): boolean {
-        return isJsonStringifyCompatible(ctor) || isTypeTypedArray(ctor)
-            || ctor === DataView || ctor === ArrayBuffer;
     }
 }
 
