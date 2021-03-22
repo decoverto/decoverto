@@ -4,7 +4,7 @@ import {DataViewConverter} from './converters/data-view.converter';
 import {DateConverter} from './converters/date.converter';
 import {DirectConverter} from './converters/direct.converter';
 import {TypedArrayConverter} from './converters/typed-array.converter';
-import {JsonHandler} from './json-handler';
+import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {TypeHandler} from './type-handler';
 import {Serializable} from './types';
 
@@ -21,7 +21,7 @@ interface DecoratedJsonSettings {
      * });
      * ```
      */
-    jsonHandler?: JsonHandler;
+    jsonHandler: JsonHandler;
 }
 
 export class DecoratedJson {
@@ -49,9 +49,15 @@ export class DecoratedJson {
         [Uint32Array, new TypedArrayConverter(Uint32Array)],
     ]);
 
+    private readonly settings: DecoratedJsonSettings;
+
     constructor(
-        private readonly settings: DecoratedJsonSettings = {},
+        settings: Partial<DecoratedJsonSettings> = {},
     ) {
+        this.settings = {
+            ...settings,
+            jsonHandler: settings.jsonHandler ?? new JsonHandlerSimple({}),
+        };
     }
 
     type<T>(type: Serializable<T>): TypeHandler<T> {

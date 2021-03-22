@@ -4,7 +4,7 @@ import {Converter} from './converters/converter';
 import {SetConverter} from './converters/set.converter';
 import {getDiagnostic} from './diagnostics';
 import {shouldOmitParseString} from './helpers';
-import {JsonHandler, JsonHandlerSimple} from './json-handler';
+import {JsonHandler} from './json-handler';
 import {JsonObjectMetadata} from './metadata';
 import {Serializable} from './types';
 
@@ -22,13 +22,6 @@ export interface TypeHandlerSettings {
     converterMap: Map<Serializable<any>, Converter>;
 }
 
-/**
- * Make some settings optional.
- */
-export type TypeHandlerSettingsInput =
-    Omit<TypeHandlerSettings, 'jsonHandler'>
-    & Partial<TypeHandlerSettings>;
-
 export class TypeHandler<RootType> {
 
     private settings!: TypeHandlerSettings;
@@ -42,7 +35,7 @@ export class TypeHandler<RootType> {
      */
     constructor(
         private readonly rootConstructor: Serializable<RootType>,
-        settings: TypeHandlerSettingsInput,
+        settings: TypeHandlerSettings,
     ) {
         this.rootConverter = new ConcreteConverter<RootType>(rootConstructor);
         const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
@@ -58,10 +51,10 @@ export class TypeHandler<RootType> {
         this.configure(settings);
     }
 
-    configure(settings: TypeHandlerSettingsInput) {
+    configure(settings: TypeHandlerSettings) {
         this.settings = {
-            jsonHandler: settings.jsonHandler ?? new JsonHandlerSimple({}),
             converterMap: settings.converterMap,
+            jsonHandler: settings.jsonHandler,
         };
     }
 
