@@ -8,6 +8,7 @@ import {
     DecoratedJson,
     jsonObject,
     jsonProperty,
+    SimpleConverter,
 } from '../../src';
 import {setAvaContext} from '../helpers/ava.helper';
 
@@ -183,4 +184,19 @@ test('Mapped types work on array', t => {
     const plain = mappedTypeWithArrayHandler.toPlainJson(parsed);
     t.is(customConverterToJson.callCount, 2);
     t.deepEqual(plain.array, [1, 5]);
+});
+
+test('Mapped types work on .type(String)', t => {
+    class StringConverterTest extends SimpleConverter<string, string> {
+        fromJson(context: ConversionContext<string>): string | null | undefined {
+            return 'fromJson';
+        }
+
+        toJson(context: ConversionContext<string | null | undefined>): string {
+            return 'toJson';
+        }
+    }
+
+    t.context.decoratedJson.converterMap.set(String, new StringConverterTest(String as any));
+    t.is(t.context.decoratedJson.type(String).parse('hmmm'), 'fromJson');
 });
