@@ -1,4 +1,4 @@
-const dir = 'spec/default/';
+const dir = 'spec/default';
 
 export default {
     environmentVariables: {
