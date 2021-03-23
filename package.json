@@ -53,7 +53,7 @@
     },
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.1",
-        "@matthiaskunnen/eslint-config-typescript": "^3.1.0",
+        "@matthiaskunnen/eslint-config-typescript": "^3.2.0",
         "@phenomnomnominal/tsquery": "^4.1.1",
         "@size-limit/preset-small-lib": "^4.5.7",
         "@types/node": "^12.18.0",
