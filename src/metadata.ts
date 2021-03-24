@@ -114,15 +114,8 @@ export function injectMetadataInformation(
     propKey: string | symbol,
     metadata: PropertyMetadata,
 ) {
-    // For error messages
     const typeName = prototype.constructor.name;
 
-    // When a property decorator is applied to a static member, 'constructor' is a constructor
-    // function.
-    // See:
-    // eslint-disable-next-line max-len
-    // https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
-    // ... and static members are not supported here, so abort.
     if (typeof prototype === 'function') {
         if (typeof (prototype as any)[propKey] === 'function') {
             throw new Error(getDiagnostic('propertyCannotBeUsedOnStaticMethod', {
@@ -137,7 +130,6 @@ export function injectMetadataInformation(
         }
     }
 
-    // Methods cannot be converted.
     if (typeof prototype[propKey as string] === 'function') {
         throw new Error(getDiagnostic('propertyCannotBeUsedOnInstanceMethod', {
             property: propKey,
@@ -145,9 +137,6 @@ export function injectMetadataInformation(
         }));
     }
 
-    // Add model metadata to 'constructor' if not yet exists ('constructor' is the prototype).
-    // NOTE: this will not fire up custom conversion, as 'constructor' must be explicitly marked
-    // with '@model' as well.
     const objectMetadata = ModelMetadata.installOnPrototype(prototype);
 
     objectMetadata.properties.set(metadata.plainName, metadata);
