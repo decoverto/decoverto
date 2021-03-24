@@ -56,12 +56,6 @@ export class ModelMetadata {
     /** Gets or sets the constructor function for the model. */
     classType: Function;
 
-    /**
-     * Indicates whether this class was explicitly annotated with @model()
-     * or implicitly by @property()
-     */
-    isExplicitlyMarked: boolean = false;
-
     /** Name used to encode polymorphic type */
     name?: string | null;
 

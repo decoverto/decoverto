@@ -73,62 +73,50 @@ export class ConcreteConverter<Class extends Object = any>
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
-        const sourceObjectMetadata = ModelMetadata.getFromConstructor(this.type);
+        const sourceMetadata = ModelMetadata.getFromConstructor(this.type);
 
-        if (sourceObjectMetadata?.isExplicitlyMarked === true) {
-            const sourceMetadata = sourceObjectMetadata;
-            // Strong-typed conversion available, get to it.
-            // First convert properties into a temporary object.
-            const sourceObjectWithConvertedProperties: Record<string, unknown> = {};
-
-            // Convert by expected properties.
-            sourceMetadata.properties.forEach((objMemberMetadata, propKey) => {
-                const objMemberValue = source[propKey];
-                const typeName = sourceMetadata.classType.name;
-                const objMemberOptions = {};
-
-                const revivedValue = this.shouldUseType(objMemberMetadata, 'toInstance')
-                    ? objMemberMetadata.converter.toInstance({
-                        ...context,
-                        propertyOptions: objMemberOptions,
-                        path: `${typeName}.${propKey}`,
-                        source: objMemberValue,
-                    })
-                    : objMemberMetadata.toInstance(objMemberValue);
-
-                if (revivedValue !== undefined) {
-                    sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
-                } else if (objMemberMetadata.isRequired === true) {
-                    throw new TypeError(getDiagnostic('missingRequiredProperty', {
-                        property: objMemberMetadata.plainName,
-                        typeName,
-                    }));
-                }
+        if (sourceMetadata === undefined) {
+            throw new UnknownTypeError({
+                path: context.path,
+                type: this.getFriendlyName(),
             });
-
-            const targetObject = new this.type();
-
-            // Finally, assign converted properties to target object.
-            Object.assign(targetObject, sourceObjectWithConvertedProperties);
-
-            return targetObject;
-        } else {
-            // @todo investigate whether isExplicitlyMarked is needed at all
-            const targetObject: Record<string, unknown> = {};
-
-            Object.keys(source).forEach(sourceKey => {
-                targetObject[sourceKey] = new ConcreteConverter(
-                    // @todo investigate any
-                    (source[sourceKey] as any).constructor,
-                ).toInstance({
-                    ...context,
-                    source: source[sourceKey],
-                    path: sourceKey,
-                });
-            });
-
-            return targetObject;
         }
+
+        // Strong-typed conversion available, get to it.
+        // First convert properties into a temporary object.
+        const sourceObjectWithConvertedProperties: Record<string, unknown> = {};
+
+        // Convert by expected properties.
+        sourceMetadata.properties.forEach((objMemberMetadata, propKey) => {
+            const objMemberValue = source[propKey];
+            const typeName = sourceMetadata.classType.name;
+            const objMemberOptions = {};
+
+            const revivedValue = this.shouldUseType(objMemberMetadata, 'toInstance')
+                ? objMemberMetadata.converter.toInstance({
+                    ...context,
+                    propertyOptions: objMemberOptions,
+                    path: `${typeName}.${propKey}`,
+                    source: objMemberValue,
+                })
+                : objMemberMetadata.toInstance(objMemberValue);
+
+            if (revivedValue !== undefined) {
+                sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
+            } else if (objMemberMetadata.isRequired === true) {
+                throw new TypeError(getDiagnostic('missingRequiredProperty', {
+                    property: objMemberMetadata.plainName,
+                    typeName,
+                }));
+            }
+        });
+
+        const targetObject = new this.type();
+
+        // Finally, assign converted properties to target object.
+        Object.assign(targetObject, sourceObjectWithConvertedProperties);
+
+        return targetObject;
     }
 
     /**

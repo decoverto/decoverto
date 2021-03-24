@@ -17,9 +17,6 @@ export function model<T>(
         // Create or obtain ModelMetadata object.
         const objectMetadata = ModelMetadata.ensurePresentInPrototype(target.prototype);
 
-        // Fill ModelMetadata.
-        objectMetadata.isExplicitlyMarked = true;
-
         const optionsBase = extractOptionBase(options);
         if (optionsBase !== undefined) {
             objectMetadata.options = optionsBase;

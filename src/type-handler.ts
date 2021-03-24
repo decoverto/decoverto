@@ -40,8 +40,7 @@ export class TypeHandler<RootType, Raw> {
         this.rootConverter = new ConcreteConverter<RootType>(rootConstructor);
         const rootMetadata = ModelMetadata.getFromConstructor(rootConstructor);
 
-        if (!settings.converterMap.has(this.rootConstructor)
-            && (rootMetadata === undefined || !rootMetadata.isExplicitlyMarked)) {
+        if (!settings.converterMap.has(this.rootConstructor) && rootMetadata === undefined) {
             throw new TypeError(getDiagnostic('unknownTypeCreatingTypeHandler', {
                 type: rootConstructor,
             }));
