@@ -63,7 +63,7 @@ a static method.`,
         return {
             code: 2000,
             message: `The type ${info.type.name} cannot be used to create a new type handler. It \
-missing the @jsonObject decorator and not in the converter map.`,
+is missing the @jsonObject decorator and is not in the converter map.`,
         };
     },
 
