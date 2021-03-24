@@ -84,7 +84,7 @@ export class ModelMetadata {
         }
     }
 
-    static ensurePresentInPrototype(prototype: Record<string, any>): ModelMetadata {
+    static installOnPrototype(prototype: Record<string, any>): ModelMetadata {
         if (Object.prototype.hasOwnProperty.call(prototype, metadataFieldKey)) {
             return prototype[metadataFieldKey as any];
         }
@@ -148,7 +148,7 @@ export function injectMetadataInformation(
     // Add model metadata to 'constructor' if not yet exists ('constructor' is the prototype).
     // NOTE: this will not fire up custom conversion, as 'constructor' must be explicitly marked
     // with '@model' as well.
-    const objectMetadata = ModelMetadata.ensurePresentInPrototype(prototype);
+    const objectMetadata = ModelMetadata.installOnPrototype(prototype);
 
     objectMetadata.properties.set(metadata.plainName, metadata);
 }

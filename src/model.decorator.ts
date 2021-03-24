@@ -14,8 +14,7 @@ export function model<T>(
     options: ModelOptions<T> = {},
 ): (target: Serializable<T>) => void {
     return target => {
-        // Create or obtain ModelMetadata object.
-        const objectMetadata = ModelMetadata.ensurePresentInPrototype(target.prototype);
+        const objectMetadata = ModelMetadata.installOnPrototype(target.prototype);
 
         const optionsBase = extractOptionBase(options);
         if (optionsBase !== undefined) {
