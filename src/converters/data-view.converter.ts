@@ -9,7 +9,7 @@ export class DataViewConverter
         super(DataView);
     }
 
-    fromJson(
+    toInstance(
         context: ConversionContext<string | any | null | undefined>,
     ): DataView | null | undefined {
         if (context.source == null) {
@@ -26,7 +26,7 @@ export class DataViewConverter
         return new DataView(createArrayBufferFromString(context.source));
     }
 
-    toJson(context: ConversionContext<DataView | null | undefined>): string | null | undefined {
+    toPlain(context: ConversionContext<DataView | null | undefined>): string | null | undefined {
         if (context.source == null) {
             return context.source;
         }

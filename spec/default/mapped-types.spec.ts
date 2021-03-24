@@ -28,13 +28,13 @@ class MappedTypesSpec {
 }
 
 class CustomConverter extends Converter<CustomType> {
-    fromJson(
+    toInstance(
         context: ConversionContext<any | null | undefined>,
     ): CustomType {
         return new CustomType(context.source);
     }
 
-    toJson(
+    toPlain(
         context: ConversionContext<CustomType | null | undefined>,
     ): any | null | undefined {
         return context.source?.value;
@@ -53,7 +53,7 @@ test.beforeEach(t => {
 
 test('Mapped types are used when converting from JSON', t => {
     t.context.decoratedJson.converterMap.set(CustomType, new CustomConverter());
-    const result = t.context.decoratedJson.type(MappedTypesSpec).parsePlain({property: 1});
+    const result = t.context.decoratedJson.type(MappedTypesSpec).plainToInstance({property: 1});
 
     t.true(result.property instanceof CustomType);
     t.is(result.property.value, 1);
@@ -63,20 +63,20 @@ test('Mapped types are used when converting to JSON', t => {
     t.context.decoratedJson.converterMap.set(CustomType, new CustomConverter());
     const testSubject = new MappedTypesSpec();
     testSubject.property = new CustomType(1);
-    const result = t.context.decoratedJson.type(MappedTypesSpec).toPlain(testSubject);
+    const result = t.context.decoratedJson.type(MappedTypesSpec).instanceToPlain(testSubject);
 
     t.deepEqual(result, {property: 1});
 });
 
 test('Mapped types are used when value is null', t => {
     const converter = new CustomConverter();
-    const fromJsonSpy = sinon.spy(converter, 'fromJson');
-    const toJsonSpy = sinon.spy(converter, 'toJson');
+    const fromJsonSpy = sinon.spy(converter, 'toInstance');
+    const toJsonSpy = sinon.spy(converter, 'toPlain');
     t.context.decoratedJson.converterMap.set(CustomType, converter);
 
     const fromJsonResult = t.context.decoratedJson
         .type(MappedTypesSpec)
-        .parsePlain({property: null});
+        .plainToInstance({property: null});
     t.true(fromJsonResult.property instanceof CustomType);
     t.is(fromJsonResult.property.value, null);
     t.is(fromJsonSpy.callCount, 1);
@@ -85,7 +85,7 @@ test('Mapped types are used when value is null', t => {
     toJsonSubject.property = new CustomType(null);
     const toJsonResult = t.context.decoratedJson
         .type(MappedTypesSpec)
-        .toPlain(toJsonSubject);
+        .instanceToPlain(toJsonSubject);
     t.is(toJsonResult.property, null);
     t.is(toJsonSpy.callCount, 1);
     t.is(fromJsonSpy.callCount, 1);
@@ -100,13 +100,13 @@ test('Mapped types are used when value is undefined', t => {
     }
 
     const converter = new CustomConverter();
-    const fromJsonSpy = sinon.spy(converter, 'fromJson');
-    const toJsonSpy = sinon.spy(converter, 'toJson');
+    const fromJsonSpy = sinon.spy(converter, 'toInstance');
+    const toJsonSpy = sinon.spy(converter, 'toPlain');
     t.context.decoratedJson.converterMap.set(CustomType, converter);
 
     const fromJsonResult = t.context.decoratedJson
         .type(MappedTypUndefinedSpec)
-        .parsePlain({property: undefined});
+        .plainToInstance({property: undefined});
     t.true(fromJsonResult.property instanceof CustomType);
     t.is(fromJsonResult.property.value, undefined);
     t.is(fromJsonSpy.callCount, 1);
@@ -115,13 +115,13 @@ test('Mapped types are used when value is undefined', t => {
     toJsonSubject.property = new CustomType(undefined);
     const toJsonResult = t.context.decoratedJson
         .type(MappedTypUndefinedSpec)
-        .toPlain(toJsonSubject);
+        .instanceToPlain(toJsonSubject);
     t.is(toJsonResult.property, undefined);
     t.is(toJsonSpy.callCount, 1);
     t.is(fromJsonSpy.callCount, 1);
 });
 
-test('Mapped types can be overwritten with fromJson/toJson property on @jsonProperty', t => {
+test('Mapped types can be overwritten with toInstance/toPlain property on @jsonProperty', t => {
     const jsonPropertyOptions = {
         fromJson: () => new CustomType(0),
         toJson: () => 1,
@@ -130,8 +130,8 @@ test('Mapped types can be overwritten with fromJson/toJson property on @jsonProp
     const converter = new CustomConverter();
     t.context.decoratedJson.converterMap.set(CustomType, converter);
 
-    const customConverterFromJson = sinon.spy(converter, 'fromJson');
-    const customConverterToJson = sinon.spy(converter, 'toJson');
+    const customConverterFromJson = sinon.spy(converter, 'toInstance');
+    const customConverterToJson = sinon.spy(converter, 'toPlain');
     const jsonPropertyOptionsFromJson = sinon.spy(jsonPropertyOptions, 'fromJson');
     const jsonPropertyOptionsToJson = sinon.spy(jsonPropertyOptions, 'toJson');
 
@@ -146,7 +146,7 @@ test('Mapped types can be overwritten with fromJson/toJson property on @jsonProp
 
     const overriddenTypeHandler = t.context.decoratedJson.type(OverriddenConverters);
 
-    const parsed = overriddenTypeHandler.parsePlain({data: 5, simple: 5});
+    const parsed = overriddenTypeHandler.plainToInstance({data: 5, simple: 5});
     t.is(customConverterFromJson.callCount, 1);
     t.is(customConverterToJson.callCount, 0);
     t.is(jsonPropertyOptionsFromJson.callCount, 1);
@@ -154,7 +154,7 @@ test('Mapped types can be overwritten with fromJson/toJson property on @jsonProp
     t.is(parsed.overwritten.value, 0);
     t.is(parsed.simple.value, 5);
 
-    const plain = overriddenTypeHandler.toPlain(parsed);
+    const plain = overriddenTypeHandler.instanceToPlain(parsed);
     t.is(customConverterFromJson.callCount, 1);
     t.is(customConverterToJson.callCount, 1);
     t.is(jsonPropertyOptionsFromJson.callCount, 1);
@@ -175,28 +175,28 @@ test('Mapped types work on array', t => {
     t.context.decoratedJson.converterMap.set(CustomType, customConverter);
     const mappedTypeWithArrayHandler = t.context.decoratedJson.type(MappedTypeWithArray);
 
-    const customConverterToJson = sinon.spy(customConverter, 'toJson');
-    const customConverterFromJson = sinon.spy(customConverter, 'fromJson');
-    const parsed = mappedTypeWithArrayHandler.parsePlain({array: [1, 5]});
+    const customConverterToJson = sinon.spy(customConverter, 'toPlain');
+    const customConverterFromJson = sinon.spy(customConverter, 'toInstance');
+    const parsed = mappedTypeWithArrayHandler.plainToInstance({array: [1, 5]});
     t.is(customConverterFromJson.callCount, 2);
     t.deepEqual(parsed.array.map(c => c.value), [1, 5]);
 
-    const plain = mappedTypeWithArrayHandler.toPlain(parsed);
+    const plain = mappedTypeWithArrayHandler.instanceToPlain(parsed);
     t.is(customConverterToJson.callCount, 2);
     t.deepEqual(plain.array, [1, 5]);
 });
 
 test('Mapped types work on .type(String)', t => {
     class StringConverterTest extends SimpleConverter<string, string> {
-        fromJson(context: ConversionContext<string>): string | null | undefined {
-            return 'fromJson';
+        toInstance(context: ConversionContext<string>): string | null | undefined {
+            return 'toInstance';
         }
 
-        toJson(context: ConversionContext<string | null | undefined>): string {
-            return 'toJson';
+        toPlain(context: ConversionContext<string | null | undefined>): string {
+            return 'toPlain';
         }
     }
 
     t.context.decoratedJson.converterMap.set(String, new StringConverterTest(String as any));
-    t.is(t.context.decoratedJson.type(String).parsePlain('hmmm'), 'fromJson');
+    t.is(t.context.decoratedJson.type(String).plainToInstance('hmmm'), 'toInstance');
 });

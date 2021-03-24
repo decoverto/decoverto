@@ -9,7 +9,7 @@ export class ArrayBufferConverter
         super(ArrayBuffer);
     }
 
-    fromJson(
+    toInstance(
         context: ConversionContext<string | any | null | undefined>,
     ): ArrayBuffer | null | undefined {
         if (context.source == null) {
@@ -25,7 +25,7 @@ export class ArrayBufferConverter
         return createArrayBufferFromString(context.source);
     }
 
-    toJson(context: ConversionContext<ArrayBuffer | null | undefined>): string | null | undefined {
+    toPlain(context: ConversionContext<ArrayBuffer | null | undefined>): string | null | undefined {
         if (context.source == null) {
             return context.source;
         }

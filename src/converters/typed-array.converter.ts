@@ -17,7 +17,7 @@ export type TypedArrayItemJson = number | TypedArrayStrings;
 
 export class TypedArrayConverter extends SimpleConverter<TypedArray> {
 
-    fromJson(context: ConversionContext<any | null>): TypedArray | null | undefined {
+    toInstance(context: ConversionContext<any | null>): TypedArray | null | undefined {
         if (context.source == null) {
             return context.source;
         }
@@ -34,7 +34,7 @@ export class TypedArrayConverter extends SimpleConverter<TypedArray> {
         return new this.type(source.map(item => this.itemFromJson(item)));
     }
 
-    toJson(
+    toPlain(
         context: ConversionContext<any | null | undefined>,
     ): Array<TypedArrayItemJson> | null | undefined {
         if (context.source == null) {

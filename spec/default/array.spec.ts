@@ -27,13 +27,13 @@ class Simple {
 }
 
 test('array of objects should parse an empty array', t => {
-    const result = decoratedJson.type(Simple).parseJsonAsArray('[]');
+    const result = decoratedJson.type(Simple).rawToInstanceArray('[]');
     t.not(result, undefined);
     t.is(result.length, 0);
 });
 
-test('array of objects should stringify an empty array', t => {
-    const result = decoratedJson.type(Simple).stringifyArray([]);
+test('array of objects should instanceToRaw an empty array', t => {
+    const result = decoratedJson.type(Simple).arrayInstanceToRaw([]);
     t.is(result, '[]');
 });
 
@@ -44,7 +44,7 @@ test('array of objects parse result should be the correct type', t => {
         {strProp: 'gamma', numProp: 0},
     ];
 
-    const result = decoratedJson.type(Simple).parseJsonAsArray(JSON.stringify(expectation));
+    const result = decoratedJson.type(Simple).rawToInstanceArray(JSON.stringify(expectation));
 
     t.is(result.length, 3, 'Parsed array is of wrong length');
     result.forEach((obj, index) => {
@@ -53,7 +53,7 @@ test('array of objects parse result should be the correct type', t => {
     });
 });
 
-test('array of objects toJson result should contain all elements', t => {
+test('array of objects toPlain result should contain all elements', t => {
     const expectation = [
         {strProp: 'delta', numProp: 4},
         {strProp: 'bravo', numProp: 2},
@@ -62,13 +62,13 @@ test('array of objects toJson result should contain all elements', t => {
 
     const result = decoratedJson
         .type(Simple)
-        .stringifyArray(expectation.map(obj => new Simple(obj)));
+        .arrayInstanceToRaw(expectation.map(obj => new Simple(obj)));
 
     t.is(result, JSON.stringify(expectation));
 });
 
-test('array of objects should error on non-array fromJson', t => {
-    t.throws(() => decoratedJson.type(Simple).parsePlainAsArray(false as any), {
+test('array of objects should error on non-array toInstance', t => {
+    t.throws(() => decoratedJson.type(Simple).plainToInstanceArray(false as any), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Boolean',
             expectedType: 'Array<Simple>',
@@ -77,8 +77,8 @@ test('array of objects should error on non-array fromJson', t => {
     });
 });
 
-test('array of objects should error on non-array toJson', t => {
-    t.throws(() => decoratedJson.type(Simple).arrayToPlain(false as any), {
+test('array of objects should error on non-array toPlain', t => {
+    t.throws(() => decoratedJson.type(Simple).instanceArrayToPlain(false as any), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Boolean',
             expectedType: 'Array<Simple>',
@@ -157,7 +157,7 @@ test('array of objects should error on non-array toJson', t => {
     }
 
     test('multidimensional arrays parse correctly', t => {
-        const result = decoratedJson.type(WithArrays).parsePlain(createTestObject(false));
+        const result = decoratedJson.type(WithArrays).plainToInstance(createTestObject(false));
 
         t.is(result.one.length, 2);
         t.is(result.two.length, 4);
@@ -167,7 +167,7 @@ test('array of objects should error on non-array toJson', t => {
     });
 
     test('converts to JSON', t => {
-        const result = decoratedJson.type(WithArrays).stringify(createTestObject(true));
+        const result = decoratedJson.type(WithArrays).instanceToRaw(createTestObject(true));
 
         t.is(result, JSON.stringify(createTestObject(true)));
     });
@@ -184,7 +184,7 @@ class ArrayPropertyAny {
 const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
 
 test('@jsonProperty(array(Any)) should parse from JSON simple object correctly', t => {
-    const result = arrayPropertyAnyHandler.parsePlain({
+    const result = arrayPropertyAnyHandler.plainToInstance({
         any: [{foo: 'bar'}],
         anyNullable: [{foo: 'bar'}],
     });
@@ -196,7 +196,7 @@ test('@jsonProperty(array(Any)) should parse from JSON simple object correctly',
 
 test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
-    const result = arrayPropertyAnyHandler.parsePlain({
+    const result = arrayPropertyAnyHandler.plainToInstance({
         any: [foo],
         anyNullable: [foo],
     });
@@ -211,7 +211,7 @@ test('@jsonProperty(array(Any)) should convert with referential equality', t => 
     const arrayPropertyAny = new ArrayPropertyAny();
     arrayPropertyAny.any = [foo];
     arrayPropertyAny.anyNullable = [foo];
-    const result = arrayPropertyAnyHandler.toPlain(arrayPropertyAny);
+    const result = arrayPropertyAnyHandler.instanceToPlain(arrayPropertyAny);
     t.is(result.any[0], foo);
     t.is(result.anyNullable[0], foo);
 });

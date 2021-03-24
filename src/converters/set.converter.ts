@@ -11,7 +11,7 @@ export class SetConverter<Class extends Object>
         Class | null | undefined
     > {
 
-    fromJson(
+    toInstance(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Set<Class | null | undefined> | null | undefined {
         if (context.source == null) {
@@ -28,7 +28,7 @@ export class SetConverter<Class extends Object>
         const resultSet = new Set<Class | null | undefined>();
 
         context.source.forEach((element, i) => {
-            resultSet.add(this.type.fromJson({
+            resultSet.add(this.type.toInstance({
                 ...context,
                 path: `${context.path}[${i}]`,
                 source: element,
@@ -42,7 +42,7 @@ export class SetConverter<Class extends Object>
      * Performs the conversion of a set of typed objects (or primitive values) into an array
      * of simple javascript objects.
      */
-    toJson(context: ConversionContext<Set<Class | null | undefined> | null | undefined>) {
+    toPlain(context: ConversionContext<Set<Class | null | undefined> | null | undefined>) {
         if (context.source == null) {
             return context.source;
         }
@@ -55,7 +55,7 @@ export class SetConverter<Class extends Object>
         const resultArray: Array<any> = [];
 
         context.source.forEach(element => {
-            resultArray.push(this.type.toJson({
+            resultArray.push(this.type.toPlain({
                 ...context,
                 source: element,
             }));

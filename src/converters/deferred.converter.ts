@@ -16,12 +16,12 @@ export class DeferredConverter<Class>
         super();
     }
 
-    fromJson(context: ConversionContext<any>): Class | null | undefined {
-        return this.getConverter().fromJson(context);
+    toInstance(context: ConversionContext<any>): Class | null | undefined {
+        return this.getConverter().toInstance(context);
     }
 
-    toJson(context: ConversionContext<Class | null | undefined>): any {
-        return this.getConverter().toJson(context);
+    toPlain(context: ConversionContext<Class | null | undefined>): any {
+        return this.getConverter().toPlain(context);
     }
 
     getFriendlyName(): string {

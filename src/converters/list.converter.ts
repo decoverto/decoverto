@@ -12,10 +12,10 @@ export abstract class ListConverter<ClassWrapper, Class, Json = any>
         super();
     }
 
-    abstract fromJson(
+    abstract toInstance(
         params: ConversionContext<Array<Json> | null | undefined>,
     ): ClassWrapper;
-    abstract toJson(
+    abstract toPlain(
         params: ConversionContext<ClassWrapper>,
     ): Array<Json> | null | undefined;
 }

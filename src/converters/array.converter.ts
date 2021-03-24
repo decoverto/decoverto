@@ -11,11 +11,11 @@ export class ArrayConverter<Class extends Object>
         Class | null | undefined
     > {
 
-    fromJson(context: ConversionContext<Array<any>>): Array<Class | null | undefined>;
-    fromJson(
+    toInstance(context: ConversionContext<Array<any>>): Array<Class | null | undefined>;
+    toInstance(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Array<Class | null | undefined> | null | undefined
-    fromJson(
+    toInstance(
         context: ConversionContext<Array<any> | null | undefined>,
     ): Array<Class | null | undefined> | null | undefined {
         if (context.source == null) {
@@ -27,7 +27,7 @@ export class ArrayConverter<Class extends Object>
         }
 
         return context.source.map((element, i) => {
-            return this.type.fromJson(
+            return this.type.toInstance(
                 {
                     ...context,
                     path: `${context.path}[${i}]`,
@@ -41,11 +41,11 @@ export class ArrayConverter<Class extends Object>
      * Performs the conversion of an array of typed objects (or primitive values) to an array of
      * simple javascript objects (or primitive values).
      */
-    toJson(context: ConversionContext<Array<Class>>): Array<any>
-    toJson(
+    toPlain(context: ConversionContext<Array<Class>>): Array<any>
+    toPlain(
         context: ConversionContext<Array<Class | null | undefined> | null | undefined>,
     ): Array<any> | null | undefined
-    toJson(
+    toPlain(
         context: ConversionContext<Array<Class | null | undefined> | null | undefined>,
     ): Array<any> | null | undefined {
         if (context.source == null) {
@@ -57,7 +57,7 @@ export class ArrayConverter<Class extends Object>
         }
 
         return context.source.map((element, i) => {
-            return this.type.toJson({
+            return this.type.toPlain({
                 ...context,
                 path: `${context.path}[${i}]`,
                 source: element,

@@ -23,7 +23,7 @@ const passThroughMacro = createPassThroughMacro({
 });
 
 test('@jsonProperty(Any) should parse simple object correctly', t => {
-    const result = decoratedJson.type(SimplePropertyAny).parsePlain({
+    const result = decoratedJson.type(SimplePropertyAny).plainToInstance({
         any: {foo: 'bar'},
         anyNullable: {foo: 'bar'},
     });
@@ -33,7 +33,7 @@ test('@jsonProperty(Any) should parse simple object correctly', t => {
 
 test('@jsonProperty(Any) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
-    const result = decoratedJson.type(SimplePropertyAny).parsePlain({
+    const result = decoratedJson.type(SimplePropertyAny).plainToInstance({
         any: foo,
         anyNullable: foo,
     });
@@ -86,7 +86,7 @@ test('Any should handle complex structures', t => {
         events: Array<Event>;
     }
 
-    const result = decoratedJson.type(A).parsePlain({
+    const result = decoratedJson.type(A).plainToInstance({
         events: [
             {
                 data: {

@@ -38,8 +38,8 @@ export function createPassThroughMacro<T>(
     const macro: Macro<[PassThroughMacro<T>]> = (t, options) => {
         const subject = createOptions.createSubject(options.value);
         const result = options.type === 'fromJson'
-            ? typeHandler.parsePlain(subject)
-            : typeHandler.toPlain(Object.assign(new createOptions.class(), subject));
+            ? typeHandler.plainToInstance(subject)
+            : typeHandler.instanceToPlain(Object.assign(new createOptions.class(), subject));
 
         Object.keys(subject).forEach(key => {
             t.is(result[key], options.value);

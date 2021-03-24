@@ -18,7 +18,7 @@ import {SimpleConverter} from './simple.converter';
 export class ConcreteConverter<Class extends Object = any>
     extends SimpleConverter<Class> {
 
-    fromJson(context: ConversionContext<any | null | undefined>): Class | null | undefined {
+    toInstance(context: ConversionContext<any | null | undefined>): Class | null | undefined {
         const {source, path} = context;
 
         const converter = this.getConverter(context);
@@ -35,16 +35,16 @@ export class ConcreteConverter<Class extends Object = any>
                 });
             }
 
-            return this.fromJsonObject({
+            return this.fromObject({
                 ...context,
                 source: source,
             }) as unknown as any; // Required since return type might not match Class
         } else {
-            return converter.fromJson(context);
+            return converter.toInstance(context);
         }
     }
 
-    fromJsonObject(
+    fromObject(
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
@@ -63,7 +63,7 @@ export class ConcreteConverter<Class extends Object = any>
                 const objMemberOptions = {};
 
                 const revivedValue = this.shouldUseType(objMemberMetadata, 'fromJson')
-                    ? objMemberMetadata.converter.fromJson({
+                    ? objMemberMetadata.converter.toInstance({
                         ...context,
                         propertyOptions: objMemberOptions,
                         path: `${typeName}.${propKey}`,
@@ -95,7 +95,7 @@ export class ConcreteConverter<Class extends Object = any>
                 targetObject[sourceKey] = new ConcreteConverter(
                     // @todo investigate any
                     (source[sourceKey] as any).constructor,
-                ).fromJson({
+                ).toInstance({
                     ...context,
                     source: source[sourceKey],
                     path: sourceKey,
@@ -106,7 +106,7 @@ export class ConcreteConverter<Class extends Object = any>
         }
     }
 
-    toJson(context: ConversionContext<Class | null | undefined>): any {
+    toPlain(context: ConversionContext<Class | null | undefined>): any {
         const {source, path} = context;
         const converter = this.getConverter(context);
 
@@ -122,12 +122,12 @@ export class ConcreteConverter<Class extends Object = any>
                 });
             }
 
-            return this.toJsonObject({
+            return this.toObject({
                 ...context,
                 source: source,
             }) as any; // Cast to any since generic Json parameter could be anything
         } else {
-            return converter.toJson(context);
+            return converter.toPlain(context);
         }
     }
 
@@ -135,7 +135,7 @@ export class ConcreteConverter<Class extends Object = any>
      * Performs the conversion of a typed object (usually a class instance) to a simple
      * javascript object.
      */
-    toJsonObject(context: ConversionContext<any>) {
+    toObject(context: ConversionContext<any>) {
         const {source} = context;
         let sourceTypeMetadata: JsonObjectMetadata | undefined;
         let targetObject: Record<string, unknown>;
@@ -162,7 +162,7 @@ export class ConcreteConverter<Class extends Object = any>
             // We'll convert all properties that have been marked with @jsonProperty
             // and perform recursive conversion on each of them. The
             // converted objects are put on the 'targetObject', which is what will be put into
-            // 'JSON.stringify' finally.
+            // 'JSON.instanceToRaw' finally.
             targetObject = {};
 
             const classOptions = sourceMeta.options ?? {};
@@ -171,7 +171,7 @@ export class ConcreteConverter<Class extends Object = any>
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
                 const typeName = sourceMeta.classType.name;
                 const json = this.shouldUseType(objMemberMetadata, 'toJson')
-                    ? objMemberMetadata.converter.toJson({
+                    ? objMemberMetadata.converter.toPlain({
                         ...context,
                         path: `${typeName}.${propKey}`,
                         propertyOptions: objMemberOptions,

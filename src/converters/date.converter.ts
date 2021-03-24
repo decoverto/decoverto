@@ -9,7 +9,7 @@ export class DateConverter
         super(Date);
     }
 
-    fromJson(context: ConversionContext<Date | string | number | null | undefined>) {
+    toInstance(context: ConversionContext<Date | string | number | null | undefined>) {
         const {path, source} = context;
 
         if (source == null) {
@@ -38,7 +38,7 @@ export class DateConverter
         }
     }
 
-    toJson(context: ConversionContext<Date | null | undefined>): Date | null | undefined {
+    toPlain(context: ConversionContext<Date | null | undefined>): Date | null | undefined {
         return context.source;
     }
 }

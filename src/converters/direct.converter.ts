@@ -2,17 +2,17 @@ import {ConversionContext} from './converter';
 import {SimpleConverter} from './simple.converter';
 
 /**
- * Passes types without modification for both fromJson and toJson but errors if the type of the
+ * Passes types without modification for both toInstance and toPlain but errors if the type of the
  * source does not match the expected type. E.g. a number was expected but a string received.
  */
 export class DirectConverter extends SimpleConverter {
 
-    fromJson(context: ConversionContext<any>): any {
+    toInstance(context: ConversionContext<any>): any {
         this.errorOnTypeMismatch(context);
         return context.source;
     }
 
-    toJson(context: ConversionContext<any>): any {
+    toPlain(context: ConversionContext<any>): any {
         this.errorOnTypeMismatch(context);
         return context.source;
     }

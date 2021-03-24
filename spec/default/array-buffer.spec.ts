@@ -38,8 +38,8 @@ test('ArrayBuffer', passThroughMacro, {
     value: undefined,
 });
 
-test('ArrayBuffer errors if fromJson source type is not string', t => {
-    t.throws(() => decoratedJson.type(ArrayBufferSpec).parsePlain({property: 123}), {
+test('ArrayBuffer errors if toInstance source type is not string', t => {
+    t.throws(() => decoratedJson.type(ArrayBufferSpec).plainToInstance({property: 123}), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Number',
             expectedType: 'String',

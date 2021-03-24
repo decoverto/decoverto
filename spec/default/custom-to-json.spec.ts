@@ -19,15 +19,15 @@ function`, t => {
     person.firstName = 'Mulit term name';
     person.lastName = 'Surname';
 
-    t.deepEqual(JSON.parse(decoratedJson.type(Person).stringify(person)), {
+    t.deepEqual(JSON.parse(decoratedJson.type(Person).instanceToRaw(person)), {
         firstName: 'Mark',
         lastName: 'Foreman',
     });
 });
 
-test('Converting @jsonProperty({toJson: ...}) to JSON should not affect fromJson', t => {
+test('Converting @jsonProperty({toPlain: ...}) to JSON should not affect toInstance', t => {
     t.deepEqual(
-        decoratedJson.type(Person).parseJson('{"firstName":"name","lastName":"last"}'),
+        decoratedJson.type(Person).rawToInstance('{"firstName":"name","lastName":"last"}'),
         Object.assign(new Person(), {firstName: 'name', lastName: 'last'}),
     );
 });
@@ -42,7 +42,7 @@ function`, t => {
         }
 
         const typeHandler = decoratedJson.type(ToJsonComplexType);
-        t.true(typeHandler.toPlain(new ToJsonComplexType()).complex);
+        t.true(typeHandler.instanceToPlain(new ToJsonComplexType()).complex);
     });
 });
 
@@ -55,13 +55,13 @@ class ArrayToJsonTest {
     str: string;
 }
 
-test('Parsing @jsonProperty(array(() => Number), {toJson: ...}) should use the toJson \
+test('Parsing @jsonProperty(array(() => Number), {toPlain: ...}) should use the toPlain \
 function', t => {
     const testInstance = new ArrayToJsonTest();
     testInstance.nums = [3, 45, 34];
     testInstance.str = 'Text';
 
-    t.deepEqual(JSON.parse(decoratedJson.type(ArrayToJsonTest).stringify(testInstance)), {
+    t.deepEqual(JSON.parse(decoratedJson.type(ArrayToJsonTest).instanceToRaw(testInstance)), {
         nums: '3,45,34',
         str: 'Text',
     });
@@ -70,12 +70,12 @@ function', t => {
 test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
 toJson`, t => {
     t.deepEqual(
-        decoratedJson.type(ArrayToJsonTest).parseJson('{"nums":[4,5,6,7],"str":"string"}'),
+        decoratedJson.type(ArrayToJsonTest).rawToInstance('{"nums":[4,5,6,7],"str":"string"}'),
         Object.assign(new ArrayToJsonTest(), {nums: [4, 5, 6, 7], str: 'string'}),
     );
 });
 
-test('Converting @jsonProperty(array(() => Class), {toJson: function}) should succeed', t => {
+test('Converting @jsonProperty(array(() => Class), {toPlain: function}) should succeed', t => {
     @jsonObject()
     class Inner {
         @jsonProperty()
@@ -90,7 +90,7 @@ test('Converting @jsonProperty(array(() => Class), {toJson: function}) should su
     }
 
     function objArrayToJson(values: Array<Inner>) {
-        return decoratedJson.type(Inner).arrayToPlain(
+        return decoratedJson.type(Inner).instanceArrayToPlain(
             values.filter(value => value.shouldConvertToJson),
         );
     }
@@ -110,7 +110,7 @@ test('Converting @jsonProperty(array(() => Class), {toJson: function}) should su
         new Inner('something', true),
     ];
     obj.str = 'Text';
-    const json = JSON.parse(decoratedJson.type(Obj).stringify(obj));
+    const json = JSON.parse(decoratedJson.type(Obj).instanceToRaw(obj));
 
     t.deepEqual(json, {
         inners: [

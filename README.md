@@ -52,12 +52,12 @@ const typeHandler = decoratedJson.type(MyDataClass);
 
 const instance = new MyDataClass();
 
-const json = typeHandler.stringify(instance);
-const instance2 = typeHandler.parsePlain({
+const json = typeHandler.instanceToPlain(instance);
+const instance2 = typeHandler.plainToInstance({
     prop1: 10,
     prop2: 'string',
 });
-const instance3 = typeHandler.parseJson('{"prop1": 10, "prop2": "string"}');
+const instance3 = typeHandler.rawToInstance('{"prop1": 10, "prop2": "string"}');
 
 instance2 instanceof MyDataClass; // true
 ```
@@ -79,11 +79,11 @@ class BigIntConverter extends SimpleConverter<bigint, string | null | undefined>
         super(BigInt);
     }
 
-    fromJson({source}: ConversionContext<string | null | undefined>): bigint | null | undefined {
+    toInstance({source}: ConversionContext<string | null | undefined>): bigint | null | undefined {
         return source == null ? source : BigInt(source);
     }
 
-    toJson({source}: ConversionContext<bigint | null | undefined>): string | null | undefined {
+    toPlain({source}: ConversionContext<bigint | null | undefined>): string | null | undefined {
         return source == null ? source : source.toString();
     }
 }
@@ -94,11 +94,11 @@ class DecimalConverter extends SimpleConverter<Decimal, string | null | undefine
         super(Decimal);
     }
 
-    fromJson({source}: ConversionContext<string | null | undefined>): Decimal | null | undefined {
+    toInstance({source}: ConversionContext<string | null | undefined>): Decimal | null | undefined {
         return source == null ? source : new Decimal(source);
     }
 
-    toJson({source}: ConversionContext<Decimal | null | undefined>): string | null | undefined {
+    toPlain({source}: ConversionContext<Decimal | null | undefined>): string | null | undefined {
         return source == null ? source : source.toString();
     }
 }
@@ -118,7 +118,7 @@ class MappedTypes {
     money: Decimal;
 }
 
-const result = decoratedJson.type(MappedTypes).parsePlain({
+const result = decoratedJson.type(MappedTypes).plainToInstance({
     cryptoKey: '1234567890123456789',
     money: '12345.67',
 });
@@ -217,7 +217,7 @@ Without ReflectDecorators, `@jsonProperty` requires an additional type argument,
 
 Instead of stringifying data you might want to get a normal javascript object literal. This can be especially useful when working with a framework like Angular which handles parsing and stringification for you.
 
-To achieve this, DecoratedJSON exposes `toPlain` and friends. These methods return the _plain form_ of the object as it is before it would be passed to stringification. The _plain form_ can also be turned back into instances of the type using the `parsePlain` methods.
+To achieve this, DecoratedJSON exposes `instanceToPlain` and friends. These methods return the _plain form_ of the object as it is before it would be passed to stringification. The _plain form_ can also be turned back into instances of the type using the `plainToInstance` methods.
 
 ### Options
 

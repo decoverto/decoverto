@@ -27,7 +27,7 @@ test('JsonHandlerSimple should use replacer', t => {
     });
 
     const typeHandler = decoratedJson.type(JsonHandlerTest);
-    const plain = JSON.parse(typeHandler.stringify(new JsonHandlerTest('unchanged')));
+    const plain = JSON.parse(typeHandler.instanceToRaw(new JsonHandlerTest('unchanged')));
     t.is(plain.foo, 'changed');
 });
 
@@ -44,7 +44,7 @@ test('JsonHandlerSimple should use reviver', t => {
         }),
     });
     const typeHandler = decoratedJson.type(JsonHandlerTest);
-    const parsed = typeHandler.parseJson(JSON.stringify({foo: 'unchanged'}));
+    const parsed = typeHandler.rawToInstance(JSON.stringify({foo: 'unchanged'}));
     t.is(parsed.foo, 'changed');
 });
 
@@ -55,7 +55,7 @@ test('JsonHandlerSimple should use correct indentation', t => {
         }),
     });
     const typeHandler = decoratedJson.type(JsonHandlerTest);
-    const stringified = typeHandler.stringify(new JsonHandlerTest('unchanged'));
+    const stringified = typeHandler.instanceToRaw(new JsonHandlerTest('unchanged'));
     t.true(stringified.includes('   "foo"'));
 });
 
@@ -67,9 +67,9 @@ const customJsonHandler = new DecoratedJson({
 }).type(JsonHandlerTest);
 
 test('Custom JSON handler should use the custom parse function', t => {
-    t.is(customJsonHandler.parseJson(JSON.stringify({foo: 'unchanged'})).foo, 'changed');
+    t.is(customJsonHandler.rawToInstance(JSON.stringify({foo: 'unchanged'})).foo, 'changed');
 });
 
-test('Custom JSON handler should use the custom stringify function', t => {
-    t.is(customJsonHandler.stringify(new JsonHandlerTest('unchanged')), '{"foo": "changed"}');
+test('Custom JSON handler should use the custom instanceToRaw function', t => {
+    t.is(customJsonHandler.instanceToRaw(new JsonHandlerTest('unchanged')), '{"foo": "changed"}');
 });

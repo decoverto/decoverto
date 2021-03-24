@@ -22,8 +22,8 @@ export interface ThrowTypeMismatchErrorInput {
 }
 
 export abstract class Converter<Class = any, Json = any> {
-    abstract fromJson(context: ConversionContext<Json>): Class;
-    abstract toJson(context: ConversionContext<Class>): Json;
+    abstract toInstance(context: ConversionContext<Json>): Class;
+    abstract toPlain(context: ConversionContext<Class>): Json;
 
     /**
      * Return a human readable name for this converter. Will be used in error and debug messages.

@@ -12,11 +12,11 @@ export class ThrowTypeMismatchErrorSpec extends Converter {
         });
     }
 
-    fromJson(): any {
+    toInstance(): any {
         throw new Error('Not implemented');
     }
 
-    toJson(): any {
+    toPlain(): any {
         throw new Error('Not implemented');
     }
 

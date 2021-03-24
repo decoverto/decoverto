@@ -108,7 +108,7 @@ interface ToJsonMacro {
 
 const fromJsonMacro: Macro<[FromJsonMacro]> = (t, options) => {
     const {expected, subject} = options;
-    const result = decoratedJson.type(TypedArraySpec).parsePlain(subject);
+    const result = decoratedJson.type(TypedArraySpec).plainToInstance(subject);
     const testProperty = (constructor: Constructor<any>, property: TypedArraySpecProperties) => {
         const actualValue = result[property];
         const expectedValue = expected[property];
@@ -143,7 +143,7 @@ const toJsonMacro: Macro<[ToJsonMacro]> = (t, options) => {
     });
 
     const subject = Object.assign(new TypedArraySpec(), subjectValues);
-    const actual = decoratedJson.type(TypedArraySpec).toPlain(subject);
+    const actual = decoratedJson.type(TypedArraySpec).instanceToPlain(subject);
     t.deepEqual(actual, expected);
 };
 
@@ -252,7 +252,7 @@ const fromJsonNotAnArrayError: Macro<[keyof TypedArraySpec]> = (t, property) => 
     const typeHandler = decoratedJson.type(TypedArraySpec);
 
     invalidValues.forEach(invalidValue => {
-        t.throws(() => typeHandler.parsePlain({[property]: invalidValue}), {
+        t.throws(() => typeHandler.plainToInstance({[property]: invalidValue}), {
             message: getDiagnostic('invalidValueError', {
                 path: `${TypedArraySpec.name}.${property}`,
                 actualType: invalidValue.constructor.name,
@@ -300,7 +300,7 @@ test('Typed array to JSON should error if the source value does not match the ex
     t.throws(() => {
         const subject = new TypedArraySpec();
         subject.int8 = new Float32Array([5]) as any;
-        decoratedJson.type(TypedArraySpec).stringify(subject);
+        decoratedJson.type(TypedArraySpec).instanceToRaw(subject);
     }, {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Float32Array',
@@ -341,7 +341,7 @@ const fromJsonAndBackShouldEqualMacro: Macro<[TypedArrayObjectData]> = (t, data)
         expected[property] = new constructor(data[property]);
     });
     const typeHandler = decoratedJson.type(TypedArraySpec);
-    const actual = typeHandler.parseJson(typeHandler.stringify(expected));
+    const actual = typeHandler.rawToInstance(typeHandler.instanceToRaw(expected));
     const humanReadableActual = actual.convertToHumanReadable();
     const humanReadableExpected = expected.convertToHumanReadable();
 

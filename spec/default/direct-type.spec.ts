@@ -21,7 +21,7 @@ const directTypeMismatchTypeHandler = decoratedJson.type(DirectTypeMismatch);
 
 test(`An error should be thrown when the defined type and the type encountered during fromJson \
 differ`, t => {
-    t.throws(() => directTypeMismatchTypeHandler.parsePlain({property: 15}), {
+    t.throws(() => directTypeMismatchTypeHandler.plainToInstance({property: 15}), {
         message: getDiagnostic('invalidValueError', {
             path: 'DirectTypeMismatch.property',
             actualType: 'Number',
@@ -32,7 +32,7 @@ differ`, t => {
 
 test(`An error should be thrown when the defined type and the type encountered during toJson \
 differ`, t => {
-    t.throws(() => directTypeMismatchTypeHandler.toPlain(new DirectTypeMismatch(15)), {
+    t.throws(() => directTypeMismatchTypeHandler.instanceToPlain(new DirectTypeMismatch(15)), {
         message: getDiagnostic('invalidValueError', {
             path: 'DirectTypeMismatch.property',
             actualType: 'Number',

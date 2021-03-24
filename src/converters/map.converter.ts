@@ -63,7 +63,7 @@ export class MapConverter<Key extends Object, Value extends Object>
         this.shape = options.shape;
     }
 
-    fromJson(
+    toInstance(
         context: ConversionContext<MapJson | null | undefined>,
     ): Map<Key, Value> | null | undefined {
         const {source, path} = context;
@@ -83,7 +83,7 @@ export class MapConverter<Key extends Object, Value extends Object>
 
         if (Array.isArray(source)) {
             source.forEach((element, index) => {
-                const key = this.keyType.fromJson({
+                const key = this.keyType.toInstance({
                     ...context,
                     path: `${path}[${index}].key`,
                     source: element.key,
@@ -91,7 +91,7 @@ export class MapConverter<Key extends Object, Value extends Object>
 
                 resultMap.set(
                     key,
-                    this.valueType.fromJson({
+                    this.valueType.toInstance({
                         ...context,
                         path: `${path}[${index}].value`,
                         source: element.value,
@@ -100,14 +100,14 @@ export class MapConverter<Key extends Object, Value extends Object>
             });
         } else {
             Object.keys(source).forEach((key, index) => {
-                const resultKey = this.keyType.fromJson({
+                const resultKey = this.keyType.toInstance({
                     ...context,
                     path: `${path}[${index}].key`,
                     source: key,
                 });
                 resultMap.set(
                     resultKey,
-                    this.valueType.fromJson({
+                    this.valueType.toInstance({
                         ...context,
                         path: `${path}[${index}].value`,
                         source: source[key],
@@ -123,7 +123,7 @@ export class MapConverter<Key extends Object, Value extends Object>
      * Performs the conversion of a map of typed objects (or primitive values) into an array
      * of simple javascript objects with `key` and `value` properties.
      */
-    toJson(
+    toPlain(
         context: ConversionContext<Map<Key, Value> | null | undefined>,
     ): MapJson | null | undefined {
         if (context.source == null) {
@@ -137,12 +137,12 @@ export class MapConverter<Key extends Object, Value extends Object>
         // properties.
         context.source.forEach((value, key) => {
             const resultKeyValuePairObj = {
-                key: this.keyType.toJson({
+                key: this.keyType.toPlain({
                     ...context,
                     path: `${context.path}[].value`,
                     source: key,
                 }) ?? null,
-                value: this.valueType.toJson({
+                value: this.valueType.toPlain({
                     ...context,
                     path: `${context.path}[].value`,
                     source: value,
