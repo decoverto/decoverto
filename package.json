@@ -48,7 +48,6 @@
     },
     "homepage": "https://github.com/decoverto/decoverto",
     "dependencies": {
-        "ava": "^3.15.0",
         "tslib": "^2.0.1"
     },
     "devDependencies": {
@@ -58,6 +57,7 @@
         "@size-limit/preset-small-lib": "^4.5.7",
         "@types/node": "^12.18.0",
         "@types/sinon": "^9.0.11",
+        "ava": "^3.15.0",
         "eslint-plugin-ava": "^11.0.0",
         "husky": "^4.2.5",
         "lint-staged": "^10.2.13",
