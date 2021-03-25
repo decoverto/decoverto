@@ -1,7 +1,7 @@
 [![npm version](https://img.shields.io/npm/v/decoverto.svg?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/decoverto)
 [![Build Status](https://img.shields.io/github/workflow/status/decoverto/decoverto/Node%20CI?label=CI&logo=github&style=for-the-badge)
 ](https://github.com/decoverto/decoverto/actions)
-[![Build Status](https://img.shields.io/npm/l/decoverto?&style=for-the-badge&color=green)
+[![License](https://img.shields.io/npm/l/decoverto?&style=for-the-badge&color=green)
 ](https://github.com/decoverto/decoverto/LICENSE)
 
 # Decoverto
