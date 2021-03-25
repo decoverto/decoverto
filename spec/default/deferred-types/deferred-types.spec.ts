@@ -2,7 +2,7 @@ import test from 'ava';
 
 import {
     array,
-    DecoratedJson,
+    Decoverto,
     jsonObject,
     jsonProperty,
     map,
@@ -12,7 +12,7 @@ import {
 import {A} from './a.model';
 import {B} from './b.model';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class DeferredSimple {
@@ -50,10 +50,10 @@ class Deferred {
     name: string;
 }
 
-const simpleTypeHandler = decoratedJson.type(DeferredSimple);
-const arrayTypeHandler = decoratedJson.type(DeferredArray);
-const mapTypeHandler = decoratedJson.type(DeferredMap);
-const setTypeHandler = decoratedJson.type(DeferredSet);
+const simpleTypeHandler = decoverto.type(DeferredSimple);
+const arrayTypeHandler = decoverto.type(DeferredArray);
+const mapTypeHandler = decoverto.type(DeferredMap);
+const setTypeHandler = decoverto.type(DeferredSet);
 
 test('Converting a simple object with a not yet defined type from JSON should succeed', t => {
     const result = simpleTypeHandler.plainToInstance({
@@ -142,7 +142,7 @@ test('Converting a set of objects with a not yet defined type to JSON should suc
 });
 
 test('Conversion should succeed on circular models in separate files', t => {
-    const result = decoratedJson.type(A).plainToInstance({
+    const result = decoverto.type(A).plainToInstance({
         b: {
             a: {
                 b: {

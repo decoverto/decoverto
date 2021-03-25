@@ -1,7 +1,7 @@
 {
-    "name": "decorated-json",
+    "name": "decoverto",
     "version": "0.1.0",
-    "description": "Converts JSON to JS classes and back using decorators",
+    "description": "Converts data such as JSON to JS/TS classes and back using decorators",
     "keywords": [
         "serialization",
         "deserialization",
@@ -40,13 +40,13 @@
         "test:ts:spec": "tsc -p tsconfig/tsconfig.spec-strict.json",
         "version": "yarn run build"
     },
-    "repository": "github:MatthiasKunnen/decorated-json",
+    "repository": "github:decoverto/decoverto",
     "author": "Matthias Kunnen",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/MatthiasKunnen/decorated-json/issues"
+        "url": "https://github.com/decoverto/decoverto/issues"
     },
-    "homepage": "https://github.com/MatthiasKunnen/decorated-json",
+    "homepage": "https://github.com/decoverto/decoverto",
     "dependencies": {
         "ava": "^3.15.0",
         "tslib": "^2.0.1"

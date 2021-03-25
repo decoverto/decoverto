@@ -1,8 +1,8 @@
 import test from 'ava';
 
-import {array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {array, Decoverto, jsonObject, jsonProperty} from '../../src';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class Person {
@@ -19,7 +19,7 @@ function`, t => {
     person.firstName = 'Mulit term name';
     person.lastName = 'Surname';
 
-    t.deepEqual(JSON.parse(decoratedJson.type(Person).instanceToRaw(person)), {
+    t.deepEqual(JSON.parse(decoverto.type(Person).instanceToRaw(person)), {
         firstName: 'Mark',
         lastName: 'Foreman',
     });
@@ -27,7 +27,7 @@ function`, t => {
 
 test('Converting @jsonProperty({toPlain: ...}) to JSON should not affect toInstance', t => {
     t.deepEqual(
-        decoratedJson.type(Person).rawToInstance('{"firstName":"name","lastName":"last"}'),
+        decoverto.type(Person).rawToInstance('{"firstName":"name","lastName":"last"}'),
         Object.assign(new Person(), {firstName: 'name', lastName: 'last'}),
     );
 });
@@ -41,7 +41,7 @@ function`, t => {
             complex: boolean | string | number | URL;
         }
 
-        const typeHandler = decoratedJson.type(ToJsonComplexType);
+        const typeHandler = decoverto.type(ToJsonComplexType);
         t.true(typeHandler.instanceToPlain(new ToJsonComplexType()).complex);
     });
 });
@@ -61,7 +61,7 @@ function', t => {
     testInstance.nums = [3, 45, 34];
     testInstance.str = 'Text';
 
-    t.deepEqual(JSON.parse(decoratedJson.type(ArrayToJsonTest).instanceToRaw(testInstance)), {
+    t.deepEqual(JSON.parse(decoverto.type(ArrayToJsonTest).instanceToRaw(testInstance)), {
         nums: '3,45,34',
         str: 'Text',
     });
@@ -70,7 +70,7 @@ function', t => {
 test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
 toJson`, t => {
     t.deepEqual(
-        decoratedJson.type(ArrayToJsonTest).rawToInstance('{"nums":[4,5,6,7],"str":"string"}'),
+        decoverto.type(ArrayToJsonTest).rawToInstance('{"nums":[4,5,6,7],"str":"string"}'),
         Object.assign(new ArrayToJsonTest(), {nums: [4, 5, 6, 7], str: 'string'}),
     );
 });
@@ -90,7 +90,7 @@ test('Converting @jsonProperty(array(() => Class), {toPlain: function}) should s
     }
 
     function objArrayToJson(values: Array<Inner>) {
-        return decoratedJson.type(Inner).instanceArrayToPlain(
+        return decoverto.type(Inner).instanceArrayToPlain(
             values.filter(value => value.shouldConvertToJson),
         );
     }
@@ -110,7 +110,7 @@ test('Converting @jsonProperty(array(() => Class), {toPlain: function}) should s
         new Inner('something', true),
     ];
     obj.str = 'Text';
-    const json = JSON.parse(decoratedJson.type(Obj).instanceToRaw(obj));
+    const json = JSON.parse(decoverto.type(Obj).instanceToRaw(obj));
 
     t.deepEqual(json, {
         inners: [

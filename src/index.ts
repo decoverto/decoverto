@@ -1,4 +1,4 @@
-export * from './decorated-json';
+export * from './decoverto';
 export * from './type-handler';
 export * from './json-handler';
 export {JsonObjectMetadata} from './metadata';

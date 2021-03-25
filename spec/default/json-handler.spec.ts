@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {DecoratedJson, JsonHandlerSimple, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, JsonHandlerSimple, jsonObject, jsonProperty} from '../../src';
 
 @jsonObject()
 class JsonHandlerTest {
@@ -14,7 +14,7 @@ class JsonHandlerTest {
 }
 
 test('JsonHandlerSimple should use replacer', t => {
-    const decoratedJson = new DecoratedJson({
+    const decoverto = new Decoverto({
         jsonHandler: new JsonHandlerSimple({
             replacer: (key, value) => {
                 if (value === 'unchanged') {
@@ -26,13 +26,13 @@ test('JsonHandlerSimple should use replacer', t => {
         }),
     });
 
-    const typeHandler = decoratedJson.type(JsonHandlerTest);
+    const typeHandler = decoverto.type(JsonHandlerTest);
     const plain = JSON.parse(typeHandler.instanceToRaw(new JsonHandlerTest('unchanged')));
     t.is(plain.foo, 'changed');
 });
 
 test('JsonHandlerSimple should use reviver', t => {
-    const decoratedJson = new DecoratedJson({
+    const decoverto = new Decoverto({
         jsonHandler: new JsonHandlerSimple({
             reviver: (key, value) => {
                 if (value === 'unchanged') {
@@ -43,23 +43,23 @@ test('JsonHandlerSimple should use reviver', t => {
             },
         }),
     });
-    const typeHandler = decoratedJson.type(JsonHandlerTest);
+    const typeHandler = decoverto.type(JsonHandlerTest);
     const parsed = typeHandler.rawToInstance(JSON.stringify({foo: 'unchanged'}));
     t.is(parsed.foo, 'changed');
 });
 
 test('JsonHandlerSimple should use correct indentation', t => {
-    const decoratedJson = new DecoratedJson({
+    const decoverto = new Decoverto({
         jsonHandler: new JsonHandlerSimple({
             spaces: 4,
         }),
     });
-    const typeHandler = decoratedJson.type(JsonHandlerTest);
+    const typeHandler = decoverto.type(JsonHandlerTest);
     const stringified = typeHandler.instanceToRaw(new JsonHandlerTest('unchanged'));
     t.true(stringified.includes('   "foo"'));
 });
 
-const customJsonHandler = new DecoratedJson({
+const customJsonHandler = new Decoverto({
     jsonHandler: {
         parse: () => new JsonHandlerTest('changed'),
         stringify: () => '{"foo": "changed"}',

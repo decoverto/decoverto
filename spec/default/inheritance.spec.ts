@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, jsonObject, jsonProperty} from '../../src';
 
 class UParent {
 
@@ -48,10 +48,10 @@ class DParentUChildUChild extends DParentDChild {
     child2Property: string;
 }
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 test('Converting from JSON with a decorated parent and child should work', t => {
-    const result = decoratedJson.type(DParentDChild).plainToInstance({
+    const result = decoverto.type(DParentDChild).plainToInstance({
         parentProperty: 'parent',
         childProperty: 'child',
     });
@@ -64,7 +64,7 @@ test('Converting a decorated subtype to plain with .type(Parent) should work', t
     const subject = new DParentDChild();
     subject.childProperty = 'child';
     subject.parentProperty = 'parent';
-    const result = decoratedJson.type(DParent).instanceToPlain(subject);
+    const result = decoverto.type(DParent).instanceToPlain(subject);
 
     t.deepEqual(result, {
         childProperty: 'child',
@@ -77,7 +77,7 @@ test('Converting a decorated subtype of a subtype to plain with .type(Parent) sh
     subject.childProperty = 'child';
     subject.child2Property = 'child2';
     subject.parentProperty = 'parent';
-    const result = decoratedJson.type(DParent).instanceToPlain(subject);
+    const result = decoverto.type(DParent).instanceToPlain(subject);
 
     t.deepEqual(result, {
         childProperty: 'child',
@@ -90,7 +90,7 @@ test('Converting an undecorated subtype to plain with .type(Parent) should work'
     const subject = new DParentUChild();
     subject.childProperty = 'child';
     subject.parentProperty = 'parent';
-    const result = decoratedJson.type(DParent).instanceToPlain(subject);
+    const result = decoverto.type(DParent).instanceToPlain(subject);
 
     t.deepEqual(result, {
         childProperty: 'child',
@@ -103,7 +103,7 @@ test('Converting DParentUChildUChild of a subtype to plain with .type(Parent) sh
     subject.childProperty = 'child';
     subject.child2Property = 'child2';
     subject.parentProperty = 'parent';
-    const result = decoratedJson.type(DParent).instanceToPlain(subject);
+    const result = decoverto.type(DParent).instanceToPlain(subject);
 
     t.deepEqual(result, {
         childProperty: 'child',
@@ -116,7 +116,7 @@ test('Converting a decorated  child of an undecorated parent with .type(Child) s
     const subject = new UParentDChild();
     subject.parentProperty = 'parent';
     subject.childProperty = 'child';
-    const result = decoratedJson.type(UParentDChild).instanceToPlain(subject);
+    const result = decoverto.type(UParentDChild).instanceToPlain(subject);
 
     t.deepEqual(result, {
         parentProperty: 'parent',

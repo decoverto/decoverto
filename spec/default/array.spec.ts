@@ -1,10 +1,10 @@
 import test from 'ava';
 
-import {Any, array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Any, array, Decoverto, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {Everything, IEverything} from '../utils/everything';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class Simple {
@@ -27,13 +27,13 @@ class Simple {
 }
 
 test('array of objects should parse an empty array', t => {
-    const result = decoratedJson.type(Simple).rawToInstanceArray('[]');
+    const result = decoverto.type(Simple).rawToInstanceArray('[]');
     t.not(result, undefined);
     t.is(result.length, 0);
 });
 
 test('array of objects should instanceToRaw an empty array', t => {
-    const result = decoratedJson.type(Simple).arrayInstanceToRaw([]);
+    const result = decoverto.type(Simple).arrayInstanceToRaw([]);
     t.is(result, '[]');
 });
 
@@ -44,7 +44,7 @@ test('array of objects parse result should be the correct type', t => {
         {strProp: 'gamma', numProp: 0},
     ];
 
-    const result = decoratedJson.type(Simple).rawToInstanceArray(JSON.stringify(expectation));
+    const result = decoverto.type(Simple).rawToInstanceArray(JSON.stringify(expectation));
 
     t.is(result.length, 3, 'Parsed array is of wrong length');
     result.forEach((obj, index) => {
@@ -60,7 +60,7 @@ test('array of objects toPlain result should contain all elements', t => {
         {strProp: 'gamma', numProp: 0},
     ];
 
-    const result = decoratedJson
+    const result = decoverto
         .type(Simple)
         .arrayInstanceToRaw(expectation.map(obj => new Simple(obj)));
 
@@ -68,7 +68,7 @@ test('array of objects toPlain result should contain all elements', t => {
 });
 
 test('array of objects should error on non-array toInstance', t => {
-    t.throws(() => decoratedJson.type(Simple).plainToInstanceArray(false as any), {
+    t.throws(() => decoverto.type(Simple).plainToInstanceArray(false as any), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Boolean',
             expectedType: 'Array<Simple>',
@@ -78,7 +78,7 @@ test('array of objects should error on non-array toInstance', t => {
 });
 
 test('array of objects should error on non-array toPlain', t => {
-    t.throws(() => decoratedJson.type(Simple).instanceArrayToPlain(false as any), {
+    t.throws(() => decoverto.type(Simple).instanceArrayToPlain(false as any), {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Boolean',
             expectedType: 'Array<Simple>',
@@ -157,7 +157,7 @@ test('array of objects should error on non-array toPlain', t => {
     }
 
     test('multidimensional arrays parse correctly', t => {
-        const result = decoratedJson.type(WithArrays).plainToInstance(createTestObject(false));
+        const result = decoverto.type(WithArrays).plainToInstance(createTestObject(false));
 
         t.is(result.one.length, 2);
         t.is(result.two.length, 4);
@@ -167,7 +167,7 @@ test('array of objects should error on non-array toPlain', t => {
     });
 
     test('converts to JSON', t => {
-        const result = decoratedJson.type(WithArrays).instanceToRaw(createTestObject(true));
+        const result = decoverto.type(WithArrays).instanceToRaw(createTestObject(true));
 
         t.is(result, JSON.stringify(createTestObject(true)));
     });
@@ -181,7 +181,7 @@ class ArrayPropertyAny {
     @jsonProperty(array(Any))
     anyNullable?: Array<any> | null;
 }
-const arrayPropertyAnyHandler = decoratedJson.type(ArrayPropertyAny);
+const arrayPropertyAnyHandler = decoverto.type(ArrayPropertyAny);
 
 test('@jsonProperty(array(Any)) should parse from JSON simple object correctly', t => {
     const result = arrayPropertyAnyHandler.plainToInstance({

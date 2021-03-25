@@ -1,9 +1,9 @@
 import test from 'ava';
 
-import {Any, AnyConverter, array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Any, AnyConverter, array, Decoverto, jsonObject, jsonProperty} from '../../src';
 import {createPassThroughMacro} from '../helpers/macros';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class SimplePropertyAny {
@@ -23,7 +23,7 @@ const passThroughMacro = createPassThroughMacro({
 });
 
 test('@jsonProperty(Any) should parse simple object correctly', t => {
-    const result = decoratedJson.type(SimplePropertyAny).plainToInstance({
+    const result = decoverto.type(SimplePropertyAny).plainToInstance({
         any: {foo: 'bar'},
         anyNullable: {foo: 'bar'},
     });
@@ -33,7 +33,7 @@ test('@jsonProperty(Any) should parse simple object correctly', t => {
 
 test('@jsonProperty(Any) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
-    const result = decoratedJson.type(SimplePropertyAny).plainToInstance({
+    const result = decoverto.type(SimplePropertyAny).plainToInstance({
         any: foo,
         anyNullable: foo,
     });
@@ -86,7 +86,7 @@ test('Any should handle complex structures', t => {
         events: Array<Event>;
     }
 
-    const result = decoratedJson.type(A).plainToInstance({
+    const result = decoverto.type(A).plainToInstance({
         events: [
             {
                 data: {

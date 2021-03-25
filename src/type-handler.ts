@@ -27,7 +27,7 @@ export class TypeHandler<RootType> {
     private readonly rootConverter: ConcreteConverter;
 
     /**
-     * Creates a new DecoratedJson instance to perform conversion to and from JSON for the given
+     * Creates a new Decoverto instance to perform conversion to and from instances of the given
      * root class type.
      * @param rootConstructor The constructor of the root class type.
      * @param settings Additional configuration settings.

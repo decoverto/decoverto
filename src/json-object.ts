@@ -7,7 +7,7 @@ export type InitializerCallback<T> = (sourceObject: T, rawSourceObject: T) => T;
 export type JsonObjectOptions<T> = OptionsBase;
 
 /**
- * Marks that a class is convertible using DecoratedJson, with additional settings.
+ * Marks that a class is convertible using Decoverto, with additional settings.
  * @param options Configuration settings.
  */
 export function jsonObject<T>(

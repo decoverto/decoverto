@@ -1,6 +1,6 @@
 import test, {Macro} from 'ava';
 
-import {Constructor, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Constructor, Decoverto, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {createPassThroughMacro} from '../helpers/macros';
 
@@ -60,7 +60,7 @@ const typedArrayPropertyMap: Array<[TypedArraySpecProperties, Constructor<any>]>
     ['uint32', Uint32Array],
 ];
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 const passThroughMacro = createPassThroughMacro({
     class: TypedArraySpec,
@@ -108,7 +108,7 @@ interface ToJsonMacro {
 
 const fromJsonMacro: Macro<[FromJsonMacro]> = (t, options) => {
     const {expected, subject} = options;
-    const result = decoratedJson.type(TypedArraySpec).plainToInstance(subject);
+    const result = decoverto.type(TypedArraySpec).plainToInstance(subject);
     const testProperty = (constructor: Constructor<any>, property: TypedArraySpecProperties) => {
         const actualValue = result[property];
         const expectedValue = expected[property];
@@ -143,7 +143,7 @@ const toJsonMacro: Macro<[ToJsonMacro]> = (t, options) => {
     });
 
     const subject = Object.assign(new TypedArraySpec(), subjectValues);
-    const actual = decoratedJson.type(TypedArraySpec).instanceToPlain(subject);
+    const actual = decoverto.type(TypedArraySpec).instanceToPlain(subject);
     t.deepEqual(actual, expected);
 };
 
@@ -249,7 +249,7 @@ test('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', fromJso
 
 const fromJsonNotAnArrayError: Macro<[keyof TypedArraySpec]> = (t, property) => {
     const invalidValues = ['', true, new Date()];
-    const typeHandler = decoratedJson.type(TypedArraySpec);
+    const typeHandler = decoverto.type(TypedArraySpec);
 
     invalidValues.forEach(invalidValue => {
         t.throws(() => typeHandler.plainToInstance({[property]: invalidValue}), {
@@ -300,7 +300,7 @@ test('Typed array to JSON should error if the source value does not match the ex
     t.throws(() => {
         const subject = new TypedArraySpec();
         subject.int8 = new Float32Array([5]) as any;
-        decoratedJson.type(TypedArraySpec).instanceToRaw(subject);
+        decoverto.type(TypedArraySpec).instanceToRaw(subject);
     }, {
         message: getDiagnostic('invalidValueError', {
             actualType: 'Float32Array',
@@ -340,7 +340,7 @@ const fromJsonAndBackShouldEqualMacro: Macro<[TypedArrayObjectData]> = (t, data)
     typedArrayPropertyMap.forEach(([property, constructor]) => {
         expected[property] = new constructor(data[property]);
     });
-    const typeHandler = decoratedJson.type(TypedArraySpec);
+    const typeHandler = decoverto.type(TypedArraySpec);
     const actual = typeHandler.rawToInstance(typeHandler.instanceToRaw(expected));
     const humanReadableActual = actual.convertToHumanReadable();
     const humanReadableExpected = expected.convertToHumanReadable();

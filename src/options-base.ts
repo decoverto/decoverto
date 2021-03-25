@@ -5,7 +5,7 @@
  * 1. @jsonProperty options
  * 1. @jsonObject options
  * 1. TypeHandler options
- * 1. DecoratedJson options
+ * 1. Decoverto options
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface OptionsBase {

@@ -1,8 +1,8 @@
 import test from 'ava';
 
-import {array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {array, Decoverto, jsonObject, jsonProperty} from '../../src';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class Person {
@@ -20,20 +20,20 @@ class Person {
 const simpleJson = '{ "firstName": "John", "lastName": "Doe" }';
 
 test('Parsing @jsonProperty({toInstance: ...}) should use the toInstance function', t => {
-    const result = decoratedJson.type(Person)
+    const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.is(result.firstName, 'Mark');
     t.is(result.lastName, 'Foreman');
 });
 
 test('Result of parsing @jsonProperty({toInstance: ...}) should have the correct type', t => {
-    const result = decoratedJson.type(Person)
+    const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.true(result instanceof Person);
 });
 
 test('Result of parsing @jsonProperty({toInstance: ...}) should have with callable methods', t => {
-    const result = decoratedJson.type(Person)
+    const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.is(result.getFullName(), 'Mark Foreman');
 });
@@ -43,7 +43,7 @@ test('Result of parsing @jsonProperty({toInstance: ...}) should not affect toPla
     result.firstName = 'John';
     result.lastName = 'Doe';
     t.is(
-        decoratedJson.type(Person).instanceToRaw(result),
+        decoverto.type(Person).instanceToRaw(result),
         '{"firstName":"John","lastName":"Doe"}',
     );
 });
@@ -57,7 +57,7 @@ function`, t => {
             complex: boolean | string | number | URL;
         }
 
-        const typeHandler = decoratedJson.type(ToJsonComplexType);
+        const typeHandler = decoverto.type(ToJsonComplexType);
         t.false(typeHandler.plainToInstance({complex: ''}).complex);
     });
 });
@@ -78,7 +78,7 @@ class ArrayFromJsonTest {
 }
 
 const arrayJson = '{ "nums": "1,2,3,4,5", "str": "Some string" }';
-const arrayFromJsonHandler = decoratedJson.type(ArrayFromJsonTest);
+const arrayFromJsonHandler = decoverto.type(ArrayFromJsonTest);
 
 test(`Parsing @jsonProperty(array(() => Number), {fromJson: ...}) should use the fromJson \
 function`, t => {
@@ -119,7 +119,7 @@ test('Converting @jsonProperty(array(() => Class), {toInstance: function}) shoul
             return;
         }
 
-        return decoratedJson.type(Inner).plainToInstanceArray(
+        return decoverto.type(Inner).plainToInstanceArray(
             values.filter(value => value.shouldConvertToObject),
         );
     }
@@ -133,7 +133,7 @@ test('Converting @jsonProperty(array(() => Class), {toInstance: function}) shoul
         str: string;
     }
 
-    const result = decoratedJson.type(Obj).rawToInstance(JSON.stringify({
+    const result = decoverto.type(Obj).rawToInstance(JSON.stringify({
         inners: [
             {
                 prop: 'something',

@@ -1,9 +1,9 @@
 import test from 'ava';
 
-import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 test('An error should be thrown when it is unknown how to convert a type', t => {
     class CustomType {
@@ -16,7 +16,7 @@ test('An error should be thrown when it is unknown how to convert a type', t => 
         bar: CustomType;
     }
 
-    const testNonDeterminableTypesHandler = decoratedJson.type(TestNonDeterminableTypes);
+    const testNonDeterminableTypesHandler = decoverto.type(TestNonDeterminableTypes);
     t.throws(() => testNonDeterminableTypesHandler.plainToInstance({bar: 'bar'}), {
         message: getDiagnostic('unknownTypeError', {
             path: 'TestNonDeterminableTypes.bar',

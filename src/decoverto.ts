@@ -8,13 +8,13 @@ import {JsonHandler, JsonHandlerSimple} from './json-handler';
 import {TypeHandler} from './type-handler';
 import {Serializable} from './types';
 
-interface DecoratedJsonSettings {
+interface DecovertoSettings {
 
     /**
      * Used to configure reviver, replacer, and spaces used in `JSON` methods or use a custom
      * JSON parser. Expects a class implementing `JsonHandler`. Example:
      * ```TypeScript
-     * import {JsonHandlerSimple} from 'decorated-json';
+     * import {JsonHandlerSimple} from 'decoverto';
      *
      * const jsonHandler = new JsonHandlerSimple({
      *     spaces: 4,
@@ -24,7 +24,7 @@ interface DecoratedJsonSettings {
     jsonHandler: JsonHandler;
 }
 
-export class DecoratedJson {
+export class Decoverto {
 
     /**
      * Maps a type to its respective converter.
@@ -49,10 +49,10 @@ export class DecoratedJson {
         [Uint32Array, new TypedArrayConverter(Uint32Array)],
     ]);
 
-    private readonly settings: DecoratedJsonSettings;
+    private readonly settings: DecovertoSettings;
 
     constructor(
-        settings: Partial<DecoratedJsonSettings> = {},
+        settings: Partial<DecovertoSettings> = {},
     ) {
         this.settings = {
             ...settings,

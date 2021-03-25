@@ -1,8 +1,8 @@
 import test from 'ava';
 
-import {Any, array, DecoratedJson, jsonObject, jsonProperty, map, MapShape} from '../../src';
+import {Any, array, Decoverto, jsonObject, jsonProperty, map, MapShape} from '../../src';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 test('Complex @jsonProperty should parse', t => {
     @jsonObject()
@@ -12,7 +12,7 @@ test('Complex @jsonProperty should parse', t => {
         arrayOfMapsOfDateArrayAny: Array<Map<Date, Array<any>>>;
     }
 
-    const typeHandler = decoratedJson.type(ComplexProperty);
+    const typeHandler = decoverto.type(ComplexProperty);
     const firstDate = new Date('2021-03-15T07:44:13.907Z');
     const result = typeHandler.plainToInstance({
         arrayOfMapsOfDateArrayAny: [

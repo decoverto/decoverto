@@ -58,7 +58,7 @@ a static method.`,
         };
     },
 
-    // Initialization errors, e.g. new DecoratedJson
+    // Initialization errors, e.g. new Decoverto
     unknownTypeCreatingTypeHandler(info: {type: Serializable<any>}) {
         return {
             code: 2000,

@@ -1,9 +1,9 @@
 import test from 'ava';
 
-import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class DirectTypeMismatch {
@@ -17,7 +17,7 @@ class DirectTypeMismatch {
     }
 }
 
-const directTypeMismatchTypeHandler = decoratedJson.type(DirectTypeMismatch);
+const directTypeMismatchTypeHandler = decoverto.type(DirectTypeMismatch);
 
 test(`An error should be thrown when the defined type and the type encountered during fromJson \
 differ`, t => {

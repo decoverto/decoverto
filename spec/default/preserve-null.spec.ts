@@ -1,8 +1,8 @@
 import test from 'ava';
 
-import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, jsonObject, jsonProperty} from '../../src';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 @jsonObject()
 class NullTest {
@@ -11,14 +11,14 @@ class NullTest {
 }
 
 test('null should be preserved while converting from JSON', t => {
-    const obj = decoratedJson.type(NullTest).plainToInstance({name: null});
+    const obj = decoverto.type(NullTest).plainToInstance({name: null});
     t.is(obj.name, null);
 });
 
 test('null should be preserved while converting to JSON', t => {
     const input = new NullTest();
     input.name = null;
-    const json = decoratedJson.type(NullTest).instanceToPlain(input);
+    const json = decoverto.type(NullTest).instanceToPlain(input);
     t.deepEqual(json, {name: null});
 });
 
@@ -29,7 +29,7 @@ class UndefinedTest {
 }
 
 test('Undefined should not be assigned while converting from JSON', t => {
-    const obj = decoratedJson.type(UndefinedTest).plainToInstance({name: undefined});
+    const obj = decoverto.type(UndefinedTest).plainToInstance({name: undefined});
     t.true(obj instanceof UndefinedTest);
     t.false(Object.prototype.hasOwnProperty.call(obj, 'name'));
 });
@@ -37,6 +37,6 @@ test('Undefined should not be assigned while converting from JSON', t => {
 test('Undefined should not be assigned while converting to JSON', t => {
     const input = new UndefinedTest();
     input.name = undefined;
-    const json = decoratedJson.type(UndefinedTest).instanceToPlain(input);
+    const json = decoverto.type(UndefinedTest).instanceToPlain(input);
     t.deepEqual(json, {});
 });

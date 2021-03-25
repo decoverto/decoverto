@@ -3,7 +3,7 @@ import {getDiagnostic} from './diagnostics';
 import {OptionsBase} from './options-base';
 import {Serializable} from './types';
 
-export const metadataFieldKey = Symbol('decoratedJsonMetadata');
+export const metadataFieldKey = Symbol('decovertoMetadata');
 
 export interface JsonPropertyMetadataBase {
 

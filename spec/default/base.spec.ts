@@ -1,29 +1,29 @@
 import test from 'ava';
 
-import {array, DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {array, Decoverto, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {Everything} from '../utils/everything';
 
-const decoratedJson = new DecoratedJson();
+const decoverto = new Decoverto();
 
 test('quoted builtins should parse', t => {
-    t.is(decoratedJson.type(String).rawToInstance('"str"'), 'str');
-    t.is(decoratedJson.type(Number).rawToInstance('45834'), 45834);
-    t.is(decoratedJson.type(Boolean).rawToInstance('true'), true);
+    t.is(decoverto.type(String).rawToInstance('"str"'), 'str');
+    t.is(decoverto.type(Number).rawToInstance('45834'), 45834);
+    t.is(decoverto.type(Boolean).rawToInstance('true'), true);
 
     const dataBuffer = Uint8Array.from([100, 117, 112, 97]) as any;
-    t.deepEqual(decoratedJson.type(ArrayBuffer).rawToInstance('"畤慰"'), dataBuffer.buffer);
+    t.deepEqual(decoverto.type(ArrayBuffer).rawToInstance('"畤慰"'), dataBuffer.buffer);
     t.deepEqual(
-        decoratedJson.type(DataView).rawToInstance('"畤慰"'),
+        decoverto.type(DataView).rawToInstance('"畤慰"'),
         new DataView(dataBuffer.buffer),
     );
-    t.deepEqual(decoratedJson.type(Uint8Array).rawToInstance('[100,117,112,97]'), dataBuffer);
+    t.deepEqual(decoverto.type(Uint8Array).rawToInstance('[100,117,112,97]'), dataBuffer);
 });
 
 test('quoted builtins should convert to JSON', t => {
-    t.is(decoratedJson.type(String).instanceToRaw('str'), '"str"');
-    t.is(decoratedJson.type(Number).instanceToRaw(45834), '45834');
-    t.is(decoratedJson.type(Boolean).instanceToRaw(true), 'true');
+    t.is(decoverto.type(String).instanceToRaw('str'), '"str"');
+    t.is(decoverto.type(Number).instanceToRaw(45834), '45834');
+    t.is(decoverto.type(Boolean).instanceToRaw(true), 'true');
 
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer);
@@ -31,9 +31,9 @@ test('quoted builtins should convert to JSON', t => {
     view.setInt8(1, 117);
     view.setInt8(2, 112);
     view.setInt8(3, 97);
-    t.is(decoratedJson.type(ArrayBuffer).instanceToRaw(buffer), '"畤慰"');
-    t.is(decoratedJson.type(DataView).instanceToRaw(view), '"畤慰"');
-    t.is(decoratedJson.type(Uint8Array).instanceToRaw(new Uint8Array(buffer)), '[100,117,112,97]');
+    t.is(decoverto.type(ArrayBuffer).instanceToRaw(buffer), '"畤慰"');
+    t.is(decoverto.type(DataView).instanceToRaw(view), '"畤慰"');
+    t.is(decoverto.type(Uint8Array).instanceToRaw(new Uint8Array(buffer)), '[100,117,112,97]');
 });
 
 @jsonObject()
@@ -50,7 +50,7 @@ class Person {
 }
 
 test('Converting a single class from JSON should succeed', t => {
-    const result = decoratedJson
+    const result = decoverto
         .type(Person)
         .rawToInstance('{ "firstName": "John", "lastName": "Doe" }');
     t.true(result instanceof Person);
@@ -63,20 +63,20 @@ test('Single class converted to JSON should contain all data', t => {
     person.firstName = 'John';
     person.lastName = 'Doe';
     t.is(
-        decoratedJson.type(Person).instanceToRaw(person),
+        decoverto.type(Person).instanceToRaw(person),
         '{"firstName":"John","lastName":"Doe"}',
     );
 });
 
 test('All basic types should be able to be converted from json', t => {
     const everything = Everything.create();
-    const object = decoratedJson.type(Everything).rawToInstance(JSON.stringify(everything));
+    const object = decoverto.type(Everything).rawToInstance(JSON.stringify(everything));
     t.deepEqual(object, Everything.expected());
 });
 
 test('All basic types should be able to be converted to json', t => {
     const everything = Everything.create();
-    const json = decoratedJson.type(Everything).instanceToRaw(new Everything(everything));
+    const json = decoverto.type(Everything).instanceToRaw(new Everything(everything));
     t.deepEqual(json, JSON.stringify(everything));
 });
 
@@ -99,7 +99,7 @@ test('class with defaults in property expression should use defaults', t => {
         present: number = 10;
     }
 
-    const parsed = decoratedJson.type(WithDefaults).rawToInstance('{"present":5}');
+    const parsed = decoverto.type(WithDefaults).rawToInstance('{"present":5}');
     const expected = new WithDefaults();
     expected.present = 5;
     t.deepEqual(parsed, expected);
@@ -132,7 +132,7 @@ test('class with defaults in constructors should use defaults', t => {
         }
     }
 
-    const parsed = decoratedJson.type(WithCtr).rawToInstance('{"present":5}');
+    const parsed = decoverto.type(WithCtr).rawToInstance('{"present":5}');
     const expected = new WithCtr();
     expected.present = 5;
     t.deepEqual(parsed, expected);
@@ -171,12 +171,12 @@ class SomeClass {
 }
 
 test('toPlain should work for class with getters and setters', t => {
-    const json = decoratedJson.type(SomeClass).instanceToRaw(new SomeClass());
+    const json = decoverto.type(SomeClass).instanceToRaw(new SomeClass());
     t.is(json, '{"prop":"value","getterOnly":"getter"}');
 });
 
 test('should parse from JSON', t => {
-    const parsed = decoratedJson.type(SomeClass).rawToInstance(
+    const parsed = decoverto.type(SomeClass).rawToInstance(
         '{"prop":"other value","setterOnly":"ok"}',
     );
 
@@ -196,12 +196,12 @@ class Child extends JustForOrganizationalPurpose {
 }
 
 test('Converting a class which extends an unannotated base class should succeed', t => {
-    t.is(decoratedJson.type(Child).instanceToRaw(new Child()), '{}');
-    t.deepEqual(decoratedJson.type(Child).rawToInstance('{}'), new Child());
+    t.is(decoverto.type(Child).instanceToRaw(new Child()), '{}');
+    t.deepEqual(decoverto.type(Child).rawToInstance('{}'), new Child());
 });
 
 test('Creating a type handler for an object without prototype should error', t => {
-    t.throws(() => decoratedJson.type(Object.create(null)), {
+    t.throws(() => decoverto.type(Object.create(null)), {
         message: getDiagnostic('unknownTypeCreatingTypeHandler', {
             type: Object.create(null),
         }),
@@ -210,12 +210,12 @@ test('Creating a type handler for an object without prototype should error', t =
 
 test(`Converting a class which extends an unannotated base class by providing the base class \
 should fail`, t => {
-    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).instanceToRaw(new Child()), {
+    t.throws(() => decoverto.type(JustForOrganizationalPurpose).instanceToRaw(new Child()), {
         message: getDiagnostic('unknownTypeCreatingTypeHandler', {
             type: JustForOrganizationalPurpose,
         }),
     });
-    t.throws(() => decoratedJson.type(JustForOrganizationalPurpose).rawToInstance('{}'), {
+    t.throws(() => decoverto.type(JustForOrganizationalPurpose).rawToInstance('{}'), {
         message: getDiagnostic('unknownTypeCreatingTypeHandler', {
             type: JustForOrganizationalPurpose,
         }),

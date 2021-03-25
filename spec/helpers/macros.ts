@@ -1,7 +1,7 @@
 // eslint-disable-next-line ava/use-test
 import {Macro} from 'ava';
 
-import {Constructor, DecoratedJson} from '../../src';
+import {Constructor, Decoverto} from '../../src';
 import {isObject} from '../../src/helpers';
 
 export interface CreatePassThroughMacro<T> {
@@ -34,7 +34,7 @@ export interface PassThroughMacro<T> {
 export function createPassThroughMacro<T>(
     createOptions: CreatePassThroughMacro<T>,
 ): Macro<[PassThroughMacro<T>]> {
-    const typeHandler = new DecoratedJson().type(createOptions.class);
+    const typeHandler = new Decoverto().type(createOptions.class);
     const macro: Macro<[PassThroughMacro<T>]> = (t, options) => {
         const subject = createOptions.createSubject(options.value);
         const result = options.type === 'fromJson'

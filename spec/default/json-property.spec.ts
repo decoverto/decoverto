@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {DecoratedJson, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, jsonObject, jsonProperty} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {use} from '../helpers/ava.helper';
 
@@ -111,7 +111,7 @@ class NameDifferenceSpec {
 }
 
 test('Difference in naming between class property and json should be handled by toInstance', t => {
-    const result = new DecoratedJson().type(NameDifferenceSpec).plainToInstance({
+    const result = new Decoverto().type(NameDifferenceSpec).plainToInstance({
         jsonProperty: 'hello',
     });
     t.is(result.classProperty, 'hello');
@@ -121,7 +121,7 @@ test('Difference in naming between class property and json should be handled by 
 test('Difference in naming between class property and json should be handled by toPlain', t => {
     const testSubject = new NameDifferenceSpec();
     testSubject.classProperty = 'hello';
-    const result = new DecoratedJson().type(NameDifferenceSpec).instanceToPlain(testSubject);
+    const result = new Decoverto().type(NameDifferenceSpec).instanceToPlain(testSubject);
     t.is(result.jsonProperty, 'hello');
     t.is(result.classProperty, undefined);
 });
