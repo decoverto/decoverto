@@ -18,14 +18,14 @@ const properties: Array<string> = [];
 
 for (let i = 0; i < amountOfProperties; i++) {
     properties.push(`
-    @jsonProperty(() => Number)
+    @property(() => Number)
     property${i}!: number;`);
 }
 
 const fileContent = `\
-const {jsonObject, jsonProperty} = require('../../../lib/cjs/index');
+const {model, property} = require('../../../lib/cjs/index');
 
-@jsonObject()
+@model()
 class Test {
 ${properties.join('\n')}
 }

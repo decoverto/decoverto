@@ -13,7 +13,7 @@ export type TypedArray =
     | Uint32Array;
 
 export type TypedArrayStrings = '+∞' | '-0' | '-∞' | 'NaN';
-export type TypedArrayItemJson = number | TypedArrayStrings;
+export type TypedArrayItemPlain = number | TypedArrayStrings;
 
 export class TypedArrayConverter extends SimpleConverter<TypedArray> {
 
@@ -31,12 +31,12 @@ export class TypedArrayConverter extends SimpleConverter<TypedArray> {
             });
         }
 
-        return new this.type(source.map(item => this.itemFromJson(item)));
+        return new this.type(source.map(item => this.itemToInstance(item)));
     }
 
     toPlain(
         context: ConversionContext<any | null | undefined>,
-    ): Array<TypedArrayItemJson> | null | undefined {
+    ): Array<TypedArrayItemPlain> | null | undefined {
         if (context.source == null) {
             return context.source;
         }
@@ -45,10 +45,10 @@ export class TypedArrayConverter extends SimpleConverter<TypedArray> {
             this.throwTypeMismatchError(context);
         }
 
-        return Array.from(context.source).map(item => this.itemToJson(item));
+        return Array.from(context.source).map(item => this.itemToPlain(item));
     }
 
-    private itemFromJson(item: TypedArrayItemJson): number {
+    private itemToInstance(item: TypedArrayItemPlain): number {
         if (typeof item === 'number') {
             return item;
         }
@@ -65,7 +65,7 @@ export class TypedArrayConverter extends SimpleConverter<TypedArray> {
         }
     }
 
-    private itemToJson(item: number): TypedArrayItemJson {
+    private itemToPlain(item: number): TypedArrayItemPlain {
         if (item === Infinity) {
             return '+∞';
         } else if (Object.is(item, -0)) {

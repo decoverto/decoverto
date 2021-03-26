@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {array, Decoverto, jsonObject, jsonProperty} from '../../src';
+import {array, Decoverto, model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {Everything} from '../utils/everything';
 
@@ -36,12 +36,12 @@ test('quoted builtins should convert to JSON', t => {
     t.is(decoverto.type(Uint8Array).instanceToRaw(new Uint8Array(buffer)), '[100,117,112,97]');
 });
 
-@jsonObject()
+@model()
 class Person {
-    @jsonProperty()
+    @property()
     firstName: string;
 
-    @jsonProperty()
+    @property()
     lastName: string;
 
     getFullName() {
@@ -81,21 +81,21 @@ test('All basic types should be able to be converted to json', t => {
 });
 
 test('class with defaults in property expression should use defaults', t => {
-    @jsonObject()
+    @model()
     class WithDefaults {
-        @jsonProperty()
+        @property()
         num: number = 2;
 
-        @jsonProperty()
+        @property()
         str: string = 'Hello world';
 
-        @jsonProperty()
+        @property()
         bool: boolean = true;
 
-        @jsonProperty(array(() => String))
+        @property(array(() => String))
         arr: Array<string> = [];
 
-        @jsonProperty()
+        @property()
         present: number = 10;
     }
 
@@ -106,21 +106,21 @@ test('class with defaults in property expression should use defaults', t => {
 });
 
 test('class with defaults in constructors should use defaults', t => {
-    @jsonObject()
+    @model()
     class WithCtr {
-        @jsonProperty()
+        @property()
         num: number;
 
-        @jsonProperty()
+        @property()
         str: string;
 
-        @jsonProperty()
+        @property()
         bool: boolean;
 
-        @jsonProperty(array(() => String))
+        @property(array(() => String))
         arr: Array<string>;
 
-        @jsonProperty()
+        @property()
         present: number;
 
         constructor() {
@@ -138,10 +138,10 @@ test('class with defaults in constructors should use defaults', t => {
     t.deepEqual(parsed, expected);
 });
 
-@jsonObject()
+@model()
 class SomeClass {
     private _prop: string = 'value';
-    @jsonProperty()
+    @property()
     get prop(): string {
         return this._prop;
     }
@@ -151,13 +151,13 @@ class SomeClass {
     }
 
     private _getterOnly: string = 'getter';
-    @jsonProperty()
+    @property()
     get getterOnly(): string {
         return this._getterOnly;
     }
 
     private _setterOnly: string = 'setter';
-    @jsonProperty()
+    @property()
     set setterOnly(val: string) {
         this._setterOnly = val;
     }
@@ -190,7 +190,7 @@ class JustForOrganizationalPurpose {
 
 }
 
-@jsonObject()
+@model()
 class Child extends JustForOrganizationalPurpose {
 
 }

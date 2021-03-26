@@ -5,60 +5,60 @@ import {Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decovertoMetadata');
 
-export interface JsonPropertyMetadataBase {
+export interface PropertyMetadataBase {
 
-    /** Name of the property as it appears in JSON. */
-    jsonName: string;
+    /** Name of the property as it appears in the plain form. */
+    plainName: string;
 
     /** Name of the property as it appears in the class. */
     key: string;
 
-    /** If set, indicates that the property must be present when converting from JSON. */
+    /** If set, indicates that the property must be present when converting to instance. */
     isRequired?: boolean | null;
 
     options?: OptionsBase | null;
 }
 
-export interface JsonPropertyOnlyConvertersMetadata extends JsonPropertyMetadataBase {
+export interface PropertyOnlyConvertersMetadata extends PropertyMetadataBase {
 
     /**
-     * This method will be used to convert the value **from** JSON.
+     * This method will be used to convert the value to instance.
      */
-    fromJson: ((json: any) => any);
+    toInstance: ((data: any) => any);
 
     /**
-     * This method will be used to convert the value **to** JSON.
+     * This method will be used to convert the value to plain.
      */
-    toJson: ((value: any) => any);
+    toPlain: ((instance: any) => any);
 }
 
-export interface JsonPropertyOverridingConvertersMetadata extends JsonPropertyMetadataBase {
+export interface PropertyOverridingConvertersMetadata extends PropertyMetadataBase {
 
     converter: Converter;
 
     /**
-     * When set, this will override the default strategy used to convert values **from** JSON.
+     * When set, this will override the default strategy used to convert values to instance.
      */
-    fromJson?: ((json: any) => any) | null;
+    toInstance?: ((data: any) => any) | null;
 
     /**
-     * When set, this will override the default strategy used to convert values **to** JSON.
+     * When set, this will override the default strategy used to convert values to plain.
      */
-    toJson?: ((value: any) => any) | null;
+    toPlain?: ((instance: any) => any) | null;
 }
 
-export type JsonPropertyMetadata =
-    | JsonPropertyOnlyConvertersMetadata
-    | JsonPropertyOverridingConvertersMetadata;
+export type PropertyMetadata =
+    | PropertyOnlyConvertersMetadata
+    | PropertyOverridingConvertersMetadata;
 
-export class JsonObjectMetadata {
+export class ModelMetadata {
 
-    /** Gets or sets the constructor function for the jsonObject. */
+    /** Gets or sets the constructor function for the model. */
     classType: Function;
 
     /**
-     * Indicates whether this class was explicitly annotated with @jsonObject()
-     * or implicitly by @jsonProperty()
+     * Indicates whether this class was explicitly annotated with @model()
+     * or implicitly by @property()
      */
     isExplicitlyMarked: boolean = false;
 
@@ -67,7 +67,7 @@ export class JsonObjectMetadata {
 
     options?: OptionsBase | null;
 
-    properties = new Map<string, JsonPropertyMetadata>();
+    properties = new Map<string, PropertyMetadata>();
 
     constructor(
         classType: Function,
@@ -76,10 +76,10 @@ export class JsonObjectMetadata {
     }
 
     /**
-     * Gets jsonObject metadata information from a class.
+     * Gets model metadata information from a class.
      * @param ctor The constructor class.
      */
-    static getFromConstructor<T>(ctor: Serializable<T>): JsonObjectMetadata | undefined {
+    static getFromConstructor<T>(ctor: Serializable<T>): ModelMetadata | undefined {
         const prototype = ctor.prototype;
         if (prototype == null) {
             return;
@@ -90,15 +90,15 @@ export class JsonObjectMetadata {
         }
     }
 
-    static ensurePresentInPrototype(prototype: Record<string, any>): JsonObjectMetadata {
+    static ensurePresentInPrototype(prototype: Record<string, any>): ModelMetadata {
         if (Object.prototype.hasOwnProperty.call(prototype, metadataFieldKey)) {
             return prototype[metadataFieldKey as any];
         }
-        // Target has no JsonObjectMetadata associated with it yet, create it now.
-        const objectMetadata = new JsonObjectMetadata(prototype.constructor);
+        // Target has no ModelMetadata associated with it yet, create it now.
+        const objectMetadata = new ModelMetadata(prototype.constructor);
 
-        // Inherit json properties from parent @jsonObject (if any).
-        const parentMetadata: JsonObjectMetadata | undefined = prototype[metadataFieldKey as any];
+        // Inherit properties from parent @model (if any).
+        const parentMetadata: ModelMetadata | undefined = prototype[metadataFieldKey as any];
         if (parentMetadata !== undefined) {
             parentMetadata.properties.forEach((propertyMetadata, propKey) => {
                 objectMetadata.properties.set(propKey, propertyMetadata);
@@ -118,7 +118,7 @@ export class JsonObjectMetadata {
 export function injectMetadataInformation(
     prototype: Record<string, any> | Function,
     propKey: string | symbol,
-    metadata: JsonPropertyMetadata,
+    metadata: PropertyMetadata,
 ) {
     // For error messages
     const typeName = prototype.constructor.name;
@@ -131,30 +131,30 @@ export function injectMetadataInformation(
     // ... and static members are not supported here, so abort.
     if (typeof prototype === 'function') {
         if (typeof (prototype as any)[propKey] === 'function') {
-            throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnStaticMethod', {
+            throw new Error(getDiagnostic('propertyCannotBeUsedOnStaticMethod', {
                 property: propKey,
                 typeName: prototype.prototype.constructor.name,
             }));
         } else {
-            throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnStaticProperty', {
+            throw new Error(getDiagnostic('propertyCannotBeUsedOnStaticProperty', {
                 property: propKey,
                 typeName: prototype.prototype.constructor.name,
             }));
         }
     }
 
-    // Methods cannot be converted JSON.
+    // Methods cannot be converted.
     if (typeof prototype[propKey as string] === 'function') {
-        throw new Error(getDiagnostic('jsonPropertyCannotBeUsedOnInstanceMethod', {
+        throw new Error(getDiagnostic('propertyCannotBeUsedOnInstanceMethod', {
             property: propKey,
             typeName,
         }));
     }
 
-    // Add jsonObject metadata to 'constructor' if not yet exists ('constructor' is the prototype).
+    // Add model metadata to 'constructor' if not yet exists ('constructor' is the prototype).
     // NOTE: this will not fire up custom conversion, as 'constructor' must be explicitly marked
-    // with '@jsonObject' as well.
-    const objectMetadata = JsonObjectMetadata.ensurePresentInPrototype(prototype);
+    // with '@model' as well.
+    const objectMetadata = ModelMetadata.ensurePresentInPrototype(prototype);
 
-    objectMetadata.properties.set(metadata.jsonName, metadata);
+    objectMetadata.properties.set(metadata.plainName, metadata);
 }

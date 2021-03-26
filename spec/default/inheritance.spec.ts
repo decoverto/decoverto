@@ -1,50 +1,50 @@
 import test from 'ava';
 
-import {Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, model, property} from '../../src';
 
 class UParent {
 
-    @jsonProperty()
+    @property()
     parentProperty: string;
 }
 
-@jsonObject()
+@model()
 class UParentDChild extends UParent {
 
-    @jsonProperty()
+    @property()
     childProperty: string;
 }
 
-@jsonObject()
+@model()
 class DParent {
 
-    @jsonProperty()
+    @property()
     parentProperty: string;
 }
 
-@jsonObject()
+@model()
 class DParentDChild extends DParent {
 
-    @jsonProperty()
+    @property()
     childProperty: string;
 }
 
-@jsonObject()
+@model()
 class DParentDChildDChild extends DParentDChild {
 
-    @jsonProperty()
+    @property()
     child2Property: string;
 }
 
 class DParentUChild extends DParent {
 
-    @jsonProperty()
+    @property()
     childProperty: string;
 }
 
 class DParentUChildUChild extends DParentDChild {
 
-    @jsonProperty()
+    @property()
     child2Property: string;
 }
 

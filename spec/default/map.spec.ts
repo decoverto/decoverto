@@ -4,22 +4,22 @@ import {
     Any,
     array,
     Decoverto,
-    jsonObject,
-    jsonProperty,
     map,
     MapShape,
+    model,
+    property,
 } from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {createPassThroughMacro} from '../helpers/macros';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class Simple {
-    @jsonProperty()
+    @property()
     strProp: string;
 
-    @jsonProperty()
+    @property()
     numProp: number;
 
     constructor(init?: {strProp: string; numProp: number}) {
@@ -34,9 +34,9 @@ class Simple {
     }
 }
 
-@jsonObject()
+@model()
 class DictMap {
-    @jsonProperty(map(() => String, () => Simple, {shape: MapShape.Object}))
+    @property(map(() => String, () => Simple, {shape: MapShape.Object}))
     prop: Map<string, Simple>;
 
     getSetSize() {
@@ -49,23 +49,23 @@ const passThroughMacro = createPassThroughMacro({
     createSubject: value => ({prop: value}),
 });
 
-test('@jsonProperty(map(...))', passThroughMacro, {
-    type: 'fromJson',
+test('@property(map(...))', passThroughMacro, {
+    type: 'toInstance',
     value: null,
 });
 
-test('@jsonProperty(map(...))', passThroughMacro, {
-    type: 'toJson',
+test('@property(map(...))', passThroughMacro, {
+    type: 'toPlain',
     value: null,
 });
 
-test('@jsonProperty(map(...))', passThroughMacro, {
-    type: 'fromJson',
+test('@property(map(...))', passThroughMacro, {
+    type: 'toInstance',
     value: undefined,
 });
 
-test('@jsonProperty(map(...))', passThroughMacro, {
-    type: 'toJson',
+test('@property(map(...))', passThroughMacro, {
+    type: 'toPlain',
     value: undefined,
 });
 
@@ -120,9 +120,9 @@ test('Map from JSON with dictionary shape errors when an array type is provided'
     });
 });
 
-@jsonObject()
+@model()
 class DictionaryArrayShape {
-    @jsonProperty(map(() => String, () => Simple, {shape: MapShape.Array}))
+    @property(map(() => String, () => Simple, {shape: MapShape.Array}))
     map: Map<string, Simple>;
 }
 
@@ -148,10 +148,10 @@ test('Map with array shape converts to JSON', t => {
     t.is(result.map[0].value.numProp, 4);
 });
 
-@jsonObject()
+@model()
 class KeyAndValueEdgeCasesTest {
 
-    @jsonProperty(map(Any, Any, {shape: MapShape.Array}))
+    @property(map(Any, Any, {shape: MapShape.Array}))
     map: Map<any, any>;
 }
 
@@ -228,9 +228,9 @@ test('Map from JSON with array shape errors when an object shape is provided', t
     });
 });
 
-@jsonObject()
+@model()
 class DictArrayMap {
-    @jsonProperty(map(() => String, array(() => Simple), {shape: MapShape.Object}))
+    @property(map(() => String, array(() => Simple), {shape: MapShape.Object}))
     prop: Map<string, Array<Simple>>;
 
     getSetSize() {

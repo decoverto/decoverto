@@ -27,7 +27,7 @@ npm install decoverto
 
 ## How to use
 
-Decoverto uses decorators, and requires your classes to be annotated with `@jsonObject`, and properties with `@jsonProperty`. Properties which are not annotated will not be serialized or deserialized.
+Decoverto uses decorators, and requires your classes to be annotated with `@model`, and properties with `@property`. Properties which are not annotated will not be serialized or deserialized.
 
 TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMetadata` options enabled.
 
@@ -36,14 +36,14 @@ TypeScript needs to run with the `experimentalDecorators` and `emitDecoratorMeta
 The following example demonstrates how to annotate a basic, non-nested, class and how to convert to JSON and back:
 
 ```typescript
-import {Decoverto, jsonObject, jsonProperty} from 'decoverto';
+import {Decoverto, model, property} from 'decoverto';
 
-@jsonObject()
+@model()
 class MyDataClass {
-    @jsonProperty()
+    @property()
     prop1: number;
 
-    @jsonProperty()
+    @property()
     prop2: string;
 }
 
@@ -52,7 +52,7 @@ const typeHandler = decoverto.type(MyDataClass);
 
 const instance = new MyDataClass();
 
-const json = typeHandler.instanceToPlain(instance);
+const plain = typeHandler.instanceToPlain(instance);
 const instance2 = typeHandler.plainToInstance({
     prop1: 10,
     prop2: 'string',
@@ -62,14 +62,14 @@ const instance3 = typeHandler.rawToInstance('{"prop1": 10, "prop2": "string"}');
 instance2 instanceof MyDataClass; // true
 ```
 
-_Note: this example assumes you are using ReflectDecorators. Without it, `@jsonProperty` requires a type argument, which is detailed below._
+_Note: this example assumes you are using ReflectDecorators. Without it, `@property` requires a type argument, which is detailed below._
 
 ### Mapping types
 
 At times, you might find yourself using a custom type such as `Point`, `Decimal`, or `BigInt`. To tackle this use case, Decoverto allows mapping a type to a custom converter. Example:
 
 ```typescript
-import {ConversionContext, Decoverto, jsonObject, jsonProperty, SimpleConverter} from 'decoverto';
+import {ConversionContext, Decoverto, model, property, SimpleConverter} from 'decoverto';
 import * as Decimal from 'decimal.js'; // Or any other library your type originates from
 
 
@@ -108,13 +108,13 @@ const decoverto = new Decoverto();
 decoverto.converterMap.set(BigInt, new BigIntConverter());
 decoverto.converterMap.set(Decimal, new DecimalConverter());
 
-@jsonObject()
+@model()
 class MappedTypes {
 
-    @jsonProperty()
+    @property()
     cryptoKey: bigint;
 
-    @jsonProperty()
+    @property()
     money: Decimal;
 }
 
@@ -133,17 +133,17 @@ Do note that in order to prevent the values from being parsed as `Number`, losin
 Creating collections such as `Array`, `Map`, an `Set` can be accomplished by their respective converters. Example:
 
 ```typescript
-import {jsonObject, array, map, set, MapShape} from 'decoverto';
+import {model, array, map, set, MapShape} from 'decoverto';
 
-@jsonObject()
+@model()
 class MyDataClass {
-    @jsonProperty(array(() => Number))
+    @property(array(() => Number))
     prop1: Array<number>;
 
-    @jsonProperty(set(() => String))
+    @property(set(() => String))
     prop2: Set<string>;
 
-    @jsonProperty(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
+    @property(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     prop3: Map<number, MySecondDataClass>;
 }
 ```
@@ -155,27 +155,27 @@ Sets are converted to JSON as arrays. Maps are converted as arrays objects, each
 Decoverto works through your objects recursively, and can consume massively complex, nested object trees.
 
 ```typescript
-import {jsonObject, jsonProperty, MapShape} from 'decoverto';
+import {model, property, MapShape} from 'decoverto';
 
-@jsonObject()
+@model()
 class MySecondDataClass {
-    @jsonProperty()
+    @property()
     prop1: number;
 
-    @jsonProperty()
+    @property()
     prop2: number;
 }
 
-@jsonObject()
+@model()
 class MyDataClass {
 
-    @jsonProperty(array(array(() => MySecondDataClass)))
+    @property(array(array(() => MySecondDataClass)))
     multiDimension: Array<Array<MySecondDataClass>>;
 
-    @jsonProperty(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
+    @property(map(() => Number, () => MySecondDataClass, {shape: MapShape.Object}))
     mapProp: Map<number, MySecondDataClass>;
 
-    @jsonProperty(array(map(() => Date, array(array(() => MySecondDataClass)), {shape: MapShape.Object})))
+    @property(array(map(() => Date, array(array(() => MySecondDataClass)), {shape: MapShape.Object})))
     overlyComplex: Array<Map<Date, Array<Array<MySecondDataClass>>>>;
 }
 ```
@@ -184,31 +184,31 @@ class MyDataClass {
 In case you don't want Decoverto to make any conversion, the `Any` type can be used. 
 
 ```typescript
-import {Any, jsonObject, jsonProperty} from 'decoverto';
+import {Any, model, property} from 'decoverto';
 
-@jsonObject()
+@model()
 class Something {
-    @jsonProperty(Any)
+    @property(Any)
     anythingGoes: any;
 }
 ```
 
 ### Using without ReflectDecorators
 
-Without ReflectDecorators, `@jsonProperty` requires an additional type argument, because TypeScript cannot infer it automatically:
+Without ReflectDecorators, `@property` requires an additional type argument, because TypeScript cannot infer it automatically:
 
 ```diff
 - import 'reflect-metadata';
-  import {jsonObject, jsonProperty} from 'decoverto';
+  import {model, property} from 'decoverto';
 
-  @jsonObject()
+  @model()
   class MyDataClass {
--     @jsonProperty()
-+     @jsonProperty(() => Number)
+-     @property()
++     @property(() => Number)
       prop1: number;
 
--     @jsonProperty()
-+     @jsonProperty(() => MySecondDataClass)
+-     @property()
++     @property(() => MySecondDataClass)
       public prop2: MySecondDataClass;
   }
 ```
@@ -221,42 +221,42 @@ To achieve this, Decoverto exposes `instanceToPlain` and friends. These methods 
 
 ### Options
 
-#### toJson and fromJson
+#### toInstance and toPlain
 
-On `@jsonProperty` decorator family you can provide your own functions to perform custom conversion. This is similar to
+On `@property` decorator, you can provide your own functions to perform custom conversion. This is similar to
 [mapped types](#mapping-types) but only applies to the property on which it is declared. The example below is used to fix up data on parsing.
 
 ```typescript
-import {jsonObject, jsonProperty} from 'decoverto';
+import {model, property} from 'decoverto';
 
-@jsonObject()
+@model()
 class OverrideExample {
-    @jsonProperty({
-        fromJson: json => {
-            if (json == null) {
-                return json;
+    @property({
+        toInstance: data => {
+            if (data == null) {
+                return data;
             }
 
-            return json === 'incorrect-data' ? 'correct' : json;
+            return data === 'incorrect-data' ? 'correct' : data;
         },
-        toJson: value => value,
+        toPlain: value => value,
     })
     data: string;
 }
 ```
 
-It is possible to only specify one of the functions. In this example, the `toJson` could be removed, and it would still work.
+It is possible to only specify one of the functions. In this example, the `toPlain` could be removed, and it would still work.
 
 #### Different property name in JSON and class
 
-You can provide a name for a property if it differs between the JSON property and your class definition.
+You can provide a name for a property if it differs between the data and your class definition.
 
 ```typescript
-import {jsonObject, jsonProperty} from 'decoverto';
+import {model, property} from 'decoverto';
 
-@jsonObject()
+@model()
 class MyDataClass {
-    @jsonProperty({jsonName: 'api_option'})
+    @property({plainName: 'api_option'})
     ownOption: string;
 }
 ```
@@ -265,30 +265,30 @@ class MyDataClass {
 
 ### Type-definitions
 
-Decoverto is primarily for use-cases where object-trees are defined using instantiatible classes, and thus only supports a subset of all type-definitions possible in TypeScript. Interfaces and inline type definitions, for example, are not supported, and the following is not going to work so well:
+Decoverto is primarily for use-cases where object-trees are defined using instantiatible classes, and thus only supports a subset of all type-definitions possible in TypeScript. Interfaces and inline type definitions, for example, are not supported, and the following is not going to work:
 
 ```typescript
-import {jsonObject, jsonProperty} from 'decoverto';
+import {model, property} from 'decoverto';
 
-@jsonObject()
+@model()
 class MyDataClass {
-    @jsonProperty()
+    @property()
     prop1: {prop2: {prop3: [1, 2, 3]}};
 }
 ```
 
-Instead, prefer creating the necessary class-structure for your object tree.
+Instead, create the necessary class-structure for your object tree.
 
 ### No inferred property types
 
 If using ReflectDecorators to infer the constructor (type) of properties, it's always required to manually specify the property type:
 
 ```diff
-  import {jsonObject, jsonProperty} from 'decoverto';
+  import {model, property} from 'decoverto';
 
-  @jsonObject()
+  @model()
   class MyDataClass {
-      @jsonProperty()
+      @property()
 -     firstName = "john";
 +     firstName: string = "john";
   }

@@ -1,15 +1,15 @@
 import test from 'ava';
 
-import {array, Decoverto, jsonObject, jsonProperty} from '../../src';
+import {array, Decoverto, model, property} from '../../src';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class Person {
-    @jsonProperty({fromJson: () => 'Mark'})
+    @property({toInstance: () => 'Mark'})
     firstName: string;
 
-    @jsonProperty(() => String, {fromJson: () => 'Foreman'})
+    @property(() => String, {toInstance: () => 'Foreman'})
     lastName: string;
 
     getFullName() {
@@ -19,26 +19,26 @@ class Person {
 
 const simpleJson = '{ "firstName": "John", "lastName": "Doe" }';
 
-test('Parsing @jsonProperty({toInstance: ...}) should use the toInstance function', t => {
+test('Parsing @property({toInstance: ...}) should use the toInstance function', t => {
     const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.is(result.firstName, 'Mark');
     t.is(result.lastName, 'Foreman');
 });
 
-test('Result of parsing @jsonProperty({toInstance: ...}) should have the correct type', t => {
+test('Result of parsing @property({toInstance: ...}) should have the correct type', t => {
     const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.true(result instanceof Person);
 });
 
-test('Result of parsing @jsonProperty({toInstance: ...}) should have with callable methods', t => {
+test('Result of parsing @property({toInstance: ...}) should have with callable methods', t => {
     const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.is(result.getFullName(), 'Mark Foreman');
 });
 
-test('Result of parsing @jsonProperty({toInstance: ...}) should not affect toPlain', t => {
+test('Result of parsing @property({toInstance: ...}) should not affect toPlain', t => {
     const result = new Person();
     result.firstName = 'John';
     result.lastName = 'Doe';
@@ -48,28 +48,28 @@ test('Result of parsing @jsonProperty({toInstance: ...}) should not affect toPla
     );
 });
 
-test(`@jsonProperty({fromJson: ..., toJson: ...}) with complex type uses specified fromJson \
+test(`@property({toInstance: ..., toPlain: ...}) with complex type uses specified toInstance \
 function`, t => {
     t.notThrows(() => {
-        @jsonObject()
-        class ToJsonComplexType {
-            @jsonProperty({fromJson: () => false, toJson: () => true})
+        @model()
+        class ToPlainComplexType {
+            @property({toInstance: () => false, toPlain: () => true})
             complex: boolean | string | number | URL;
         }
 
-        const typeHandler = decoverto.type(ToJsonComplexType);
+        const typeHandler = decoverto.type(ToPlainComplexType);
         t.false(typeHandler.plainToInstance({complex: ''}).complex);
     });
 });
 
-@jsonObject()
-class ArrayFromJsonTest {
-    @jsonProperty(array(() => Number), {
-        fromJson: (json: string) => json.split(',').map((v) => parseInt(v, 10)),
+@model()
+class ArrayToInstanceTest {
+    @property(array(() => Number), {
+        toInstance: (data: string) => data.split(',').map((v) => parseInt(v, 10)),
     })
     nums: Array<number>;
 
-    @jsonProperty()
+    @property()
     str: string;
 
     sum() {
@@ -78,33 +78,33 @@ class ArrayFromJsonTest {
 }
 
 const arrayJson = '{ "nums": "1,2,3,4,5", "str": "Some string" }';
-const arrayFromJsonHandler = decoverto.type(ArrayFromJsonTest);
+const arrayToInstanceHandler = decoverto.type(ArrayToInstanceTest);
 
-test(`Parsing @jsonProperty(array(() => Number), {fromJson: ...}) should use the fromJson \
+test(`Parsing @property(array(() => Number), {toInstance: ...}) should use the toInstance \
 function`, t => {
-    const result = arrayFromJsonHandler.rawToInstance(arrayJson);
+    const result = arrayToInstanceHandler.rawToInstance(arrayJson);
     t.deepEqual(result.nums, [1, 2, 3, 4, 5]);
     t.is(result.str, 'Some string');
 });
 
-test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should have with \
+test(`Result of parsing @property(array(() => Number), {toInstance: ...}) should have with \
 callable methods`, t => {
-    const result = arrayFromJsonHandler.rawToInstance(arrayJson);
+    const result = arrayToInstanceHandler.rawToInstance(arrayJson);
     t.is(result.sum?.(), 15);
 });
 
-test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
-toJson`, t => {
-    const result = arrayFromJsonHandler.instanceToRaw(
-        arrayFromJsonHandler.rawToInstance(arrayJson),
+test(`Result of parsing @property(array(() => Number), {toInstance: ...}) should not affect \
+toPlain`, t => {
+    const result = arrayToInstanceHandler.instanceToRaw(
+        arrayToInstanceHandler.rawToInstance(arrayJson),
     );
     t.is(result, '{"nums":[1,2,3,4,5],"str":"Some string"}');
 });
 
-test('Converting @jsonProperty(array(() => Class), {toInstance: function}) should succeed', t => {
-    @jsonObject()
+test('Converting @property(array(() => Class), {toInstance: function}) should succeed', t => {
+    @model()
     class Inner {
-        @jsonProperty()
+        @property()
         prop: string;
 
         woo(): string {
@@ -112,7 +112,7 @@ test('Converting @jsonProperty(array(() => Class), {toInstance: function}) shoul
         }
     }
 
-    function objArrayFromJson(
+    function objArrayToInstance(
         values: Array<{prop: string; shouldConvertToObject: boolean}> | undefined,
     ) {
         if (values === undefined) {
@@ -124,12 +124,12 @@ test('Converting @jsonProperty(array(() => Class), {toInstance: function}) shoul
         );
     }
 
-    @jsonObject()
+    @model()
     class Obj {
-        @jsonProperty(array(() => Inner), {fromJson: objArrayFromJson})
+        @property(array(() => Inner), {toInstance: objArrayToInstance})
         inners: Array<Inner>;
 
-        @jsonProperty()
+        @property()
         str: string;
     }
 

@@ -1,14 +1,14 @@
 import test from 'ava';
 
-import {Any, array, Decoverto, jsonObject, jsonProperty, map, MapShape} from '../../src';
+import {Any, array, Decoverto, map, MapShape, model, property} from '../../src';
 
 const decoverto = new Decoverto();
 
-test('Complex @jsonProperty should parse', t => {
-    @jsonObject()
+test('Complex @property should parse', t => {
+    @model()
     class ComplexProperty {
 
-        @jsonProperty(array(map(() => Date, array(Any), {shape: MapShape.Array})))
+        @property(array(map(() => Date, array(Any), {shape: MapShape.Array})))
         arrayOfMapsOfDateArrayAny: Array<Map<Date, Array<any>>>;
     }
 

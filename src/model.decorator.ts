@@ -1,23 +1,23 @@
-import {JsonObjectMetadata} from './metadata';
+import {ModelMetadata} from './metadata';
 import {extractOptionBase, OptionsBase} from './options-base';
 import {Serializable} from './types';
 
 export type InitializerCallback<T> = (sourceObject: T, rawSourceObject: T) => T;
 
-export type JsonObjectOptions<T> = OptionsBase;
+export type ModelOptions<T> = OptionsBase;
 
 /**
  * Marks that a class is convertible using Decoverto, with additional settings.
  * @param options Configuration settings.
  */
-export function jsonObject<T>(
-    options: JsonObjectOptions<T> = {},
+export function model<T>(
+    options: ModelOptions<T> = {},
 ): (target: Serializable<T>) => void {
     return target => {
-        // Create or obtain JsonObjectMetadata object.
-        const objectMetadata = JsonObjectMetadata.ensurePresentInPrototype(target.prototype);
+        // Create or obtain ModelMetadata object.
+        const objectMetadata = ModelMetadata.ensurePresentInPrototype(target.prototype);
 
-        // Fill JsonObjectMetadata.
+        // Fill ModelMetadata.
         objectMetadata.isExplicitlyMarked = true;
 
         const optionsBase = extractOptionBase(options);

@@ -1,13 +1,13 @@
 export * from './decoverto';
 export * from './type-handler';
-export * from './json-handler';
-export {JsonObjectMetadata} from './metadata';
+export * from './parser';
+export {ModelMetadata} from './metadata';
 export {
-    jsonObject,
-    JsonObjectOptions,
+    model,
+    ModelOptions,
     InitializerCallback,
-} from './json-object';
-export {jsonProperty, JsonPropertyOptions} from './json-property';
+} from './model.decorator';
+export {property, PropertyOptions} from './property.decorator';
 export * from './converters/any.converter';
 export * from './converters/array.converter';
 export * from './converters/concrete.converter';

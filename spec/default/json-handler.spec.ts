@@ -1,11 +1,11 @@
 import test from 'ava';
 
-import {Decoverto, JsonHandlerSimple, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, JsonParser, model, property} from '../../src';
 
-@jsonObject()
+@model()
 class JsonHandlerTest {
 
-    @jsonProperty()
+    @property()
     foo: 'unchanged' | 'changed';
 
     constructor(foo: 'unchanged' | 'changed') {
@@ -13,9 +13,9 @@ class JsonHandlerTest {
     }
 }
 
-test('JsonHandlerSimple should use replacer', t => {
+test('JsonParser should use replacer', t => {
     const decoverto = new Decoverto({
-        jsonHandler: new JsonHandlerSimple({
+        parser: new JsonParser({
             replacer: (key, value) => {
                 if (value === 'unchanged') {
                     return 'changed';
@@ -31,9 +31,9 @@ test('JsonHandlerSimple should use replacer', t => {
     t.is(plain.foo, 'changed');
 });
 
-test('JsonHandlerSimple should use reviver', t => {
+test('JsonParser should use reviver', t => {
     const decoverto = new Decoverto({
-        jsonHandler: new JsonHandlerSimple({
+        parser: new JsonParser({
             reviver: (key, value) => {
                 if (value === 'unchanged') {
                     return 'changed';
@@ -48,9 +48,9 @@ test('JsonHandlerSimple should use reviver', t => {
     t.is(parsed.foo, 'changed');
 });
 
-test('JsonHandlerSimple should use correct indentation', t => {
+test('JsonParser should use correct indentation', t => {
     const decoverto = new Decoverto({
-        jsonHandler: new JsonHandlerSimple({
+        parser: new JsonParser({
             spaces: 4,
         }),
     });
@@ -60,9 +60,9 @@ test('JsonHandlerSimple should use correct indentation', t => {
 });
 
 const customJsonHandler = new Decoverto({
-    jsonHandler: {
+    parser: {
         parse: () => new JsonHandlerTest('changed'),
-        stringify: () => '{"foo": "changed"}',
+        toRaw: () => '{"foo": "changed"}',
     },
 }).type(JsonHandlerTest);
 

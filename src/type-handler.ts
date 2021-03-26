@@ -3,8 +3,8 @@ import {ConcreteConverter} from './converters/concrete.converter';
 import {Converter} from './converters/converter';
 import {SetConverter} from './converters/set.converter';
 import {getDiagnostic} from './diagnostics';
-import {JsonHandler} from './json-handler';
-import {JsonObjectMetadata} from './metadata';
+import {ModelMetadata} from './metadata';
+import {Parser} from './parser';
 import {Serializable} from './types';
 
 export type Plain<T> =
@@ -12,18 +12,19 @@ export type Plain<T> =
         ? {[k in keyof T]?: T[k]} | {[k: string]: any}
         : any;
 
-export interface TypeHandlerSettings {
-    jsonHandler: JsonHandler;
+export interface TypeHandlerSettings<Raw> {
 
     /**
      * Maps a type to its respective converter.
      */
     converterMap: Map<Serializable<any>, Converter>;
+
+    parser: Parser<Raw>;
 }
 
-export class TypeHandler<RootType> {
+export class TypeHandler<RootType, Raw> {
 
-    private settings!: TypeHandlerSettings;
+    private settings!: TypeHandlerSettings<Raw>;
     private readonly rootConverter: ConcreteConverter;
 
     /**
@@ -34,10 +35,10 @@ export class TypeHandler<RootType> {
      */
     constructor(
         private readonly rootConstructor: Serializable<RootType>,
-        settings: TypeHandlerSettings,
+        settings: TypeHandlerSettings<Raw>,
     ) {
         this.rootConverter = new ConcreteConverter<RootType>(rootConstructor);
-        const rootMetadata = JsonObjectMetadata.getFromConstructor(rootConstructor);
+        const rootMetadata = ModelMetadata.getFromConstructor(rootConstructor);
 
         if (!settings.converterMap.has(this.rootConstructor)
             && (rootMetadata === undefined || !rootMetadata.isExplicitlyMarked)) {
@@ -50,40 +51,40 @@ export class TypeHandler<RootType> {
         this.configure(settings);
     }
 
-    configure(settings: TypeHandlerSettings) {
+    configure(settings: TypeHandlerSettings<Raw>) {
         this.settings = {
             converterMap: settings.converterMap,
-            jsonHandler: settings.jsonHandler,
+            parser: settings.parser,
         };
     }
 
     /**
-     * Converts a JSON string to an instance of RootType.
+     * Converts a raw value to an instance of RootType.
      * @example
      * handler.parse('"foo"');
      * @example
      * type(String).parse('{"bar": "foo"}');
      */
-    rawToInstance(string: string): RootType {
-        return this.plainToInstance(this.settings.jsonHandler.parse(string));
+    rawToInstance(string: Raw): RootType {
+        return this.plainToInstance(this.settings.parser.parse(string));
     }
 
     /**
-     * Converts a JSON string to an array of RootType instances.
+     * Converts a raw value to an array of RootType instances.
      * @example
      * type(String).rawToInstanceArray('["foo", "bar"]');
      */
-    rawToInstanceArray(array: string): Array<RootType> {
-        return this.plainToInstanceArray(this.settings.jsonHandler.parse(array));
+    rawToInstanceArray(array: Raw): Array<RootType> {
+        return this.plainToInstanceArray(this.settings.parser.parse(array));
     }
 
     /**
-     * Converts a JSON string to a set of RootType instances.
+     * Converts a raw value to a set of RootType instances.
      * @example
      * type(String).rawToInstanceSet('["foo", "bar"]');
      */
-    rawToInstanceSet(array: string): Set<RootType> {
-        return this.plainToInstanceSet(this.settings.jsonHandler.parse(array));
+    rawToInstanceSet(array: Raw): Set<RootType> {
+        return this.plainToInstanceSet(this.settings.parser.parse(array));
     }
 
     /**
@@ -120,30 +121,30 @@ export class TypeHandler<RootType> {
     }
 
     /**
-     * Converts an instance of RootType to a JSON string.
+     * Converts an instance of RootType to a raw value.
      * @example
      * handler.instanceToRaw(example); // '{"foo": "bar"}'
      */
-    instanceToRaw(object: RootType): string {
-        return this.settings.jsonHandler.stringify(this.instanceToPlain(object));
+    instanceToRaw(object: RootType): Raw {
+        return this.settings.parser.toRaw(this.instanceToPlain(object));
     }
 
     /**
-     * Converts an array of RootType instances to a JSON string.
+     * Converts an array of RootType instances to a raw value.
      * @example
      * handler.arrayInstanceToRaw([example]); // '[{"foo": "bar"}]'
      */
-    arrayInstanceToRaw(object: Array<RootType>): string {
-        return this.settings.jsonHandler.stringify(this.instanceArrayToPlain(object));
+    arrayInstanceToRaw(object: Array<RootType>): Raw {
+        return this.settings.parser.toRaw(this.instanceArrayToPlain(object));
     }
 
     /**
-     * Converts a set of RootType instances to a JSON string.
+     * Converts a set of RootType instances to a raw value.
      * @example
      * handler.setInstanceToRaw(new Set([example])); // '[{"foo": "bar"}]
      */
-    setInstanceToRaw(object: Set<RootType>): string {
-        return this.settings.jsonHandler.stringify(this.instanceSetToPlain(object));
+    setInstanceToRaw(object: Set<RootType>): Raw {
+        return this.settings.parser.toRaw(this.instanceSetToPlain(object));
     }
 
     /**
@@ -152,7 +153,7 @@ export class TypeHandler<RootType> {
      * handler.toPlain(example); // {foo: 'bar'}
      */
     instanceToPlain(object: RootType): Plain<RootType> {
-        return this.toJsonSingleValue(object, this.rootConverter);
+        return this.toPlainSingleValue(object, this.rootConverter);
     }
 
     /**
@@ -161,7 +162,7 @@ export class TypeHandler<RootType> {
      * handler.instanceArrayToPlain([example]); // [{foo: 'bar'}]
      */
     instanceArrayToPlain(object: Array<RootType>): Array<Plain<RootType>> {
-        return this.toJsonSingleValue(object, new ArrayConverter(this.rootConverter));
+        return this.toPlainSingleValue(object, new ArrayConverter(this.rootConverter));
     }
 
     /**
@@ -170,10 +171,10 @@ export class TypeHandler<RootType> {
      * handler.instanceArrayToPlain(new Set([example])); // [{foo: 'bar'}]
      */
     instanceSetToPlain(object: Set<RootType>): Array<Plain<RootType>> {
-        return this.toJsonSingleValue(object, new SetConverter(this.rootConverter));
+        return this.toPlainSingleValue(object, new SetConverter(this.rootConverter));
     }
 
-    private toJsonSingleValue(object: any, converter: Converter) {
+    private toPlainSingleValue(object: any, converter: Converter) {
         return converter.toPlain({
             path: '',
             source: object,

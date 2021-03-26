@@ -1,17 +1,17 @@
 import test from 'ava';
 
-import {Any, array, Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Any, array, Decoverto, model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {Everything, IEverything} from '../utils/everything';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class Simple {
-    @jsonProperty()
+    @property()
     strProp: string;
 
-    @jsonProperty()
+    @property()
     numProp: number;
 
     constructor(init?: {strProp: string; numProp: number}) {
@@ -95,18 +95,18 @@ test('array of objects should error on non-array toPlain', t => {
         arrayWithArray?: Array<Array<IWithArrays>>;
     }
 
-    @jsonObject()
+    @model()
     class WithArrays implements IWithArrays {
-        @jsonProperty(array(() => Everything))
+        @property(array(() => Everything))
         one: Array<Everything>;
 
-        @jsonProperty(array(array(() => Everything)))
+        @property(array(array(() => Everything)))
         two: Array<Array<Everything>>;
 
-        @jsonProperty(array(array(array(array(array(array(() => Everything)))))))
+        @property(array(array(array(array(array(array(() => Everything)))))))
         deep: Array<Array<Array<Array<Array<Array<Everything>>>>>>;
 
-        @jsonProperty(array(array(() => WithArrays)))
+        @property(array(array(() => WithArrays)))
         arrayWithArray?: Array<Array<WithArrays>>;
 
         constructor(init?: IWithArrays) {
@@ -173,17 +173,17 @@ test('array of objects should error on non-array toPlain', t => {
     });
 })();
 
-@jsonObject()
+@model()
 class ArrayPropertyAny {
-    @jsonProperty(array(Any))
+    @property(array(Any))
     any: Array<any>;
 
-    @jsonProperty(array(Any))
+    @property(array(Any))
     anyNullable?: Array<any> | null;
 }
 const arrayPropertyAnyHandler = decoverto.type(ArrayPropertyAny);
 
-test('@jsonProperty(array(Any)) should parse from JSON simple object correctly', t => {
+test('@property(array(Any)) should parse from JSON simple object correctly', t => {
     const result = arrayPropertyAnyHandler.plainToInstance({
         any: [{foo: 'bar'}],
         anyNullable: [{foo: 'bar'}],
@@ -194,7 +194,7 @@ test('@jsonProperty(array(Any)) should parse from JSON simple object correctly',
     t.is(result.anyNullable?.[0].foo, 'bar');
 });
 
-test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
+test('@property(array(Any)) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
     const result = arrayPropertyAnyHandler.plainToInstance({
         any: [foo],
@@ -206,7 +206,7 @@ test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
     t.deepEqual(result.anyNullable?.[0], foo);
 });
 
-test('@jsonProperty(array(Any)) should convert with referential equality', t => {
+test('@property(array(Any)) should convert with referential equality', t => {
     const foo = {foo: 'bar'};
     const arrayPropertyAny = new ArrayPropertyAny();
     arrayPropertyAny.any = [foo];

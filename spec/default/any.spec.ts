@@ -1,16 +1,16 @@
 import test from 'ava';
 
-import {Any, AnyConverter, array, Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Any, AnyConverter, array, Decoverto, model, property} from '../../src';
 import {createPassThroughMacro} from '../helpers/macros';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class SimplePropertyAny {
-    @jsonProperty(Any)
+    @property(Any)
     any: any;
 
-    @jsonProperty(Any)
+    @property(Any)
     anyNullable?: any | null;
 }
 
@@ -22,7 +22,7 @@ const passThroughMacro = createPassThroughMacro({
     }),
 });
 
-test('@jsonProperty(Any) should parse simple object correctly', t => {
+test('@property(Any) should parse simple object correctly', t => {
     const result = decoverto.type(SimplePropertyAny).plainToInstance({
         any: {foo: 'bar'},
         anyNullable: {foo: 'bar'},
@@ -31,7 +31,7 @@ test('@jsonProperty(Any) should parse simple object correctly', t => {
     t.is(result.anyNullable.foo, 'bar');
 });
 
-test('@jsonProperty(Any) should parse class instance correctly', t => {
+test('@property(Any) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
     const result = decoverto.type(SimplePropertyAny).plainToInstance({
         any: foo,
@@ -41,48 +41,48 @@ test('@jsonProperty(Any) should parse class instance correctly', t => {
     t.deepEqual(result.anyNullable, foo);
 });
 
-test('@jsonProperty(Any)', passThroughMacro, {
-    type: 'fromJson',
+test('@property(Any)', passThroughMacro, {
+    type: 'toInstance',
     value: null,
 });
 
-test('@jsonProperty(Any)', passThroughMacro, {
-    type: 'toJson',
+test('@property(Any)', passThroughMacro, {
+    type: 'toPlain',
     value: null,
 });
 
-test('@jsonProperty(Any)', passThroughMacro, {
-    type: 'fromJson',
+test('@property(Any)', passThroughMacro, {
+    type: 'toInstance',
     value: undefined,
 });
 
-test('@jsonProperty(Any)', passThroughMacro, {
-    type: 'toJson',
+test('@property(Any)', passThroughMacro, {
+    type: 'toPlain',
     value: undefined,
 });
 
-test('@jsonProperty(Any)', passThroughMacro, {
-    type: 'fromJson',
+test('@property(Any)', passThroughMacro, {
+    type: 'toInstance',
     value: {foo: 'bar'},
 });
 
-test('@jsonProperty(Any)', passThroughMacro, {
-    type: 'toJson',
+test('@property(Any)', passThroughMacro, {
+    type: 'toPlain',
     value: {foo: 'bar'},
 });
 
 test('Any should handle complex structures', t => {
-    @jsonObject()
+    @model()
     class Event {
 
-        @jsonProperty(Any)
+        @property(Any)
         data?: {[k: string]: any} | null;
     }
 
-    @jsonObject()
+    @model()
     class A {
 
-        @jsonProperty(array(() => Event))
+        @property(array(() => Event))
         events: Array<Event>;
     }
 

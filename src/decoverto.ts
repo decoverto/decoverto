@@ -4,27 +4,28 @@ import {DataViewConverter} from './converters/data-view.converter';
 import {DateConverter} from './converters/date.converter';
 import {DirectConverter} from './converters/direct.converter';
 import {TypedArrayConverter} from './converters/typed-array.converter';
-import {JsonHandler, JsonHandlerSimple} from './json-handler';
+import {JsonParser, Parser} from './parser';
 import {TypeHandler} from './type-handler';
 import {Serializable} from './types';
 
-interface DecovertoSettings {
+interface DecovertoSettings<Raw> {
 
     /**
-     * Used to configure reviver, replacer, and spaces used in `JSON` methods or use a custom
-     * JSON parser. Expects a class implementing `JsonHandler`. Example:
+     * Configure the parser used to convert data from raw to plain and reverse. Expects a
+     * class implementing `Parser`. Example setting JSON parser indent level:
      * ```TypeScript
-     * import {JsonHandlerSimple} from 'decoverto';
+     * import {JsonParser} from 'decoverto';
      *
-     * const jsonHandler = new JsonHandlerSimple({
+     * const parser = new JsonParser({
      *     spaces: 4,
      * });
+     * @default The JSON parser without indent.
      * ```
      */
-    jsonHandler: JsonHandler;
+    parser: Parser<Raw>;
 }
 
-export class Decoverto {
+export class Decoverto<Raw = string> {
 
     /**
      * Maps a type to its respective converter.
@@ -49,20 +50,21 @@ export class Decoverto {
         [Uint32Array, new TypedArrayConverter(Uint32Array)],
     ]);
 
-    private readonly settings: DecovertoSettings;
+    private readonly settings: DecovertoSettings<Raw>;
 
     constructor(
-        settings: Partial<DecovertoSettings> = {},
+        settings: Partial<DecovertoSettings<Raw>> = {},
     ) {
         this.settings = {
             ...settings,
-            jsonHandler: settings.jsonHandler ?? new JsonHandlerSimple({}),
+            // We cannot check if the user has typed Raw incorrectly so let's assume they didn't
+            parser: settings.parser ?? new JsonParser({}) as unknown as Parser<Raw>,
         };
     }
 
-    type<T>(type: Serializable<T>): TypeHandler<T> {
-        return new TypeHandler<T>(type, {
-            jsonHandler: this.settings.jsonHandler,
+    type<T>(type: Serializable<T>): TypeHandler<T, Raw> {
+        return new TypeHandler<T, Raw>(type, {
+            parser: this.settings.parser,
             converterMap: this.converterMap,
         });
     }

@@ -1,13 +1,13 @@
-import {jsonObject, jsonProperty} from '../../../src';
+import {model, property} from '../../../src';
 import {A} from './a.model';
 
-@jsonObject()
+@model()
 export class B {
 
-    @jsonProperty(() => A)
+    @property(() => A)
     a: A;
 
-    @jsonProperty()
+    @property()
     name: string;
 
     test(): true {

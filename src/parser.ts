@@ -1,9 +1,9 @@
-export interface JsonHandler {
-    parse: (text: string) => any;
-    stringify: (value: any) => string;
+export interface Parser<Raw> {
+    parse: (text: Raw) => any;
+    toRaw: (value: any) => Raw;
 }
 
-export interface JsonHandlerSimpleSettings {
+export interface JsonParserSettings {
 
     /**
      * A string or number that is used to insert white space into the output JSON string for
@@ -35,10 +35,10 @@ export interface JsonHandlerSimpleSettings {
     reviver?: (this: any, key: string, value: any) => any;
 }
 
-export class JsonHandlerSimple implements JsonHandler {
+export class JsonParser implements Parser<string> {
 
     constructor(
-        private readonly settings: JsonHandlerSimpleSettings,
+        private readonly settings: JsonParserSettings,
     ) {
     }
 
@@ -46,7 +46,7 @@ export class JsonHandlerSimple implements JsonHandler {
         return JSON.parse(text, this.settings.reviver);
     }
 
-    stringify(value: any): string {
+    toRaw(value: any): string {
         return JSON.stringify(value, this.settings.replacer, this.settings.spaces);
     }
 }

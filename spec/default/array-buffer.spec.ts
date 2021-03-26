@@ -1,15 +1,15 @@
 import test from 'ava';
 
-import {Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {createPassThroughMacro} from '../helpers/macros';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class ArrayBufferSpec {
 
-    @jsonProperty(() => ArrayBuffer)
+    @property(() => ArrayBuffer)
     property?: ArrayBuffer | null;
 }
 
@@ -19,22 +19,22 @@ const passThroughMacro = createPassThroughMacro({
 });
 
 test('ArrayBuffer', passThroughMacro, {
-    type: 'fromJson',
+    type: 'toInstance',
     value: null,
 });
 
 test('ArrayBuffer', passThroughMacro, {
-    type: 'toJson',
+    type: 'toPlain',
     value: null,
 });
 
 test('ArrayBuffer', passThroughMacro, {
-    type: 'fromJson',
+    type: 'toInstance',
     value: undefined,
 });
 
 test('ArrayBuffer', passThroughMacro, {
-    type: 'toJson',
+    type: 'toPlain',
     value: undefined,
 });
 

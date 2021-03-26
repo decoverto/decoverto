@@ -2,8 +2,8 @@
  * This options cascade through the annotations. Options set
  * in the more specific place override the previous option.
  * The order from highest to lowest precedence is as follows:
- * 1. @jsonProperty options
- * 1. @jsonObject options
+ * 1. @property options
+ * 1. @model options
  * 1. TypeHandler options
  * 1. Decoverto options
  */

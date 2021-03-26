@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import {Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {createPassThroughMacro} from '../helpers/macros';
 
@@ -42,10 +42,10 @@ test('Unquoted date should convert to JSON', t => {
     t.is(decoverto.type(Date).instanceToPlain(dateStr), dateStr);
 });
 
-@jsonObject()
+@model()
 class DateSpec {
 
-    @jsonProperty(() => Date)
+    @property(() => Date)
     date?: Date | null;
 }
 
@@ -63,22 +63,22 @@ test('Parsing a date with a date as source value should keep the source value', 
 });
 
 test('Date', passThroughMacro, {
-    type: 'fromJson',
+    type: 'toInstance',
     value: null,
 });
 
 test('Date', passThroughMacro, {
-    type: 'toJson',
+    type: 'toPlain',
     value: null,
 });
 
 test('Date', passThroughMacro, {
-    type: 'fromJson',
+    type: 'toInstance',
     value: undefined,
 });
 
 test('Date', passThroughMacro, {
-    type: 'toJson',
+    type: 'toPlain',
     value: undefined,
 });
 

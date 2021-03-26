@@ -2,9 +2,9 @@ import {getDiagnostic} from '../diagnostics';
 import {UnknownTypeError} from '../errors/unknown-type.error';
 import {isObject} from '../helpers';
 import {
-    JsonObjectMetadata,
-    JsonPropertyMetadata,
-    JsonPropertyOverridingConvertersMetadata,
+    ModelMetadata,
+    PropertyMetadata,
+    PropertyOverridingConvertersMetadata,
 } from '../metadata';
 import {mergeOptions} from '../options-base';
 import {Constructor} from '../types';
@@ -48,7 +48,7 @@ export class ConcreteConverter<Class extends Object = any>
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
-        const sourceObjectMetadata = JsonObjectMetadata.getFromConstructor(this.type);
+        const sourceObjectMetadata = ModelMetadata.getFromConstructor(this.type);
 
         if (sourceObjectMetadata?.isExplicitlyMarked === true) {
             const sourceMetadata = sourceObjectMetadata;
@@ -62,20 +62,20 @@ export class ConcreteConverter<Class extends Object = any>
                 const typeName = sourceMetadata.classType.name;
                 const objMemberOptions = {};
 
-                const revivedValue = this.shouldUseType(objMemberMetadata, 'fromJson')
+                const revivedValue = this.shouldUseType(objMemberMetadata, 'toInstance')
                     ? objMemberMetadata.converter.toInstance({
                         ...context,
                         propertyOptions: objMemberOptions,
                         path: `${typeName}.${propKey}`,
                         source: objMemberValue,
                     })
-                    : objMemberMetadata.fromJson(objMemberValue);
+                    : objMemberMetadata.toInstance(objMemberValue);
 
                 if (revivedValue !== undefined) {
                     sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
                 } else if (objMemberMetadata.isRequired === true) {
                     throw new TypeError(getDiagnostic('missingRequiredProperty', {
-                        property: objMemberMetadata.jsonName,
+                        property: objMemberMetadata.plainName,
                         typeName,
                     }));
                 }
@@ -125,7 +125,7 @@ export class ConcreteConverter<Class extends Object = any>
             return this.toObject({
                 ...context,
                 source: source,
-            }) as any; // Cast to any since generic Json parameter could be anything
+            }) as any; // Cast to any since generic Plain parameter could be anything
         } else {
             return converter.toPlain(context);
         }
@@ -137,18 +137,18 @@ export class ConcreteConverter<Class extends Object = any>
      */
     toObject(context: ConversionContext<any>) {
         const {source} = context;
-        let sourceTypeMetadata: JsonObjectMetadata | undefined;
+        let sourceTypeMetadata: ModelMetadata | undefined;
         let targetObject: Record<string, unknown>;
 
         if (source.constructor !== this.type
             && source instanceof this.type) {
             // The source object is not of the expected type, but it is a valid subtype.
             // This is OK, and we'll proceed to gather object metadata from the subtype instead.
-            sourceTypeMetadata = JsonObjectMetadata.getFromConstructor(
+            sourceTypeMetadata = ModelMetadata.getFromConstructor(
                 source.constructor as Constructor<Class>,
             );
         } else {
-            sourceTypeMetadata = JsonObjectMetadata.getFromConstructor(this.type);
+            sourceTypeMetadata = ModelMetadata.getFromConstructor(this.type);
         }
 
         if (sourceTypeMetadata === undefined) {
@@ -159,10 +159,9 @@ export class ConcreteConverter<Class extends Object = any>
         } else {
             const sourceMeta = sourceTypeMetadata;
             // Strong-typed conversion available.
-            // We'll convert all properties that have been marked with @jsonProperty
+            // We'll convert all properties that have been marked with @property
             // and perform recursive conversion on each of them. The
-            // converted objects are put on the 'targetObject', which is what will be put into
-            // 'JSON.instanceToRaw' finally.
+            // converted objects are put on the 'targetObject'
             targetObject = {};
 
             const classOptions = sourceMeta.options ?? {};
@@ -170,17 +169,17 @@ export class ConcreteConverter<Class extends Object = any>
             sourceMeta.properties.forEach((objMemberMetadata, propKey) => {
                 const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
                 const typeName = sourceMeta.classType.name;
-                const json = this.shouldUseType(objMemberMetadata, 'toJson')
+                const plain = this.shouldUseType(objMemberMetadata, 'toPlain')
                     ? objMemberMetadata.converter.toPlain({
                         ...context,
                         path: `${typeName}.${propKey}`,
                         propertyOptions: objMemberOptions,
                         source: source[objMemberMetadata.key],
                     })
-                    : objMemberMetadata.toJson(source[objMemberMetadata.key]);
+                    : objMemberMetadata.toPlain(source[objMemberMetadata.key]);
 
-                if (json !== undefined) {
-                    targetObject[objMemberMetadata.jsonName] = json;
+                if (plain !== undefined) {
+                    targetObject[objMemberMetadata.plainName] = plain;
                 }
             });
         }
@@ -197,9 +196,9 @@ export class ConcreteConverter<Class extends Object = any>
      * overriding converters. False otherwise.
      */
     private shouldUseType(
-        metadata: JsonPropertyMetadata,
-        method: 'fromJson' | 'toJson',
-    ): metadata is JsonPropertyOverridingConvertersMetadata {
+        metadata: PropertyMetadata,
+        method: 'toInstance' | 'toPlain',
+    ): metadata is PropertyOverridingConvertersMetadata {
         return 'converter' in metadata && metadata[method] == null;
     }
 }

@@ -3,10 +3,10 @@ import test from 'ava';
 import {
     array,
     Decoverto,
-    jsonObject,
-    jsonProperty,
     map,
     MapShape,
+    model,
+    property,
     set,
 } from '../../../src';
 import {A} from './a.model';
@@ -14,39 +14,39 @@ import {B} from './b.model';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class DeferredSimple {
 
-    @jsonProperty(() => Deferred)
+    @property(() => Deferred)
     deferred: any;
 }
 
-@jsonObject()
+@model()
 class DeferredArray {
 
-    @jsonProperty(array(() => Deferred))
+    @property(array(() => Deferred))
     deferred: Array<any>;
 }
 
-@jsonObject()
+@model()
 class DeferredMap {
 
-    @jsonProperty(map(() => String, () => Deferred, {shape: MapShape.Array}))
+    @property(map(() => String, () => Deferred, {shape: MapShape.Array}))
     deferred: Map<string, any>;
 }
 
-@jsonObject()
+@model()
 class DeferredSet {
 
-    @jsonProperty(set(() => Deferred))
+    @property(set(() => Deferred))
     deferred: Set<any>;
 }
 
 // Must be declared beneath other classes to test deferred typed
-@jsonObject()
+@model()
 class Deferred {
 
-    @jsonProperty()
+    @property()
     name: string;
 }
 

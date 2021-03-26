@@ -4,56 +4,56 @@ import {Serializable} from './types';
 
 export const Diagnostics = {
     // Setup errors; decorators and such
-    jsonPropertyReflectedTypeIsNull(info: {property: string | symbol; typeName: string}) {
+    propertyReflectedTypeIsNull(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1000,
-            message: `Cannot determine type on @jsonProperty at ${info.typeName}. \
+            message: `Cannot determine type on @property at ${info.typeName}. \
 ${String(info.property)}. Do you have emitDecoratorMetadata enabled in your tsconfig.json?
 Other solutions:
- - Provide the type as an argument of the @jsonProperty decorator. E.g. \
-@jsonProperty(() => String)
- - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
+ - Provide the type as an argument of the @property decorator. E.g. \
+@property(() => String)
+ - Specify toInstance and toPlain on @property, e.g. @property({toInstance: ..., toPlain: ...})`,
         };
     },
-    jsonPropertyNoTypeNoConvertersNoReflect(info: {property: string | symbol; typeName: string}) {
+    propertyNoTypeNoConvertersNoReflect(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1001,
-            message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
+            message: `Cannot determine type on @property at ${info.typeName}.\
 ${String(info.property)}. Solutions:
  - Enable reflect-metadata
- - Provide the type as an argument of the @jsonProperty decorator. E.g. \
-@jsonProperty(() => String)
- - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
+ - Provide the type as an argument of the @property decorator. E.g. \
+@property(() => String)
+ - Specify toInstance and toPlain on @property, e.g. @property({toInstance: ..., toPlain: ...})`,
         };
     },
-    jsonPropertyReflectedTypeIsObject(info: {property: string | symbol; typeName: string}) {
+    propertyReflectedTypeIsObject(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1002,
-            message: `Cannot determine type on @jsonProperty at ${info.typeName}.\
+            message: `Cannot determine type on @property at ${info.typeName}.\
 ${String(info.property)}. Solutions:
- - Pass the type to the @jsonProperty decorator, e.g. @jsonProperty(() => String)
+ - Pass the type to the @property decorator, e.g. @property(() => String)
  - If the property has a default value, make sure to explicitly type it. E.g. prop: number = 5
- - Specify fromJson and toJson on @jsonProperty, e.g. @jsonProperty({fromJson: ..., toJson: ...})`,
+ - Specify toInstance and toPlain on @property, e.g. @property({toInstance: ..., toPlain: ...})`,
         };
     },
-    jsonPropertyCannotBeUsedOnStaticProperty(info: {property: string | symbol; typeName: string}) {
+    propertyCannotBeUsedOnStaticProperty(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1003,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
+            message: `@property on ${info.typeName}.${String(info.property)} cannot be used on \
 a static property.`,
         };
     },
-    jsonPropertyCannotBeUsedOnInstanceMethod(info: {property: string | symbol; typeName: string}) {
+    propertyCannotBeUsedOnInstanceMethod(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1004,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
+            message: `@property on ${info.typeName}.${String(info.property)} cannot be used on \
 an instance method.`,
         };
     },
-    jsonPropertyCannotBeUsedOnStaticMethod(info: {property: string | symbol; typeName: string}) {
+    propertyCannotBeUsedOnStaticMethod(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1005,
-            message: `@jsonProperty on ${info.typeName}.${String(info.property)} cannot be used on \
+            message: `@property on ${info.typeName}.${String(info.property)} cannot be used on \
 a static method.`,
         };
     },
@@ -63,7 +63,7 @@ a static method.`,
         return {
             code: 2000,
             message: `The type ${info.type.name} cannot be used to create a new type handler. It \
-is missing the @jsonObject decorator and is not in the converter map.`,
+is missing the @model decorator and is not in the converter map.`,
         };
     },
 

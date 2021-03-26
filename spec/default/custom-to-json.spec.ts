@@ -1,19 +1,19 @@
 import test from 'ava';
 
-import {array, Decoverto, jsonObject, jsonProperty} from '../../src';
+import {array, Decoverto, model, property} from '../../src';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class Person {
-    @jsonProperty({toJson: () => 'Mark'})
+    @property({toPlain: () => 'Mark'})
     firstName: string;
 
-    @jsonProperty(() => String, {toJson: () => 'Foreman'})
+    @property(() => String, {toPlain: () => 'Foreman'})
     lastName: string;
 }
 
-test(`Converting @jsonProperty({toJson: ...}) to JSON  should use the custom fromJson \
+test(`Converting @property({toPlain: ...}) to JSON  should use the custom toInstance \
 function`, t => {
     const person = new Person();
     person.firstName = 'Mulit term name';
@@ -25,82 +25,82 @@ function`, t => {
     });
 });
 
-test('Converting @jsonProperty({toPlain: ...}) to JSON should not affect toInstance', t => {
+test('Converting @property({toPlain: ...}) to JSON should not affect toInstance', t => {
     t.deepEqual(
         decoverto.type(Person).rawToInstance('{"firstName":"name","lastName":"last"}'),
         Object.assign(new Person(), {firstName: 'name', lastName: 'last'}),
     );
 });
 
-test(`@jsonProperty({fromJson: ..., toJson: ...}) with complex type uses specified toJson \
+test(`@property({toInstance: ..., toPlain: ...}) with complex type uses specified toPlain \
 function`, t => {
     t.notThrows(() => {
-        @jsonObject()
-        class ToJsonComplexType {
-            @jsonProperty({fromJson: () => false, toJson: () => true})
+        @model()
+        class ToPlainComplexType {
+            @property({toInstance: () => false, toPlain: () => true})
             complex: boolean | string | number | URL;
         }
 
-        const typeHandler = decoverto.type(ToJsonComplexType);
-        t.true(typeHandler.instanceToPlain(new ToJsonComplexType()).complex);
+        const typeHandler = decoverto.type(ToPlainComplexType);
+        t.true(typeHandler.instanceToPlain(new ToPlainComplexType()).complex);
     });
 });
 
-@jsonObject()
-class ArrayToJsonTest {
-    @jsonProperty(array(() => Number), {toJson: (values: Array<number>) => values.join(',')})
+@model()
+class ArrayToPlainTest {
+    @property(array(() => Number), {toPlain: (values: Array<number>) => values.join(',')})
     nums: Array<number>;
 
-    @jsonProperty()
+    @property()
     str: string;
 }
 
-test('Parsing @jsonProperty(array(() => Number), {toPlain: ...}) should use the toPlain \
+test('Parsing @property(array(() => Number), {toPlain: ...}) should use the toPlain \
 function', t => {
-    const testInstance = new ArrayToJsonTest();
+    const testInstance = new ArrayToPlainTest();
     testInstance.nums = [3, 45, 34];
     testInstance.str = 'Text';
 
-    t.deepEqual(JSON.parse(decoverto.type(ArrayToJsonTest).instanceToRaw(testInstance)), {
+    t.deepEqual(JSON.parse(decoverto.type(ArrayToPlainTest).instanceToRaw(testInstance)), {
         nums: '3,45,34',
         str: 'Text',
     });
 });
 
-test(`Result of parsing @jsonProperty(array(() => Number), {fromJson: ...}) should not affect \
-toJson`, t => {
+test(`Result of parsing @property(array(() => Number), {toInstance: ...}) should not affect \
+toPlain`, t => {
     t.deepEqual(
-        decoverto.type(ArrayToJsonTest).rawToInstance('{"nums":[4,5,6,7],"str":"string"}'),
-        Object.assign(new ArrayToJsonTest(), {nums: [4, 5, 6, 7], str: 'string'}),
+        decoverto.type(ArrayToPlainTest).rawToInstance('{"nums":[4,5,6,7],"str":"string"}'),
+        Object.assign(new ArrayToPlainTest(), {nums: [4, 5, 6, 7], str: 'string'}),
     );
 });
 
-test('Converting @jsonProperty(array(() => Class), {toPlain: function}) should succeed', t => {
-    @jsonObject()
+test('Converting @property(array(() => Class), {toPlain: function}) should succeed', t => {
+    @model()
     class Inner {
-        @jsonProperty()
+        @property()
         prop: string;
 
-        shouldConvertToJson: boolean;
+        shouldConvertToPlain: boolean;
 
-        constructor(prop: string, shouldConvertToJSon: boolean) {
+        constructor(prop: string, shouldConvertToPlain: boolean) {
             this.prop = prop;
-            this.shouldConvertToJson = shouldConvertToJSon;
+            this.shouldConvertToPlain = shouldConvertToPlain;
         }
     }
 
-    function objArrayToJson(values: Array<Inner>) {
+    function objArrayToPlain(values: Array<Inner>) {
         return decoverto.type(Inner).instanceArrayToPlain(
-            values.filter(value => value.shouldConvertToJson),
+            values.filter(value => value.shouldConvertToPlain),
         );
     }
 
-    @jsonObject()
+    @model()
     class Obj {
-        @jsonProperty(array(() => Inner), {toJson: objArrayToJson})
+        @property(array(() => Inner), {toPlain: objArrayToPlain})
         inners: Array<Inner>;
 
-        @jsonProperty()
+        @property()
         str: string;
     }
 

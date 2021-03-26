@@ -1,15 +1,15 @@
 import test from 'ava';
 
-import {Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {createPassThroughMacro} from '../helpers/macros';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class DataViewSpec {
 
-    @jsonProperty(() => DataView)
+    @property(() => DataView)
     property?: DataView | null;
 }
 
@@ -19,22 +19,22 @@ const passThroughMacro = createPassThroughMacro({
 });
 
 test('DataView', passThroughMacro, {
-    type: 'fromJson',
+    type: 'toInstance',
     value: null,
 });
 
 test('DataView', passThroughMacro, {
-    type: 'toJson',
+    type: 'toPlain',
     value: null,
 });
 
 test('DataView', passThroughMacro, {
-    type: 'fromJson',
+    type: 'toInstance',
     value: undefined,
 });
 
 test('DataView', passThroughMacro, {
-    type: 'toJson',
+    type: 'toPlain',
     value: undefined,
 });
 

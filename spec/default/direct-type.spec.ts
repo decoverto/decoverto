@@ -1,25 +1,25 @@
 import test from 'ava';
 
-import {Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class DirectTypeMismatch {
-    @jsonProperty(() => String)
+    @property(() => String)
     property: any;
 
     constructor(
-        property: any,
+        propertyValue: any,
     ) {
-        this.property = property;
+        this.property = propertyValue;
     }
 }
 
 const directTypeMismatchTypeHandler = decoverto.type(DirectTypeMismatch);
 
-test(`An error should be thrown when the defined type and the type encountered during fromJson \
+test(`An error should be thrown when the defined type and the type encountered during toInstance \
 differ`, t => {
     t.throws(() => directTypeMismatchTypeHandler.plainToInstance({property: 15}), {
         message: getDiagnostic('invalidValueError', {
@@ -30,7 +30,7 @@ differ`, t => {
     });
 });
 
-test(`An error should be thrown when the defined type and the type encountered during toJson \
+test(`An error should be thrown when the defined type and the type encountered during toPlain \
 differ`, t => {
     t.throws(() => directTypeMismatchTypeHandler.instanceToPlain(new DirectTypeMismatch(15)), {
         message: getDiagnostic('invalidValueError', {

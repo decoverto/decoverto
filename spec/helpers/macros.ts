@@ -17,7 +17,7 @@ export interface PassThroughMacro<T> {
     /**
      * Whether to test `parse` or `toPlain`.
      */
-    type: 'fromJson' | 'toJson';
+    type: 'toInstance' | 'toPlain';
 
     /**
      * Will be used to create the test subject and perform the strict equal check.
@@ -37,7 +37,7 @@ export function createPassThroughMacro<T>(
     const typeHandler = new Decoverto().type(createOptions.class);
     const macro: Macro<[PassThroughMacro<T>]> = (t, options) => {
         const subject = createOptions.createSubject(options.value);
-        const result = options.type === 'fromJson'
+        const result = options.type === 'toInstance'
             ? typeHandler.plainToInstance(subject)
             : typeHandler.instanceToPlain(Object.assign(new createOptions.class(), subject));
 
@@ -46,7 +46,7 @@ export function createPassThroughMacro<T>(
         });
     };
     macro.title = (providedTitle, options) => {
-        return `${providedTitle} ${options.type === 'fromJson' ? 'from JSON' : 'to JSON'} should \
+        return `${providedTitle} ${options.type === 'toInstance' ? 'from JSON' : 'to JSON'} should \
 pass${isObject(options.value) ? ' and referentially equal' : ''} ${JSON.stringify(options.value)}`;
     };
 

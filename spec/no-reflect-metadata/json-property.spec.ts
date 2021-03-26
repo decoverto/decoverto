@@ -1,100 +1,100 @@
 import test from 'ava';
 
-import {jsonObject, jsonProperty} from '../../src';
+import {model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {use} from '../helpers/ava.helper';
 
-test(`An error should be thrown on a @jsonProperty declaration with no thunk, no custom \
+test(`An error should be thrown on a @property declaration with no thunk, no custom \
 converters, and no reflect metadata`, t => {
     t.throws(() => {
-        @jsonObject()
+        @model()
         class NoReflectMetadataNoThunkNoCustomConverters {
 
-            @jsonProperty()
+            @property()
             property: string;
         }
         use(NoReflectMetadataNoThunkNoCustomConverters);
     }, {
-        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
+        message: getDiagnostic('propertyNoTypeNoConvertersNoReflect', {
             typeName: 'NoReflectMetadataNoThunkNoCustomConverters',
             property: 'property',
         }),
     });
 });
 
-test(`An error should be thrown on a @jsonProperty declaration with no thunk, a single custom \
-converter (fromJson), and no reflect metadata`, t => {
+test(`An error should be thrown on a @property declaration with no thunk, a single custom \
+converter (toInstance), and no reflect metadata`, t => {
     t.throws(() => {
-        @jsonObject()
-        class NoReflectMetadataNoThunkFromJson {
+        @model()
+        class NoReflectMetadataNoThunkToInstance {
 
-            @jsonProperty({fromJson: () => ''})
+            @property({toInstance: () => ''})
             property: string;
         }
-        use(NoReflectMetadataNoThunkFromJson);
+        use(NoReflectMetadataNoThunkToInstance);
     }, {
-        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
-            typeName: 'NoReflectMetadataNoThunkFromJson',
+        message: getDiagnostic('propertyNoTypeNoConvertersNoReflect', {
+            typeName: 'NoReflectMetadataNoThunkToInstance',
             property: 'property',
         }),
     });
 });
 
-test(`An error should be thrown on a @jsonProperty declaration with no thunk, a single custom \
-converter (toJson), and no reflect metadata`, t => {
+test(`An error should be thrown on a @property declaration with no thunk, a single custom \
+converter (toPlain), and no reflect metadata`, t => {
     t.throws(() => {
-        @jsonObject()
-        class NoReflectMetadataNoThunkToJson {
+        @model()
+        class NoReflectMetadataNoThunkToPlain {
 
-            @jsonProperty({toJson: () => ''})
+            @property({toPlain: () => ''})
             property: string;
         }
-        use(NoReflectMetadataNoThunkToJson);
+        use(NoReflectMetadataNoThunkToPlain);
     }, {
-        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
-            typeName: 'NoReflectMetadataNoThunkToJson',
+        message: getDiagnostic('propertyNoTypeNoConvertersNoReflect', {
+            typeName: 'NoReflectMetadataNoThunkToPlain',
             property: 'property',
         }),
     });
 });
 
-test(`An error should not be thrown on a @jsonProperty declaration with a thunk, no custom \
+test(`An error should not be thrown on a @property declaration with a thunk, no custom \
 converters, and no reflect metadata`, t => {
     t.notThrows(() => {
-        @jsonObject()
+        @model()
         class ThunkNoReflectMetadataNoCustomConverters {
 
-            @jsonProperty(() => String)
+            @property(() => String)
             property: string;
         }
         use(ThunkNoReflectMetadataNoCustomConverters);
     });
 });
 
-test(`An error should not be thrown on a @jsonProperty declaration with custom converters, \
+test(`An error should not be thrown on a @property declaration with custom converters, \
 no thunk, and no reflect metadata`, t => {
     t.notThrows(() => {
-        @jsonObject()
+        @model()
         class CustomConvertersNoThunkNoReflect {
 
-            @jsonProperty({fromJson: () => '', toJson: () => ''})
+            @property({toInstance: () => '', toPlain: () => ''})
             property: string;
         }
         use(CustomConvertersNoThunkNoReflect);
     });
 });
 
-test('@jsonProperty with converters null should error', t => {
+test('@property with converters null should error', t => {
     t.throws(() => {
-        @jsonObject()
+        @model()
         class NullConverters {
 
-            @jsonProperty({fromJson: null, toJson: null})
+            @property({toInstance: null, toPlain: null})
             null: string;
         }
         use(NullConverters);
     }, {
-        message: getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
+        message: getDiagnostic('propertyNoTypeNoConvertersNoReflect', {
             typeName: 'NullConverters',
             property: 'null',
         }),

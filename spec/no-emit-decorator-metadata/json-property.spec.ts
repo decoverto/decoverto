@@ -1,20 +1,20 @@
 import test from 'ava';
 
-import {jsonObject, jsonProperty} from '../../src';
+import {model, property} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {use} from '../helpers/ava.helper';
 
 test(`An error should be thrown when type reflection is attempted but emitDecoratorMetadata is \
 disabled`, t => {
     t.throws(() => {
-        @jsonObject()
+        @model()
         class ReflectWithoutEmitDecoratorMetadata {
-            @jsonProperty()
+            @property()
             property: string;
         }
         use(ReflectWithoutEmitDecoratorMetadata);
     }, {
-        message: getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+        message: getDiagnostic('propertyReflectedTypeIsNull', {
             property: 'property',
             typeName: 'ReflectWithoutEmitDecoratorMetadata',
         }),
@@ -24,9 +24,9 @@ disabled`, t => {
 test(`An error should not be thrown when a thunk is specified and emitDecoratorMetadata is \
 disabled`, t => {
     t.notThrows(() => {
-        @jsonObject()
+        @model()
         class ThunkWithoutEmitDecoratorMetadata {
-            @jsonProperty(() => String)
+            @property(() => String)
             property: string;
         }
         use(ThunkWithoutEmitDecoratorMetadata);
@@ -36,45 +36,45 @@ disabled`, t => {
 test(`An error should not be thrown when custom converters are specified and \
 emitDecoratorMetadata is disabled`, t => {
     t.notThrows(() => {
-        @jsonObject()
+        @model()
         class CustomConvertersWithoutEmitDecoratorMetadata {
-            @jsonProperty({fromJson: () => '', toJson: () => ''})
+            @property({toInstance: () => '', toPlain: () => ''})
             property: string;
         }
         use(CustomConvertersWithoutEmitDecoratorMetadata);
     });
 });
 
-test(`An error should be thrown on no thunk, only fromJson, a complex type, and \
+test(`An error should be thrown on no thunk, only toInstance, a complex type, and \
 emitDecoratorMetadata disabled`, t => {
     t.throws(() => {
-        @jsonObject()
-        class FromJsonOnlyWithoutEmitDecoratorMetadata {
-            @jsonProperty({fromJson: () => ''})
+        @model()
+        class ToInstanceOnlyWithoutEmitDecoratorMetadata {
+            @property({toInstance: () => ''})
             property: string | number;
         }
-        use(FromJsonOnlyWithoutEmitDecoratorMetadata);
+        use(ToInstanceOnlyWithoutEmitDecoratorMetadata);
     }, {
-        message: getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+        message: getDiagnostic('propertyReflectedTypeIsNull', {
             property: 'property',
-            typeName: 'FromJsonOnlyWithoutEmitDecoratorMetadata',
+            typeName: 'ToInstanceOnlyWithoutEmitDecoratorMetadata',
         }),
     });
 });
 
-test(`An error should be thrown on no thunk, only toJson, a complex type, and \
+test(`An error should be thrown on no thunk, only toPlain, a complex type, and \
 emitDecoratorMetadata disabled`, t => {
     t.throws(() => {
-        @jsonObject()
-        class ToJsonOnlyWithoutEmitDecoratorMetadata {
-            @jsonProperty({toJson: () => ''})
+        @model()
+        class ToPlainOnlyWithoutEmitDecoratorMetadata {
+            @property({toPlain: () => ''})
             property: string | number;
         }
-        use(ToJsonOnlyWithoutEmitDecoratorMetadata);
+        use(ToPlainOnlyWithoutEmitDecoratorMetadata);
     }, {
-        message: getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+        message: getDiagnostic('propertyReflectedTypeIsNull', {
             property: 'property',
-            typeName: 'ToJsonOnlyWithoutEmitDecoratorMetadata',
+            typeName: 'ToPlainOnlyWithoutEmitDecoratorMetadata',
         }),
     });
 });
@@ -82,9 +82,9 @@ emitDecoratorMetadata disabled`, t => {
 test(`An error should not be thrown when both a thunk and custom converters are specified and \
 emitDecoratorMetadata is disabled`, t => {
     t.notThrows(() => {
-        @jsonObject()
+        @model()
         class ThunkAndCustomConvertersWithoutEmitDecoratorMetadata {
-            @jsonProperty(() => String, {fromJson: () => '', toJson: () => ''})
+            @property(() => String, {toInstance: () => '', toPlain: () => ''})
             property: string;
         }
         use(ThunkAndCustomConvertersWithoutEmitDecoratorMetadata);

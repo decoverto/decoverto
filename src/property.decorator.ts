@@ -18,45 +18,45 @@ declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
 }
 
-export interface JsonPropertyOptions extends OptionsBase {
+export interface PropertyOptions extends OptionsBase {
 
-    /** When set, indicates that the property must be present when converting from JSON. */
+    /** When set, indicates that the property must be present when converting to instance. */
     isRequired?: boolean | null;
 
-    /** The jsonName on the JSON that should be used instead of the class property jsonName. */
-    jsonName?: string | null;
+    /** The name of the plain property should it differ from the property on the instance */
+    plainName?: string | null;
 
     /**
-     * When set, this method will be used to convert the value **from** JSON.
+     * When set, this method will be used to convert the value **from** plain.
      */
-    fromJson?: ((json: any) => any) | null;
+    toInstance?: ((data: any) => any) | null;
 
     /**
-     * When set, this method will be used to convert the value **to** JSON.
+     * When set, this method will be used to convert the value **to** plain.
      */
-    toJson?: ((value: any) => any) | null;
+    toPlain?: ((instance: any) => any) | null;
 }
 
 /**
- * Specifies that the property should be included in the JSON conversion, with additional options.
+ * Specifies that the property should be included in the conversion, with additional options.
  * Requires ReflectDecorators.
  */
-export function jsonProperty(options: JsonPropertyOptions): PropertyDecorator;
+export function property(options: PropertyOptions): PropertyDecorator;
 
 /**
- * Specifies that a property should be included in the JSON conversion, with a defined type and
+ * Specifies that a property should be included in the conversion, with a defined type and
  * extra options.
  */
-export function jsonProperty(
+export function property(
     type?: TypeThunk | Converter,
-    options?: JsonPropertyOptions,
+    options?: PropertyOptions,
 ): PropertyDecorator;
 
-export function jsonProperty<T extends Function>(
-    optionsOrType?: JsonPropertyOptions | Typelike<any>,
-    options?: JsonPropertyOptions,
+export function property<T extends Function>(
+    optionsOrType?: PropertyOptions | Typelike<any>,
+    options?: PropertyOptions,
 ): PropertyDecorator {
-    return (target, property) => {
+    return (target, propertyKey) => {
         const typeName = target.constructor.name;
         let converter: Typelike<any> | undefined;
 
@@ -70,49 +70,49 @@ export function jsonProperty<T extends Function>(
 
         if (converter !== undefined) {
             converter = toConverter(converter);
-        } else if (options.fromJson != null && options.toJson != null) {
+        } else if (options.toInstance != null && options.toPlain != null) {
             // Do nothing
         } else if (isReflectMetadataSupported) {
             const reflectCtor = Reflect.getMetadata(
                 'design:type',
                 target,
-                property,
+                propertyKey,
             ) as Constructor<any> | null | undefined;
 
             if (reflectCtor == null) {
-                throw new Error(getDiagnostic('jsonPropertyReflectedTypeIsNull', {
+                throw new Error(getDiagnostic('propertyReflectedTypeIsNull', {
                     typeName,
-                    property,
+                    property: propertyKey,
                 }));
             }
 
             if (reflectCtor === Object) {
-                throw new Error(getDiagnostic('jsonPropertyReflectedTypeIsObject', {
+                throw new Error(getDiagnostic('propertyReflectedTypeIsObject', {
                     typeName,
-                    property,
+                    property: propertyKey,
                 }));
             }
 
             converter = new ConcreteConverter(reflectCtor);
         } else {
-            throw new Error(getDiagnostic('jsonPropertyNoTypeNoConvertersNoReflect', {
+            throw new Error(getDiagnostic('propertyNoTypeNoConvertersNoReflect', {
                 typeName,
-                property,
+                property: propertyKey,
             }));
         }
 
         // TypeScript limitation, when the previous if statement has concluded, either `converter`
         // is defined or both overriding converters are.
         const conditionalOptions = converter === undefined
-            ? {fromJson: options.fromJson!, toJson: options.toJson!}
-            : {converter, fromJson: options.fromJson, toJson: options.toJson};
+            ? {toInstance: options.toInstance!, toPlain: options.toPlain!}
+            : {converter, toInstance: options.toInstance, toPlain: options.toPlain};
 
-        injectMetadataInformation(target, property, {
+        injectMetadataInformation(target, propertyKey, {
             ...conditionalOptions,
             isRequired: options.isRequired,
             options: extractOptionBase(options),
-            key: property.toString(),
-            jsonName: options.jsonName ?? property.toString(),
+            key: propertyKey.toString(),
+            plainName: options.plainName ?? propertyKey.toString(),
         });
     };
 }

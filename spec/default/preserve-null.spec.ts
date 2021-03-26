@@ -1,12 +1,12 @@
 import test from 'ava';
 
-import {Decoverto, jsonObject, jsonProperty} from '../../src';
+import {Decoverto, model, property} from '../../src';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class NullTest {
-    @jsonProperty(() => String)
+    @property(() => String)
     name: string | null;
 }
 
@@ -22,9 +22,9 @@ test('null should be preserved while converting to JSON', t => {
     t.deepEqual(json, {name: null});
 });
 
-@jsonObject()
+@model()
 class UndefinedTest {
-    @jsonProperty(() => String)
+    @property(() => String)
     name?: string;
 }
 

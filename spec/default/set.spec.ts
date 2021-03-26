@@ -1,18 +1,18 @@
 import test from 'ava';
 
-import {Any, array, Decoverto, jsonObject, jsonProperty, set} from '../../src';
+import {Any, array, Decoverto, model, property, set} from '../../src';
 import {getDiagnostic} from '../../src/diagnostics';
 import {createPassThroughMacro} from '../helpers/macros';
 import {Everything} from '../utils/everything';
 
 const decoverto = new Decoverto();
 
-@jsonObject()
+@model()
 class Simple {
-    @jsonProperty()
+    @property()
     strProp: string;
 
-    @jsonProperty()
+    @property()
     numProp: number;
 
     constructor(init?: {strProp: string; numProp: number}) {
@@ -87,9 +87,9 @@ test('An error should occur on toPlain with a non-Set', t => {
     });
 });
 
-@jsonObject()
+@model()
 class WithSet {
-    @jsonProperty(set(() => Everything))
+    @property(set(() => Everything))
     prop: Set<Everything>;
 
     getSetSize() {
@@ -102,27 +102,27 @@ const passThroughMacro = createPassThroughMacro({
     createSubject: value => ({prop: value}),
 });
 
-test('@jsonProperty(set(...))', passThroughMacro, {
-    type: 'fromJson',
+test('@property(set(...))', passThroughMacro, {
+    type: 'toInstance',
     value: null,
 });
 
-test('@jsonProperty(set(...))', passThroughMacro, {
-    type: 'toJson',
+test('@property(set(...))', passThroughMacro, {
+    type: 'toPlain',
     value: null,
 });
 
-test('@jsonProperty(set(...))', passThroughMacro, {
-    type: 'fromJson',
+test('@property(set(...))', passThroughMacro, {
+    type: 'toInstance',
     value: undefined,
 });
 
-test('@jsonProperty(set(...))', passThroughMacro, {
-    type: 'toJson',
+test('@property(set(...))', passThroughMacro, {
+    type: 'toPlain',
     value: undefined,
 });
 
-test('@jsonProperty(set(...)) should convert from JSON', t => {
+test('@property(set(...)) should convert from JSON', t => {
     const object = {prop: [Everything.create(), Everything.create()]};
     const result = decoverto.type(WithSet).rawToInstance(JSON.stringify(object));
 
@@ -134,7 +134,7 @@ test('@jsonProperty(set(...)) should convert from JSON', t => {
     t.deepEqual(Array.from(result.prop), [Everything.expected(), Everything.expected()]);
 });
 
-test('@jsonProperty(set(...)) should convert to JSON', t => {
+test('@property(set(...)) should convert to JSON', t => {
     const object = new WithSet();
     object.prop = new Set<Everything>([Everything.expected(), Everything.expected()]);
     const result = decoverto.type(WithSet).instanceToRaw(object);
@@ -142,9 +142,9 @@ test('@jsonProperty(set(...)) should convert to JSON', t => {
     t.is(result, JSON.stringify({prop: [Everything.create(), Everything.create()]}));
 });
 
-@jsonObject()
+@model()
 class WithSetArray {
-    @jsonProperty(set(array(() => Simple)))
+    @property(set(array(() => Simple)))
     prop: Set<Array<Simple>>;
 
     getSetSize() {
@@ -152,7 +152,7 @@ class WithSetArray {
     }
 }
 
-test('@jsonProperty(set(array(...))) should convert from JSON', t => {
+test('@property(set(array(...))) should convert from JSON', t => {
     const result = decoverto.type(WithSetArray).rawToInstance(
         JSON.stringify(
             {
@@ -189,7 +189,7 @@ test('@jsonProperty(set(array(...))) should convert from JSON', t => {
     ]);
 });
 
-test('@jsonProperty(set(array(...))) should convert to JSON', t => {
+test('@property(set(array(...))) should convert to JSON', t => {
     const object = new WithSetArray();
     object.prop = new Set<Array<Simple>>([
         [new Simple({strProp: 'delta', numProp: 4})],
@@ -222,17 +222,17 @@ test('@jsonProperty(set(array(...))) should convert to JSON', t => {
     }));
 });
 
-@jsonObject()
+@model()
 class SetPropertyAny {
 
-    @jsonProperty(set(Any))
+    @property(set(Any))
     any: Set<any>;
 
-    @jsonProperty(set(Any))
+    @property(set(Any))
     anyNullable?: Set<any> | null;
 }
 
-test('@jsonProperty(set(Any)) should parse simple object correctly', t => {
+test('@property(set(Any)) should parse simple object correctly', t => {
     const foo = {foo: 'bar'};
     const result = decoverto.type(SetPropertyAny).plainToInstance({
         any: [foo, foo],
@@ -246,7 +246,7 @@ test('@jsonProperty(set(Any)) should parse simple object correctly', t => {
     t.is(result.anyNullable?.values().next().value, foo);
 });
 
-test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
+test('@property(array(Any)) should parse class instance correctly', t => {
     const foo = {foo: 'bar'};
     const result = decoverto.type(SetPropertyAny).plainToInstance({
         any: [foo, foo],
@@ -258,7 +258,7 @@ test('@jsonProperty(array(Any)) should parse class instance correctly', t => {
     t.is(result.anyNullable?.values().next().value, foo);
 });
 
-test('@jsonProperty(set(Any)) should convert with referential equality', t => {
+test('@property(set(Any)) should convert with referential equality', t => {
     const foo = {foo: 'bar'};
     const setPropertyAny = new SetPropertyAny();
     setPropertyAny.any = new Set([foo, foo]);

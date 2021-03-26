@@ -1,10 +1,11 @@
 import {ConversionContext, Converter} from './converter';
 
 /**
- * Abstract class to be used for any type that is represented as an array in JSON. E.g. Array, Set.
+ * Abstract class to be used for any type that is represented as an array in plain form. E.g. Array,
+ * Set.
  */
-export abstract class ListConverter<ClassWrapper, Class, Json = any>
-    extends Converter<ClassWrapper, Array<Json> | null | undefined> {
+export abstract class ListConverter<ClassWrapper, Class, Plain = any>
+    extends Converter<ClassWrapper, Array<Plain> | null | undefined> {
 
     constructor(
         readonly type: Converter<Class>,
@@ -13,9 +14,9 @@ export abstract class ListConverter<ClassWrapper, Class, Json = any>
     }
 
     abstract toInstance(
-        params: ConversionContext<Array<Json> | null | undefined>,
+        params: ConversionContext<Array<Plain> | null | undefined>,
     ): ClassWrapper;
     abstract toPlain(
         params: ConversionContext<ClassWrapper>,
-    ): Array<Json> | null | undefined;
+    ): Array<Plain> | null | undefined;
 }

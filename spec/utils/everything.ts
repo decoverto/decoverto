@@ -1,4 +1,4 @@
-import {jsonObject, jsonProperty} from '../../src';
+import {model, property} from '../../src';
 
 export enum JustEnum {
     One = 1,
@@ -57,31 +57,31 @@ export interface IEverything {
     // [symbolProp]: string;
 }
 
-@jsonObject()
+@model()
 export class Everything implements IEverything {
-    @jsonProperty()
+    @property()
     strProp: string;
-    @jsonProperty()
+    @property()
     numProp: number;
-    @jsonProperty()
+    @property()
     boolProp: boolean;
-    @jsonProperty()
+    @property()
     enum: JustEnum;
-    @jsonProperty()
+    @property()
     constEnum: ConstEnum;
-    @jsonProperty()
+    @property()
     strEnum: StrEnum;
-    @jsonProperty()
+    @property()
     constStrEnum: ConstStrEnum;
-    // @jsonProperty()
+    // @property()
     // heteroEnum: HeteroEnum;
-    // @jsonProperty()
+    // @property()
     // heteroEnum2: HeteroEnum;
-    // @jsonProperty()
+    // @property()
     // constHeteroEnum: ConstHeteroEnum;
-    // @jsonProperty()
+    // @property()
     // constHeteroEnum2: ConstHeteroEnum;
-    // @jsonProperty()
+    // @property()
     // [symbolProp]: string;
 
     constructor(init?: IEverything) {

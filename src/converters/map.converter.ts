@@ -9,7 +9,7 @@ import {toConverter} from './converter.utils';
 export const enum MapShape {
     /**
      * A map will be converted as an array of key-value objects.
-     * E.g. `map: Map<string, string>` is represented in JSON as:
+     * E.g. `map: Map<string, string>` is represented as:
      * ```json
      * {
      *     "map": [
@@ -24,8 +24,8 @@ export const enum MapShape {
     Array = 'Array',
 
     /**
-     * A map will be converted as a JSON object.
-     * E.g. `map: Map<string, string>` is represented in JSON as:
+     * A map will be converted as an object.
+     * E.g. `map: Map<string, string>` is represented as:
      * ```json
      * {
      *     "map": {
@@ -44,13 +44,13 @@ export interface MapOptions {
     shape: MapShape;
 }
 
-export type MapJson =
+export type MapPlain =
     | Array<{key: any; value: any}>
     | Record<string, any> | null | undefined
 ;
 
 export class MapConverter<Key extends Object, Value extends Object>
-    extends Converter<Map<Key, Value> | null | undefined, MapJson> {
+    extends Converter<Map<Key, Value> | null | undefined, MapPlain> {
 
     readonly shape: MapShape;
 
@@ -64,7 +64,7 @@ export class MapConverter<Key extends Object, Value extends Object>
     }
 
     toInstance(
-        context: ConversionContext<MapJson | null | undefined>,
+        context: ConversionContext<MapPlain | null | undefined>,
     ): Map<Key, Value> | null | undefined {
         const {source, path} = context;
 
@@ -125,7 +125,7 @@ export class MapConverter<Key extends Object, Value extends Object>
      */
     toPlain(
         context: ConversionContext<Map<Key, Value> | null | undefined>,
-    ): MapJson | null | undefined {
+    ): MapPlain | null | undefined {
         if (context.source == null) {
             return context.source;
         }
