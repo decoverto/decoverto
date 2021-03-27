@@ -95,5 +95,5 @@ export function getDiagnostic<K extends keyof typeof Diagnostics>(
 ): string {
     const diagnostic = Diagnostics[error](args as any);
 
-    return `DJ${diagnostic.code}: ${diagnostic.message}`;
+    return `DV${diagnostic.code}: ${diagnostic.message}`;
 }
