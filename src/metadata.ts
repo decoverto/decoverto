@@ -14,9 +14,6 @@ export interface PropertyMetadataBase {
     /** Name of the property as it appears in the class. */
     key: string;
 
-    /** If set, indicates that the property must be present when converting to instance. */
-    isRequired?: boolean | null;
-
     options?: OptionsBase | null;
 }
 

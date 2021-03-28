@@ -104,11 +104,6 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
 
             if (revivedValue !== undefined) {
                 result[propertyMetadata.key] = revivedValue;
-            } else if (propertyMetadata.isRequired === true) {
-                throw new TypeError(getDiagnostic('missingRequiredProperty', {
-                    property: propertyMetadata.plainName,
-                    typeName,
-                }));
             }
         });
 

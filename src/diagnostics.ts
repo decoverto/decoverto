@@ -118,12 +118,6 @@ ${info.actualType}, expected ${info.expectedType}.`,
           message: `Could not determine how to convert unknown type ${info.type} at ${info.path}`,
       };
     },
-    missingRequiredProperty(info: {property: string; typeName: string}) {
-        return {
-            code: 3002,
-            message: `Missing required property '${info.property}'.`,
-        };
-    },
     cannotConvertInstanceNotASubtype(info: {
         actualType: string;
         expectedType: string;

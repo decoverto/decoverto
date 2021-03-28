@@ -20,9 +20,6 @@ declare abstract class Reflect {
 
 export interface PropertyOptions extends OptionsBase {
 
-    /** When set, indicates that the property must be present when converting to instance. */
-    isRequired?: boolean | null;
-
     /** The name of the plain property should it differ from the property on the instance */
     plainName?: string | null;
 
@@ -109,7 +106,6 @@ export function property<T extends Function>(
 
         injectMetadataInformation(target, propertyKey, {
             ...conditionalOptions,
-            isRequired: options.isRequired,
             options: extractOptionBase(options),
             key: propertyKey.toString(),
             plainName: options.plainName ?? propertyKey.toString(),
