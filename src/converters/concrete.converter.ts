@@ -44,7 +44,32 @@ export class ConcreteConverter<Class extends Object = any>
         }
     }
 
-    objectToInstance(
+    toPlain(context: ConversionContext<Class | null | undefined>): any {
+        const {source, path} = context;
+        const converter = this.getConverter(context);
+
+        if (converter === undefined) {
+            if (source == null) {
+                return source;
+            }
+
+            if (!isObject(source)) {
+                throw new UnknownTypeError({
+                    path,
+                    type: this.getFriendlyName(),
+                });
+            }
+
+            return this.objectToPlain({
+                ...context,
+                source: source,
+            }) as any; // Cast to any since generic Plain parameter could be anything
+        } else {
+            return converter.toPlain(context);
+        }
+    }
+
+    private objectToInstance(
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
@@ -106,36 +131,11 @@ export class ConcreteConverter<Class extends Object = any>
         }
     }
 
-    toPlain(context: ConversionContext<Class | null | undefined>): any {
-        const {source, path} = context;
-        const converter = this.getConverter(context);
-
-        if (converter === undefined) {
-            if (source == null) {
-                return source;
-            }
-
-            if (!isObject(source)) {
-                throw new UnknownTypeError({
-                    path,
-                    type: this.getFriendlyName(),
-                });
-            }
-
-            return this.objectToPlain({
-                ...context,
-                source: source,
-            }) as any; // Cast to any since generic Plain parameter could be anything
-        } else {
-            return converter.toPlain(context);
-        }
-    }
-
     /**
      * Performs the conversion of a typed object (usually a class instance) to a simple
      * javascript object.
      */
-    objectToPlain(context: ConversionContext<any>) {
+    private objectToPlain(context: ConversionContext<any>) {
         const {source} = context;
         let sourceTypeMetadata: ModelMetadata | undefined;
         let targetObject: Record<string, unknown>;
