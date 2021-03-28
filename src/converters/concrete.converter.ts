@@ -35,7 +35,7 @@ export class ConcreteConverter<Class extends Object = any>
                 });
             }
 
-            return this.fromObject({
+            return this.objectToInstance({
                 ...context,
                 source: source,
             }) as unknown as any; // Required since return type might not match Class
@@ -44,7 +44,7 @@ export class ConcreteConverter<Class extends Object = any>
         }
     }
 
-    fromObject(
+    objectToInstance(
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
@@ -122,7 +122,7 @@ export class ConcreteConverter<Class extends Object = any>
                 });
             }
 
-            return this.toObject({
+            return this.objectToPlain({
                 ...context,
                 source: source,
             }) as any; // Cast to any since generic Plain parameter could be anything
@@ -135,7 +135,7 @@ export class ConcreteConverter<Class extends Object = any>
      * Performs the conversion of a typed object (usually a class instance) to a simple
      * javascript object.
      */
-    toObject(context: ConversionContext<any>) {
+    objectToPlain(context: ConversionContext<any>) {
         const {source} = context;
         let sourceTypeMetadata: ModelMetadata | undefined;
         let targetObject: Record<string, unknown>;
