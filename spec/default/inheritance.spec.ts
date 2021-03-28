@@ -112,7 +112,7 @@ test('Converting DParentUChildUChild of a subtype to plain with .type(Parent) sh
     });
 });
 
-test('Converting a decorated  child of an undecorated parent with .type(Child) should work', t => {
+test('Converting a decorated child of an undecorated parent with .type(Child) should work', t => {
     const subject = new UParentDChild();
     subject.parentProperty = 'parent';
     subject.childProperty = 'child';
@@ -122,4 +122,24 @@ test('Converting a decorated  child of an undecorated parent with .type(Child) s
         parentProperty: 'parent',
         childProperty: 'child',
     });
+});
+
+test('Overriding property options on subclasses should work', t => {
+    @model()
+    class Parent {
+        @property(() => String)
+        data: any;
+    }
+
+    @model()
+    class Child extends Parent {
+        @property(() => Number)
+        data: any;
+    }
+
+    const result = decoverto.type(Child).plainToInstance({
+        data: 123,
+    });
+
+    t.is(result.data, 123);
 });
