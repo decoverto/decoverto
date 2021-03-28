@@ -1,5 +1,4 @@
 import {InvalidValueError} from '../errors/invalid-value.error';
-import {OptionsBase} from '../options-base';
 import {Serializable} from '../types';
 
 export type Typelike<T extends Object> = TypeThunk<T> | Converter<T>;
@@ -10,7 +9,6 @@ export interface ConversionContext<Raw> {
      * Name of the object being converted, used for debugging purposes.
      */
     path: string;
-    propertyOptions?: OptionsBase;
     source: Raw;
     converterMap: Map<Serializable<any>, Converter>;
 }

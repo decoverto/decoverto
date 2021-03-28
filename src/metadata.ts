@@ -1,7 +1,6 @@
 import {Converter} from './converters/converter';
 import {getDiagnostic} from './diagnostics';
 import {ModelOptionsInheritance} from './model.decorator';
-import {OptionsBase} from './options-base';
 import {Constructor, Serializable} from './types';
 
 export const metadataFieldKey = Symbol('decovertoMetadata');
@@ -13,8 +12,6 @@ export interface PropertyMetadataBase {
 
     /** Name of the property as it appears in the class. */
     key: string;
-
-    options?: OptionsBase | null;
 }
 
 export interface PropertyOnlyConvertersMetadata extends PropertyMetadataBase {
@@ -71,8 +68,6 @@ export class ModelMetadata {
 
     /** Name used to encode polymorphic type */
     name?: string | null;
-
-    options?: OptionsBase | null;
 
     properties = new Map<string, PropertyMetadata>();
 

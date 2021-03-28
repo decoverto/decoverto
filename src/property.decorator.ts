@@ -11,14 +11,13 @@ import {
     isReflectMetadataSupported,
 } from './helpers';
 import {injectMetadataInformation} from './metadata';
-import {extractOptionBase, OptionsBase} from './options-base';
 import {Constructor} from './types';
 
 declare abstract class Reflect {
     static getMetadata(metadataKey: string, target: any, targetKey: string | symbol): any;
 }
 
-export interface PropertyOptions extends OptionsBase {
+export interface PropertyOptions {
 
     /** The name of the plain property should it differ from the property on the instance */
     plainName?: string | null;
@@ -106,7 +105,6 @@ export function property<T extends Function>(
 
         injectMetadataInformation(target, propertyKey, {
             ...conditionalOptions,
-            options: extractOptionBase(options),
             key: propertyKey.toString(),
             plainName: options.plainName ?? propertyKey.toString(),
         });

@@ -1,5 +1,4 @@
 import {ModelMetadata} from './metadata';
-import {extractOptionBase, OptionsBase} from './options-base';
 import {Serializable} from './types';
 
 export type InitializerCallback<T> = (sourceObject: T, rawSourceObject: T) => T;
@@ -59,7 +58,7 @@ export type ModelOptionsInheritance =
     | ModelOptionsInheritanceDiscriminator
     | ModelOptionsInheritancePredicate;
 
-export interface ModelOptions<T> extends OptionsBase {
+export interface ModelOptions<T> {
     inheritance?: ModelOptionsInheritance;
 }
 
@@ -74,10 +73,5 @@ export function model<T>(
         const objectMetadata = ModelMetadata.installOnPrototype(target.prototype);
 
         objectMetadata.inheritance = options.inheritance;
-
-        const optionsBase = extractOptionBase(options);
-        if (optionsBase !== undefined) {
-            objectMetadata.options = optionsBase;
-        }
     };
 }

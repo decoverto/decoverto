@@ -6,7 +6,6 @@ import {
     PropertyMetadata,
     PropertyOverridingConvertersMetadata,
 } from '../metadata';
-import {mergeOptions} from '../options-base';
 import {Serializable} from '../types';
 import {ConversionContext, Converter} from './converter';
 
@@ -91,12 +90,10 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
         modelMetadata.properties.forEach((propertyMetadata, property) => {
             const propertyValue = source[property];
             const typeName = modelMetadata.classType.name;
-            const propertyOptions = {};
 
             const revivedValue = this.shouldUseType(propertyMetadata, 'toInstance')
                 ? propertyMetadata.converter.toInstance({
                     ...context,
-                    propertyOptions: propertyOptions,
                     path: `${typeName}.${property}`,
                     source: propertyValue,
                 })
@@ -121,16 +118,13 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
 
         const modelMetadata = ModelMetadata.getFromConstructor(source.constructor)!;
         const result: Record<string, unknown> = {};
-        const modelOptions = modelMetadata.options ?? {};
 
         modelMetadata.properties.forEach((propertyMetadata) => {
-            const propertyOptions = mergeOptions(modelOptions, propertyMetadata.options);
             const property = propertyMetadata.key as keyof Class;
             const plain = this.shouldUseType(propertyMetadata, 'toPlain')
                 ? propertyMetadata.converter.toPlain({
                     ...context,
                     path: `${modelMetadata.classType.name}.${property}`,
-                    propertyOptions: propertyOptions,
                     source: source[property],
                 })
                 : propertyMetadata.toPlain(source[property]);
