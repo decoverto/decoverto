@@ -57,6 +57,43 @@ an instance method.`,
 a static method.`,
         };
     },
+    inheritingModelHasNoBase(info: {typeName: string}) {
+        return {
+            code: 1006,
+            message: `${info.typeName} is decorated with @inherits but does not extend a class.`,
+        };
+    },
+    inheritedModelIsNotDecorated(info: {baseName: string; typeName: string}) {
+        return {
+            code: 1007,
+            message: `${info.typeName} is decorated with @inherits and extends \
+'${info.baseName}' but '${info.baseName}' is missing the @model decorator.`,
+        };
+    },
+    inheritedModelDoesNotHaveInheritanceStrategy(info: {baseName: string; typeName: string}) {
+        return {
+            code: 1008,
+            message: `${info.typeName} is decorated with @inherits and extends \
+'${info.baseName}' but '${info.baseName}' does not have an inheritance strategy. Specify one using \
+@model({inheritance: ...}).`,
+        };
+    },
+    inheritanceDiscriminatorStrategyMismatch(info: {baseName: string; typeName: string}) {
+        return {
+            code: 1009,
+            message: `${info.typeName} is decorated with @inherits and extends \
+'${info.baseName}' but '${info.baseName}' declares the 'discriminator' strategy and no \
+discriminator value was specified on @inherits.`,
+        };
+    },
+    inheritancePredicateStrategyMismatch(info: {baseName: string; typeName: string}) {
+        return {
+            code: 1010,
+            message: `${info.typeName} is decorated with @inherits and extends \
+'${info.baseName}' but '${info.baseName}' declares the 'predicate' strategy and no 'matches' \
+function was specified on @inherits.`,
+        };
+    },
 
     // Initialization errors, e.g. new Decoverto
     unknownTypeCreatingTypeHandler(info: {type: Serializable<any>}) {
@@ -85,6 +122,17 @@ ${info.actualType}, expected ${info.expectedType}.`,
         return {
             code: 3002,
             message: `Missing required property '${info.property}'.`,
+        };
+    },
+    cannotConvertInstanceNotASubtype(info: {
+        actualType: string;
+        expectedType: string;
+        path: string;
+    }) {
+        return {
+            code: 3003,
+            message: `Could not convert instance${info.path === '' ? '' : ` at ${info.path}`}. \
+Object of type '${info.actualType}' is not an instance, or subtype, of ${info.expectedType}'.`,
         };
     },
 };

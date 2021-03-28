@@ -1,6 +1,8 @@
 import test from 'ava';
 
-import {Decoverto, model, property} from '../../src';
+import {Decoverto, inherits, model, property} from '../../src';
+import {getDiagnostic} from '../../src/diagnostics';
+import {use} from '../helpers/ava.helper';
 
 class UParent {
 
@@ -142,4 +144,415 @@ test('Overriding property options on subclasses should work', t => {
     });
 
     t.is(result.data, 123);
+});
+
+test('@inherits should throw if no base class exists', t => {
+    t.throws(() => {
+        @inherits({
+            discriminator: '',
+        })
+        @model()
+        class NoParent {
+
+        }
+
+        use(NoParent);
+    }, {
+        message: getDiagnostic('inheritingModelHasNoBase', {
+            typeName: 'NoParent',
+        }),
+    });
+});
+
+test('@inherits should throw if the base class is missing @model', t => {
+    t.throws(() => {
+        class Parent {
+        }
+
+        @inherits({
+            discriminator: '',
+        })
+        @model()
+        class Child extends Parent {
+
+        }
+
+        use(Child);
+    }, {
+        message: getDiagnostic('inheritedModelIsNotDecorated', {
+            baseName: 'Parent',
+            typeName: 'Child',
+        }),
+    });
+});
+
+test('@inherits should throw if the base class does not have an inheritance strategy', t => {
+    t.throws(() => {
+        @model()
+        class Parent {
+        }
+
+        @inherits({
+            discriminator: '',
+        })
+        @model()
+        class Child extends Parent {
+
+        }
+
+        use(Child);
+    }, {
+        message: getDiagnostic('inheritedModelDoesNotHaveInheritanceStrategy', {
+            baseName: 'Parent',
+            typeName: 'Child',
+        }),
+    });
+});
+
+test('@inherits should throw on empty base class inheritance', t => {
+    t.throws(() => {
+        @model({
+            inheritance: {} as any,
+        })
+        class Parent {
+        }
+
+        @inherits({
+            discriminator: '',
+        })
+        @model()
+        class Child extends Parent {
+
+        }
+
+        use(Child);
+    }, {
+        message: getDiagnostic('inheritedModelDoesNotHaveInheritanceStrategy', {
+            baseName: 'Parent',
+            typeName: 'Child',
+        }),
+    });
+});
+
+test('@inherits({discriminator}) should throw if the wrong strategy is used', t => {
+    t.throws(() => {
+        @model({
+            inheritance: {
+                strategy: 'predicate',
+            },
+        })
+        class Parent {
+        }
+
+        @inherits({
+            discriminator: '',
+        })
+        @model()
+        class Child extends Parent {
+        }
+
+        use(Child);
+    }, {
+        message: getDiagnostic('inheritancePredicateStrategyMismatch', {
+            baseName: 'Parent',
+            typeName: 'Child',
+        }),
+    });
+});
+
+test('@inherits({predicate}) should throw if the wrong strategy is used', t => {
+    t.throws(() => {
+        @model({
+            inheritance: {
+                strategy: 'discriminator',
+                discriminatorKey: 'type',
+            },
+        })
+        class Parent {
+        }
+
+        @inherits({
+            matches: () => true,
+        })
+        @model()
+        class Child extends Parent {
+        }
+
+        use(Child);
+    }, {
+        message: getDiagnostic('inheritanceDiscriminatorStrategyMismatch', {
+            baseName: 'Parent',
+            typeName: 'Child',
+        }),
+    });
+});
+
+test('toInstance on inheritance with discriminator as property should work', t => {
+    @model({
+        inheritance: {
+            discriminatorKey: 'type',
+            strategy: 'discriminator',
+        },
+    })
+    class Person {
+
+        @property()
+        name: string;
+
+        @property()
+        type: string;
+    }
+
+    @inherits({
+        discriminator: 'Employee',
+    })
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const result = decoverto.type(Person).plainToInstance({
+        employeeNr: '123',
+        name: 'Dave',
+        type: 'Employee',
+    });
+
+    t.true(result instanceof Employee);
+    t.true('type' in result);
+    t.is(result.name, 'Dave');
+    t.is((result as any).employeeNr, '123');
+});
+
+test('toInstance on inheritance with discriminator without property should work', t => {
+    @model({
+        inheritance: {
+            discriminatorKey: 'type',
+            strategy: 'discriminator',
+        },
+    })
+    class Person {
+
+        @property()
+        name: string;
+    }
+
+    @inherits({discriminator: 'Employee'})
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const result = decoverto.type(Person).plainToInstance({
+        employeeNr: '123',
+        name: 'Dave',
+        type: 'Employee',
+    });
+
+    t.true(result instanceof Employee);
+    t.false('type' in result);
+    t.is(result.name, 'Dave');
+    t.is((result as any).employeeNr, '123');
+});
+
+test('toInstance on inheritance with predicate should work', t => {
+    @model({
+        inheritance: {
+            strategy: 'predicate',
+        },
+    })
+    class Person {
+
+        @property()
+        name: string;
+    }
+
+    @inherits({
+        matches(data) {
+            return 'employeeNr' in data;
+        },
+    })
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const result = decoverto.type(Person).plainToInstance({
+        name: 'Dave',
+        employeeNr: '123',
+    });
+
+    t.true(result instanceof Employee);
+    t.is((result as any).employeeNr, '123');
+    t.is(result.name, 'Dave');
+});
+
+test('toPlain on inheritance with discriminator as property should work', t => {
+    @model({
+        inheritance: {
+            discriminatorKey: 'type',
+            strategy: 'discriminator',
+        },
+    })
+    class Person {
+
+        @property()
+        name: string;
+
+        @property()
+        type: string;
+    }
+
+    @inherits({
+        discriminator: 'Employee',
+    })
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const subject = new Employee();
+    subject.name = 'Dave';
+    subject.employeeNr = '123';
+    subject.type = 'Employee';
+
+    const result = decoverto.type(Person).instanceToPlain(subject);
+
+    t.deepEqual(result, {
+        name: 'Dave',
+        employeeNr: '123',
+        type: 'Employee',
+    });
+});
+
+test('toPlain on inheritance with discriminator without property should work', t => {
+    @model({
+        inheritance: {
+            discriminatorKey: 'type',
+            strategy: 'discriminator',
+        },
+    })
+    class Person {
+
+        @property()
+        name: string;
+    }
+
+    @inherits({discriminator: 'Employee'})
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const subject = new Employee();
+    subject.name = 'Dave';
+    subject.employeeNr = '123';
+
+    const result = decoverto.type(Person).instanceToPlain(subject);
+
+    t.deepEqual(result, {
+        employeeNr: '123',
+        name: 'Dave',
+        type: 'Employee',
+    });
+});
+
+test('toPlain on inheritance with predicate should work', t => {
+    @model({
+        inheritance: {
+            strategy: 'predicate',
+        },
+    })
+    class Person {
+
+        @property()
+        name: string;
+    }
+
+    @inherits({
+        matches(data) {
+            return 'employeeNr' in data;
+        },
+    })
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const subject = new Employee();
+    subject.employeeNr = '123';
+    subject.name = 'Dave';
+
+    const result = decoverto.type(Person).instanceToPlain(subject);
+
+    t.deepEqual(result, {
+        employeeNr: '123',
+        name: 'Dave',
+    });
+});
+
+test('Inheritance should work with abstract classes', t => {
+    @model({
+        inheritance: {
+            strategy: 'predicate',
+        },
+    })
+    abstract class Person {
+
+        @property()
+        name: string;
+    }
+
+    @inherits({
+        matches(data) {
+            return 'employeeNr' in data;
+        },
+    })
+    @model()
+    class Employee extends Person {
+
+        @property()
+        employeeNr: string;
+    }
+
+    const result = decoverto.type(Person).plainToInstance({
+        name: 'Dave',
+        employeeNr: '123',
+    });
+
+    t.true(result instanceof Employee);
+    t.is((result as any).employeeNr, '123');
+    t.is(result.name, 'Dave');
+});
+
+test(`An error should be thrown on conversion from instance if the given object has the wrong type \
+`, t => {
+    t.throws(() => {
+        @model()
+        class Root {
+        }
+
+        @model()
+        class NoExtend {
+        }
+
+        decoverto.type(Root).instanceToPlain(new NoExtend());
+    }, {
+        message: getDiagnostic('cannotConvertInstanceNotASubtype', {
+            actualType: 'NoExtend',
+            expectedType: 'Root',
+            path: '',
+        }),
+    });
 });

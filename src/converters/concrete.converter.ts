@@ -7,16 +7,21 @@ import {
     PropertyOverridingConvertersMetadata,
 } from '../metadata';
 import {mergeOptions} from '../options-base';
-import {Constructor} from '../types';
+import {Serializable} from '../types';
 import {ConversionContext, Converter} from './converter';
-import {SimpleConverter} from './simple.converter';
 
 /**
  * This converter is responsible for traversing objects and converting them and their
  * properties.
  */
-export class ConcreteConverter<Class extends Object = any>
-    extends SimpleConverter<Class> {
+export class ConcreteConverter<Class extends Object = any, Plain = any>
+    extends Converter<Class | null | undefined, Plain> {
+
+    constructor(
+        readonly type: Serializable<Class>,
+    ) {
+        super();
+    }
 
     toInstance(context: ConversionContext<any | null | undefined>): Class | null | undefined {
         const {source, path} = context;
@@ -69,54 +74,45 @@ export class ConcreteConverter<Class extends Object = any>
         }
     }
 
+    getFriendlyName(): string {
+        return this.type.name;
+    }
+
     private objectToInstance(
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
-        const sourceMetadata = ModelMetadata.getFromConstructor(this.type);
-
-        if (sourceMetadata === undefined) {
-            throw new UnknownTypeError({
-                path: context.path,
-                type: this.getFriendlyName(),
-            });
-        }
-
-        // Strong-typed conversion available, get to it.
-        // First convert properties into a temporary object.
-        const sourceObjectWithConvertedProperties: Record<string, unknown> = {};
+        const modelMetadata = ModelMetadata
+            .getFromConstructor(this.type)!
+            .getSubTypeMetadata(source);
+        const result = new modelMetadata.classType();
 
         // Convert by expected properties.
-        sourceMetadata.properties.forEach((objMemberMetadata, propKey) => {
-            const objMemberValue = source[propKey];
-            const typeName = sourceMetadata.classType.name;
-            const objMemberOptions = {};
+        modelMetadata.properties.forEach((propertyMetadata, property) => {
+            const propertyValue = source[property];
+            const typeName = modelMetadata.classType.name;
+            const propertyOptions = {};
 
-            const revivedValue = this.shouldUseType(objMemberMetadata, 'toInstance')
-                ? objMemberMetadata.converter.toInstance({
+            const revivedValue = this.shouldUseType(propertyMetadata, 'toInstance')
+                ? propertyMetadata.converter.toInstance({
                     ...context,
-                    propertyOptions: objMemberOptions,
-                    path: `${typeName}.${propKey}`,
-                    source: objMemberValue,
+                    propertyOptions: propertyOptions,
+                    path: `${typeName}.${property}`,
+                    source: propertyValue,
                 })
-                : objMemberMetadata.toInstance(objMemberValue);
+                : propertyMetadata.toInstance(propertyValue);
 
             if (revivedValue !== undefined) {
-                sourceObjectWithConvertedProperties[objMemberMetadata.key] = revivedValue;
-            } else if (objMemberMetadata.isRequired === true) {
+                result[propertyMetadata.key] = revivedValue;
+            } else if (propertyMetadata.isRequired === true) {
                 throw new TypeError(getDiagnostic('missingRequiredProperty', {
-                    property: objMemberMetadata.plainName,
+                    property: propertyMetadata.plainName,
                     typeName,
                 }));
             }
         });
 
-        const targetObject = new this.type();
-
-        // Finally, assign converted properties to target object.
-        Object.assign(targetObject, sourceObjectWithConvertedProperties);
-
-        return targetObject;
+        return result;
     }
 
     /**
@@ -125,54 +121,46 @@ export class ConcreteConverter<Class extends Object = any>
      */
     private objectToPlain(context: ConversionContext<any>) {
         const {source} = context;
-        let sourceTypeMetadata: ModelMetadata | undefined;
-        let targetObject: Record<string, unknown>;
 
-        if (source.constructor !== this.type
-            && source instanceof this.type) {
-            // The source object is not of the expected type, but it is a valid subtype.
-            // This is OK, and we'll proceed to gather object metadata from the subtype instead.
-            sourceTypeMetadata = ModelMetadata.getFromConstructor(
-                source.constructor as Constructor<Class>,
-            );
-        } else {
-            sourceTypeMetadata = ModelMetadata.getFromConstructor(this.type);
+        this.assertInstanceOfType(source, context);
+
+        const modelMetadata = ModelMetadata.getFromConstructor(source.constructor)!;
+        const result: Record<string, unknown> = {};
+        const modelOptions = modelMetadata.options ?? {};
+
+        modelMetadata.properties.forEach((propertyMetadata) => {
+            const propertyOptions = mergeOptions(modelOptions, propertyMetadata.options);
+            const property = propertyMetadata.key as keyof Class;
+            const plain = this.shouldUseType(propertyMetadata, 'toPlain')
+                ? propertyMetadata.converter.toPlain({
+                    ...context,
+                    path: `${modelMetadata.classType.name}.${property}`,
+                    propertyOptions: propertyOptions,
+                    source: source[property],
+                })
+                : propertyMetadata.toPlain(source[property]);
+
+            if (plain !== undefined) {
+                result[propertyMetadata.plainName] = plain;
+            }
+        });
+
+        modelMetadata.afterToPlain?.(result);
+
+        return result;
+    }
+
+    private assertInstanceOfType(
+        data: Record<string, any>,
+        context: ConversionContext<any>,
+    ): asserts data is Class {
+        if (!(data instanceof this.type)) {
+            throw new Error(getDiagnostic('cannotConvertInstanceNotASubtype', {
+                actualType: data.constructor.name,
+                expectedType: this.type.name,
+                path: context.path,
+            }));
         }
-
-        if (sourceTypeMetadata === undefined) {
-            // Untyped conversion, "as-is", we'll just pass the object on.
-            // We'll clone the source object, because type hints are added to the object itself, and
-            // we don't want to modify the original object.
-            targetObject = {...source};
-        } else {
-            const sourceMeta = sourceTypeMetadata;
-            // Strong-typed conversion available.
-            // We'll convert all properties that have been marked with @property
-            // and perform recursive conversion on each of them. The
-            // converted objects are put on the 'targetObject'
-            targetObject = {};
-
-            const classOptions = sourceMeta.options ?? {};
-
-            sourceMeta.properties.forEach((objMemberMetadata, propKey) => {
-                const objMemberOptions = mergeOptions(classOptions, objMemberMetadata.options);
-                const typeName = sourceMeta.classType.name;
-                const plain = this.shouldUseType(objMemberMetadata, 'toPlain')
-                    ? objMemberMetadata.converter.toPlain({
-                        ...context,
-                        path: `${typeName}.${propKey}`,
-                        propertyOptions: objMemberOptions,
-                        source: source[objMemberMetadata.key],
-                    })
-                    : objMemberMetadata.toPlain(source[objMemberMetadata.key]);
-
-                if (plain !== undefined) {
-                    targetObject[objMemberMetadata.plainName] = plain;
-                }
-            });
-        }
-
-        return targetObject;
     }
 
     private getConverter(context: ConversionContext<any>): Converter | undefined {

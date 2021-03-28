@@ -3,4 +3,4 @@ export interface AbstractType<T> extends Function {
 }
 
 export type Constructor<T> = new (...args: Array<any>) => T;
-export type Serializable<T extends Object> = Constructor<T>;
+export type Serializable<T extends Object> = Constructor<T> | AbstractType<T>;

@@ -8,6 +8,7 @@ export {
     InitializerCallback,
 } from './model.decorator';
 export {property, PropertyOptions} from './property.decorator';
+export {inherits} from './inherits.decorator';
 export * from './converters/any.converter';
 export * from './converters/array.converter';
 export * from './converters/concrete.converter';

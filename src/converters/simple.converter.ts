@@ -1,4 +1,4 @@
-import {Serializable} from '../types';
+import {Constructor} from '../types';
 import {Converter} from './converter';
 
 /**
@@ -8,7 +8,7 @@ export abstract class SimpleConverter<Class extends Object = any, Plain = any>
     extends Converter<Class | null | undefined, Plain> {
 
     constructor(
-        readonly type: Serializable<Class>,
+        readonly type: Constructor<Class>,
     ) {
         super();
     }
