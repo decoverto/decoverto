@@ -1,8 +1,6 @@
 import {ModelMetadata} from './metadata';
 import {Serializable} from './types';
 
-export type InitializerCallback<T> = (sourceObject: T, rawSourceObject: T) => T;
-
 export interface ModelOptionsInheritanceDiscriminator {
     discriminatorKey: string;
     /**
