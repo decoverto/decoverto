@@ -52,7 +52,7 @@ class DParentUChildUChild extends DParentDChild {
 
 const decoverto = new Decoverto();
 
-test('Converting from JSON with a decorated parent and child should work', t => {
+test('Converting to instance with a decorated parent and child should work', t => {
     const result = decoverto.type(DParentDChild).plainToInstance({
         parentProperty: 'parent',
         childProperty: 'child',
@@ -100,7 +100,7 @@ test('Converting an undecorated subtype to plain with .type(Parent) should work'
     });
 });
 
-test('Converting DParentUChildUChild of a subtype to plain with .type(Parent) should work', t => {
+test('Converting DParentUChildUChild to plain with .type(Parent) should work', t => {
     const subject = new DParentUChildUChild();
     subject.childProperty = 'child';
     subject.child2Property = 'child2';
@@ -287,7 +287,8 @@ test('@inherits({predicate}) should throw if the wrong strategy is used', t => {
     });
 });
 
-test('toInstance on inheritance with discriminator as property should work', t => {
+test(`toInstance on discriminator inheritance with the discriminator as a property on the base \
+class, should work`, t => {
     @model({
         inheritance: {
             discriminatorKey: 'type',
@@ -325,7 +326,8 @@ test('toInstance on inheritance with discriminator as property should work', t =
     t.is((result as any).employeeNr, '123');
 });
 
-test('toInstance on inheritance with discriminator without property should work', t => {
+test(`toInstance on discriminator inheritance with the discriminator not a property on the base \
+class, should work`, t => {
     @model({
         inheritance: {
             discriminatorKey: 'type',
@@ -358,7 +360,7 @@ test('toInstance on inheritance with discriminator without property should work'
     t.is((result as any).employeeNr, '123');
 });
 
-test('toInstance on inheritance with predicate should work', t => {
+test('toInstance on predicate inheritance should work', t => {
     @model({
         inheritance: {
             strategy: 'predicate',
@@ -392,7 +394,8 @@ test('toInstance on inheritance with predicate should work', t => {
     t.is(result.name, 'Dave');
 });
 
-test('toPlain on inheritance with discriminator as property should work', t => {
+test(`toPlain on discriminator inheritance with the discriminator as a property on the base \
+class, should work`, t => {
     @model({
         inheritance: {
             discriminatorKey: 'type',
@@ -432,7 +435,8 @@ test('toPlain on inheritance with discriminator as property should work', t => {
     });
 });
 
-test('toPlain on inheritance with discriminator without property should work', t => {
+test(`toPlain on discriminator inheritance with the discriminator not a property on the base \
+class, should work`, t => {
     @model({
         inheritance: {
             discriminatorKey: 'type',
@@ -466,7 +470,7 @@ test('toPlain on inheritance with discriminator without property should work', t
     });
 });
 
-test('toPlain on inheritance with predicate should work', t => {
+test('toPlain on predicate inheritance should work', t => {
     @model({
         inheritance: {
             strategy: 'predicate',
