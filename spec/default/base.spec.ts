@@ -193,3 +193,28 @@ test('Creating a type handler for an object without prototype should error', t =
         }),
     });
 });
+
+@model()
+class Bar {
+}
+
+@model()
+class Foo {
+
+    @property(() => Bar)
+    bar?: Bar | null;
+}
+
+test('Conversion of model on null should succeed', t => {
+    const subject = new Foo();
+    subject.bar = null;
+    const result = decoverto.type(Foo).instanceToPlain(subject);
+
+    t.is(result.bar, null);
+});
+
+test('Conversion of model on undefined should succeed', t => {
+    const result = decoverto.type(Foo).instanceToPlain(new Foo());
+
+    t.is(result.bar, undefined);
+});
