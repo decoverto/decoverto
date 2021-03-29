@@ -573,6 +573,37 @@ test(`An error should be thrown on conversion from instance if the given object 
     });
 });
 
+test(`An error should be thrown when converting toPlain on a nested object if the given object has \
+the wrong type `, t => {
+    t.throws(() => {
+        @model()
+        class NoExtend {
+        }
+
+        @model()
+        class Wrapper {
+        }
+
+        @model()
+        class Root {
+
+            @property()
+            noExtend: Wrapper;
+        }
+
+        const subject = new Root();
+        subject.noExtend = new NoExtend();
+
+        decoverto.type(Root).instanceToPlain(subject);
+    }, {
+        message: getDiagnostic('cannotConvertInstanceNotASubtype', {
+            actualType: 'NoExtend',
+            expectedType: 'Wrapper',
+            path: 'Root.noExtend',
+        }),
+    });
+});
+
 test(`Converting a class which extends an unannotated base class by providing the base class \
 should fail`, t => {
     class Parent {
