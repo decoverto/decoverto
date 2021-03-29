@@ -52,6 +52,18 @@ class DParentUChildUChild extends DParentDChild {
 
 const decoverto = new Decoverto();
 
+test('Converting a class which extends an unannotated base class should succeed', t => {
+    class UEmpty {
+    }
+
+    @model()
+    class Child extends UEmpty {
+    }
+
+    t.is(decoverto.type(Child).instanceToRaw(new Child()), '{}');
+    t.deepEqual(decoverto.type(Child).rawToInstance('{}'), new Child());
+});
+
 test('Converting to instance with a decorated parent and child should work', t => {
     const result = decoverto.type(DParentDChild).plainToInstance({
         parentProperty: 'parent',
@@ -557,6 +569,27 @@ test(`An error should be thrown on conversion from instance if the given object 
             actualType: 'NoExtend',
             expectedType: 'Root',
             path: '',
+        }),
+    });
+});
+
+test(`Converting a class which extends an unannotated base class by providing the base class \
+should fail`, t => {
+    class Parent {
+    }
+
+    @model()
+    class Child extends Parent {
+    }
+
+    t.throws(() => decoverto.type(Parent).instanceToRaw(new Child()), {
+        message: getDiagnostic('unknownTypeCreatingTypeHandler', {
+            type: Parent,
+        }),
+    });
+    t.throws(() => decoverto.type(Parent).rawToInstance('{}'), {
+        message: getDiagnostic('unknownTypeCreatingTypeHandler', {
+            type: Parent,
         }),
     });
 });
