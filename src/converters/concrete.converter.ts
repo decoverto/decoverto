@@ -49,7 +49,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
     }
 
     toPlain(context: ConversionContext<Class | null | undefined>): any {
-        const {source, path} = context;
+        const {source} = context;
         const converter = this.getConverter(context);
 
         if (converter === undefined) {
@@ -58,10 +58,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
             }
 
             if (!isObject(source)) {
-                throw new UnknownTypeError({
-                    path,
-                    type: this.getFriendlyName(),
-                });
+                this.throwTypeMismatchError(context);
             }
 
             return this.objectToPlain({

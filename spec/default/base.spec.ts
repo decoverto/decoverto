@@ -218,3 +218,17 @@ test('Conversion of model on undefined should succeed', t => {
 
     t.is(result.bar, undefined);
 });
+
+test('Conversion of model on a non-object value should error', t => {
+    t.throws(() => {
+        const subject = new Foo();
+        subject.bar = 'A string should error';
+        decoverto.type(Foo).instanceToPlain(subject);
+    }, {
+        message: getDiagnostic('invalidValueError', {
+            actualType: 'String',
+            expectedType: Bar.name,
+            path: `${Foo.name}.bar`,
+        }),
+    });
+});
