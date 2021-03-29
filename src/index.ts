@@ -1,14 +1,9 @@
 export * from './decoverto';
 export * from './type-handler';
 export * from './parser';
-export {ModelMetadata} from './metadata';
-export {
-    model,
-    ModelOptions,
-    InitializerCallback,
-} from './model.decorator';
-export {property, PropertyOptions} from './property.decorator';
-export {inherits} from './inherits.decorator';
+export * from './model.decorator';
+export * from './property.decorator';
+export * from './inherits.decorator';
 export * from './converters/any.converter';
 export * from './converters/array.converter';
 export * from './converters/concrete.converter';
