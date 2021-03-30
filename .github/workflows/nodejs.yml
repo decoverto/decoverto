@@ -25,13 +25,13 @@ jobs:
       run: yarn run lint
     - name: Test + coverage
       run: yarn run coverage # This also runs tests
-    - name: Upload coverage
-      uses: codecov/codecov-action@v1.3.1
-      with:
-        files: ./coverage/lcov.info
     - name: Test TypeScript
       run: yarn run test:ts
     - name: Test diagnostics
       run: yarn run test:diagnostics
+    - name: Upload coverage
+      uses: codecov/codecov-action@v1.3.1
+      with:
+        files: ./coverage/lcov.info
     - name: Determine size
       run: yarn run size
