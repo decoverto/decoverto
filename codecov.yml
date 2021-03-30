@@ -1,0 +1,10 @@
+coverage:
+  require_ci_to_pass: no
+  status:
+    patch:
+      default:
+        target: 100%
+    project:
+      default:
+        target: 100%
+        threshold: 1%
