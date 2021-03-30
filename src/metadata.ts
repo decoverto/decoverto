@@ -58,12 +58,6 @@ export class ModelMetadata {
     /** Gets or sets the constructor function for the model. */
     classType: Constructor<any>;
 
-    /**
-     * Used by inheritance to check whether a given object should be converted by the type covered
-     * by this metadata.
-     */
-    doesSubtypeMatch?: SubtypeMatcher;
-
     inheritance?: ModelOptionsInheritance;
 
     /** Name used to encode polymorphic type */
@@ -71,7 +65,10 @@ export class ModelMetadata {
 
     properties = new Map<string, PropertyMetadata>();
 
-    subtypes: Array<ModelMetadata> = [];
+    subtypes: Array<{
+        matches: SubtypeMatcher;
+        metadata: ModelMetadata;
+    }> = [];
 
     constructor(
         classType: Constructor<any>,
@@ -127,13 +124,13 @@ export class ModelMetadata {
     getSubTypeMetadata<T>(
         data: Record<string, unknown>,
     ): ModelMetadata {
-        const subtype = this.subtypes.find(type => type.doesSubtypeMatch?.(data) === true);
+        const subtype = this.subtypes.find(type => type.matches(data));
 
         if (subtype === undefined) {
             return this;
         }
 
-        return subtype.getSubTypeMetadata(data);
+        return subtype.metadata.getSubTypeMetadata(data);
     }
 }
 

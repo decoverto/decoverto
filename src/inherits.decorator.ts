@@ -45,6 +45,8 @@ export function inherits(options: InheritsOptions): ClassDecorator {
             }));
         }
 
+        let subtypeMatcher: SubtypeMatcher;
+
         switch (parentMetadata.inheritance?.strategy) {
             case 'discriminator':
                 if ('discriminator' in options) {
@@ -53,9 +55,7 @@ export function inherits(options: InheritsOptions): ClassDecorator {
                         // Re-add discriminator
                         result[discriminatorKey] = options.discriminator;
                     };
-                    metadata.doesSubtypeMatch = object => {
-                        return object[discriminatorKey] === options.discriminator;
-                    };
+                    subtypeMatcher = object => object[discriminatorKey] === options.discriminator;
                 } else {
                     throw new Error(getDiagnostic('inheritanceDiscriminatorStrategyMismatch', {
                         baseName: baseClass.name,
@@ -65,7 +65,7 @@ export function inherits(options: InheritsOptions): ClassDecorator {
                 break;
             case 'predicate':
                 if ('matches' in options) {
-                    metadata.doesSubtypeMatch = options.matches;
+                    subtypeMatcher = options.matches;
                 } else {
                     throw new Error(getDiagnostic('inheritancePredicateStrategyMismatch', {
                         baseName: baseClass.name,
@@ -80,6 +80,9 @@ export function inherits(options: InheritsOptions): ClassDecorator {
                 }));
         }
 
-        parentMetadata.subtypes.push(metadata);
+        parentMetadata.subtypes.push({
+            matches: subtypeMatcher,
+            metadata,
+        });
     };
 }
