@@ -33,7 +33,7 @@ test('array of objects should parse an empty array', t => {
 });
 
 test('array of objects should instanceToRaw an empty array', t => {
-    const result = decoverto.type(Simple).arrayInstanceToRaw([]);
+    const result = decoverto.type(Simple).instanceArrayToRaw([]);
     t.is(result, '[]');
 });
 
@@ -62,7 +62,7 @@ test('array of objects toPlain result should contain all elements', t => {
 
     const result = decoverto
         .type(Simple)
-        .arrayInstanceToRaw(expectation.map(obj => new Simple(obj)));
+        .instanceArrayToRaw(expectation.map(obj => new Simple(obj)));
 
     t.is(result, JSON.stringify(expectation));
 });

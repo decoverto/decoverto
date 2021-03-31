@@ -34,7 +34,7 @@ test('Set of objects parses an empty set', t => {
 });
 
 test('Set of objects stringifies an empty set', t => {
-    const result = decoverto.type(Simple).setInstanceToRaw(new Set<Simple>());
+    const result = decoverto.type(Simple).instanceSetToRaw(new Set<Simple>());
     t.is(result, '[]');
 });
 
@@ -62,7 +62,7 @@ test('Set of objects stringified should contain all elements', t => {
     ];
 
     const input = new Set<Simple>(expectation.map(obj => new Simple(obj)));
-    const result = decoverto.type(Simple).setInstanceToRaw(input);
+    const result = decoverto.type(Simple).instanceSetToRaw(input);
 
     t.is(result, JSON.stringify(expectation));
 });

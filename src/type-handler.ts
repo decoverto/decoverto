@@ -131,19 +131,19 @@ export class TypeHandler<RootType, Raw = string> {
     /**
      * Converts an array of RootType instances to a raw value.
      * @example
-     * handler.arrayInstanceToRaw([example]); // '[{"foo": "bar"}]'
+     * handler.instanceArrayToRaw([example]); // '[{"foo": "bar"}]'
      */
-    arrayInstanceToRaw(object: Array<RootType>): Raw {
-        return this.settings.parser.toRaw(this.instanceArrayToPlain(object));
+    instanceArrayToRaw(array: Array<RootType>): Raw {
+        return this.settings.parser.toRaw(this.instanceArrayToPlain(array));
     }
 
     /**
      * Converts a set of RootType instances to a raw value.
      * @example
-     * handler.setInstanceToRaw(new Set([example])); // '[{"foo": "bar"}]
+     * handler.instanceSetToRaw(new Set([example])); // '[{"foo": "bar"}]'
      */
-    setInstanceToRaw(object: Set<RootType>): Raw {
-        return this.settings.parser.toRaw(this.instanceSetToPlain(object));
+    instanceSetToRaw(set: Set<RootType>): Raw {
+        return this.settings.parser.toRaw(this.instanceSetToPlain(set));
     }
 
     /**
@@ -160,8 +160,8 @@ export class TypeHandler<RootType, Raw = string> {
      * @example
      * handler.instanceArrayToPlain([example]); // [{foo: 'bar'}]
      */
-    instanceArrayToPlain(object: Array<RootType>): Array<Plain<RootType>> {
-        return this.toPlainSingleValue(object, new ArrayConverter(this.rootConverter));
+    instanceArrayToPlain(array: Array<RootType>): Array<Plain<RootType>> {
+        return this.toPlainSingleValue(array, new ArrayConverter(this.rootConverter));
     }
 
     /**
@@ -169,8 +169,8 @@ export class TypeHandler<RootType, Raw = string> {
      * @example
      * handler.instanceArrayToPlain(new Set([example])); // [{foo: 'bar'}]
      */
-    instanceSetToPlain(object: Set<RootType>): Array<Plain<RootType>> {
-        return this.toPlainSingleValue(object, new SetConverter(this.rootConverter));
+    instanceSetToPlain(set: Set<RootType>): Array<Plain<RootType>> {
+        return this.toPlainSingleValue(set, new SetConverter(this.rootConverter));
     }
 
     private toPlainSingleValue(object: any, converter: Converter) {
