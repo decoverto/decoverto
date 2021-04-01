@@ -1,3 +1,4 @@
+import {getDiagnostic} from './diagnostics';
 import {ModelMetadata} from './metadata';
 import {Serializable} from './types';
 
@@ -71,5 +72,28 @@ export function model<T>(
         const objectMetadata = ModelMetadata.installOnPrototype(target.prototype);
 
         objectMetadata.inheritance = options.inheritance;
+
+        switch (options.inheritance?.strategy) {
+            case 'discriminator': {
+                const discriminatorKey = options.inheritance.discriminatorKey;
+                objectMetadata.onNoMatchingSubType = data => {
+                    throw new Error(getDiagnostic('inheritanceNoMatchingDiscriminator', {
+                        baseName: target.name,
+                        discriminatorKey: discriminatorKey,
+                        discriminatorValue: data[discriminatorKey] as string,
+                    }));
+                };
+                break;
+            }
+            case 'predicate': {
+                objectMetadata.onNoMatchingSubType = data => {
+                    throw new Error(getDiagnostic('inheritanceNoMatchingPredicate', {
+                        baseName: target.name,
+                    }));
+                };
+
+                break;
+            }
+        }
     };
 }

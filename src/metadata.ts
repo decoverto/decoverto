@@ -63,6 +63,11 @@ export class ModelMetadata {
     /** Name used to encode polymorphic type */
     name?: string | null;
 
+    /**
+     * This function is called if the model has subtypes yet none match.
+     */
+    onNoMatchingSubType?: (data: Record<string, unknown>) => ModelMetadata | never;
+
     properties = new Map<string, PropertyMetadata>();
 
     subtypes: Array<{
@@ -117,8 +122,7 @@ export class ModelMetadata {
     }
 
     /**
-     * Checks all subtypes of the metadata recursively and returns the one that matches the given
-     * plain object.
+     * Checks all subtypes of the metadata and returns the one that matches the given plain object.
      * @param data The object that will be matched.
      */
     getSubTypeMetadata<T>(
@@ -127,10 +131,14 @@ export class ModelMetadata {
         const subtype = this.subtypes.find(type => type.matches(data));
 
         if (subtype === undefined) {
-            return this;
+            if (this.onNoMatchingSubType === undefined) {
+                return this;
+            } else {
+                return this.onNoMatchingSubType(data);
+            }
         }
 
-        return subtype.metadata.getSubTypeMetadata(data);
+        return subtype.metadata;
     }
 }
 

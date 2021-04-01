@@ -129,6 +129,26 @@ ${info.actualType}, expected ${info.expectedType}.`,
 Object of type '${info.actualType}' is not an instance, or subtype, of ${info.expectedType}'.`,
         };
     },
+    inheritanceNoMatchingDiscriminator(info: {
+        baseName: string;
+        discriminatorKey: string;
+        discriminatorValue: string;
+    }) {
+        return {
+            code: 3004,
+            message: `No matching subtype found for type '${info.baseName}' on discriminator '${
+                info.discriminatorKey}' with value '${info.discriminatorValue}'.`,
+        };
+    },
+    inheritanceNoMatchingPredicate(info: {
+        baseName: string;
+    }) {
+        return {
+            code: 3005,
+            message: `No matching subtype found for type '${info.baseName}' using predicate \
+strategy.`,
+        };
+    },
 };
 
 export function getDiagnostic<K extends keyof typeof Diagnostics>(

@@ -698,3 +698,60 @@ should fail`, t => {
         }),
     });
 });
+
+test(`An error should be thrown on discriminator inheritance when no subtype matches`, t => {
+    t.throws(() => {
+        @model({
+            inheritance: {
+                strategy: 'discriminator',
+                discriminatorKey: 'type',
+            },
+        })
+        class Parent {
+        }
+
+        @inherits({discriminator: 'Foo'})
+        @model()
+        class Foo extends Parent {
+        }
+
+        use(Foo);
+
+        decoverto.type(Parent).plainToInstance({
+            type: 'Bar',
+        });
+    }, {
+        message: getDiagnostic('inheritanceNoMatchingDiscriminator', {
+            baseName: 'Parent',
+            discriminatorKey: 'type',
+            discriminatorValue: 'Bar',
+        }),
+    });
+});
+
+test(`An error should be thrown on predicate inheritance when no subtype matches`, t => {
+    t.throws(() => {
+        @model({
+            inheritance: {
+                strategy: 'predicate',
+            },
+        })
+        class Parent {
+        }
+
+        @inherits({matches: () => false})
+        @model()
+        class Foo extends Parent {
+        }
+
+        use(Foo);
+
+        decoverto.type(Parent).plainToInstance({
+            type: 'Bar',
+        });
+    }, {
+        message: getDiagnostic('inheritanceNoMatchingPredicate', {
+            baseName: 'Parent',
+        }),
+    });
+});
