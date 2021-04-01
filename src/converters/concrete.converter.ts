@@ -80,7 +80,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
         const {source} = context;
         const modelMetadata = ModelMetadata
             .getFromConstructor(this.type)!
-            .getSubTypeMetadata(source);
+            .getSubtypeMetadata(source);
         const result = new modelMetadata.classType();
 
         // Convert by expected properties.

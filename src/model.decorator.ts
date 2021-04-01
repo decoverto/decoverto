@@ -76,7 +76,7 @@ export function model<T>(
         switch (options.inheritance?.strategy) {
             case 'discriminator': {
                 const discriminatorKey = options.inheritance.discriminatorKey;
-                objectMetadata.onNoMatchingSubType = data => {
+                objectMetadata.onNoMatchingSubtype = data => {
                     throw new Error(getDiagnostic('inheritanceNoMatchingDiscriminator', {
                         baseName: target.name,
                         discriminatorKey: discriminatorKey,
@@ -86,7 +86,7 @@ export function model<T>(
                 break;
             }
             case 'predicate': {
-                objectMetadata.onNoMatchingSubType = data => {
+                objectMetadata.onNoMatchingSubtype = data => {
                     throw new Error(getDiagnostic('inheritanceNoMatchingPredicate', {
                         baseName: target.name,
                     }));
