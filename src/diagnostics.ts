@@ -94,6 +94,16 @@ discriminator value was specified on @inherits.`,
 function was specified on @inherits.`,
         };
     },
+    inheritanceOnlyOneStrategyAllowed(info: {
+        subclassName: string;
+        superclassName: string;
+    }) {
+        return {
+            code: 1011,
+            message: `${info.subclassName} extends ${info.superclassName} but both declare an \
+inheritance strategy. A inheritance strategy can only set on one model in the chain.`,
+        };
+    },
 
     // Initialization errors, e.g. new Decoverto
     unknownTypeCreatingTypeHandler(info: {type: Serializable<any>}) {

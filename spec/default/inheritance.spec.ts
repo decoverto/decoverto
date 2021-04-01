@@ -626,6 +626,39 @@ test('Multilevel inheritance A <- abstract B <- C,D with .type(A) should work', 
     t.deepEqual(typeHandler.instanceArrayToPlain(result), subject);
 });
 
+test('An error should be thrown if inheritance is declared multiple times in the same chain', t => {
+    t.throws(() => {
+        @model({
+            inheritance: {
+                discriminatorKey: 'type',
+                strategy: 'discriminator',
+            },
+        })
+        class A {
+        }
+
+        @model()
+        class B extends A {
+        }
+
+        @model({
+            inheritance: {
+                discriminatorKey: 'type',
+                strategy: 'discriminator',
+            },
+        })
+        class C extends B {
+        }
+
+        use(C);
+    }, {
+        message: getDiagnostic('inheritanceOnlyOneStrategyAllowed', {
+            subclassName: 'C',
+            superclassName: 'A',
+        }),
+    });
+});
+
 test(`An error should be thrown on conversion from instance if the given object has the wrong type \
 `, t => {
     t.throws(() => {

@@ -71,7 +71,10 @@ export function model<T>(
     return target => {
         const objectMetadata = ModelMetadata.installOnPrototype(target.prototype);
 
-        objectMetadata.inheritance = options.inheritance;
+        if (options.inheritance !== undefined) {
+            assertNoInheritanceStrategyInChain(target);
+            objectMetadata.inheritance = options.inheritance;
+        }
 
         switch (options.inheritance?.strategy) {
             case 'discriminator': {
@@ -96,4 +99,25 @@ export function model<T>(
             }
         }
     };
+}
+
+/**
+ * Error if another @models up the chain defines an inheritance strategy. Only one inheritance
+ * strategy is allowed per chain.
+ */
+function assertNoInheritanceStrategyInChain(target: Serializable<any>): void | never {
+    let parent = target;
+    let parentMetadata: ModelMetadata | undefined;
+
+    do {
+        parent = Object.getPrototypeOf(parent);
+        parentMetadata = ModelMetadata.getFromConstructor(parent);
+
+        if (parentMetadata?.inheritance !== undefined) {
+            throw new Error(getDiagnostic('inheritanceOnlyOneStrategyAllowed', {
+                subclassName: target.name,
+                superclassName: parent.name,
+            }));
+        }
+    } while (parentMetadata !== undefined);
 }
