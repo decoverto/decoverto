@@ -552,7 +552,7 @@ test('Inheritance should work with abstract classes', t => {
     t.is(result.name, 'Dave');
 });
 
-test('Multi level inheritance A <- B <- C,D with B an abstract class should work', t => {
+test('Multilevel inheritance A <- abstract B <- C,D with .type(A) should work', t => {
     @model({
         inheritance: {
             discriminatorKey: 'type',
