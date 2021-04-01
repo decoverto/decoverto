@@ -552,6 +552,80 @@ test('Inheritance should work with abstract classes', t => {
     t.is(result.name, 'Dave');
 });
 
+test('Multi level inheritance A <- B <- C,D with B an abstract class should work', t => {
+    @model({
+        inheritance: {
+            discriminatorKey: 'type',
+            strategy: 'discriminator',
+        },
+    })
+    abstract class Vehicle {
+
+        @property()
+        name: string;
+    }
+
+    @model()
+    abstract class MotorVehicle extends Vehicle {
+
+        /**
+         * Power in kW.
+         */
+        @property()
+        power: number;
+    }
+
+    @inherits({discriminator: 'Car'})
+    @model()
+    class Car extends MotorVehicle {
+
+        @property()
+        entertainmentSystem: boolean;
+    }
+
+    @inherits({discriminator: 'Bicycle'})
+    @model()
+    class Bicycle extends Vehicle {
+
+        @property()
+        saddleMaximumLengthInCm: number;
+    }
+
+    const typeHandler = decoverto.type(Vehicle);
+    const subject = [
+        {
+            name: 'SuperVroom Street Racer',
+            saddleMaximumLengthInCm: 30,
+            type: 'Bicycle',
+        },
+        {
+            name: 'AF 4C 2017',
+            entertainmentSystem: false,
+            power: 177,
+            type: 'Car',
+        },
+        {
+            name: 'BWM 2M 2021',
+            entertainmentSystem: true,
+            power: 302,
+            type: 'Car',
+        },
+    ];
+    const result = typeHandler.plainToInstanceArray(subject);
+
+    t.true(result[0] instanceof Bicycle);
+    t.is((result[0] as Bicycle).saddleMaximumLengthInCm, 30);
+    t.true(result[1] instanceof Car);
+    t.is((result[1] as Car).entertainmentSystem, false);
+    t.is((result[1] as Car).power, 177);
+    t.true(result[2] instanceof Car);
+    t.is((result[2] as Car).entertainmentSystem, true);
+    t.is((result[2] as Car).power, 302);
+    t.is((result[2] as Car).name, 'BWM 2M 2021');
+
+    t.deepEqual(typeHandler.instanceArrayToPlain(result), subject);
+});
+
 test(`An error should be thrown on conversion from instance if the given object has the wrong type \
 `, t => {
     t.throws(() => {

@@ -27,7 +27,7 @@ export type InheritsOptions =
 export function inherits(options: InheritsOptions): ClassDecorator {
     return target => {
         const typeName = target.name;
-        const baseClass = Object.getPrototypeOf(target);
+        let baseClass = Object.getPrototypeOf(target);
 
         if (baseClass === Function.prototype) {
             throw new Error(getDiagnostic('inheritingModelHasNoBase', {
@@ -36,13 +36,28 @@ export function inherits(options: InheritsOptions): ClassDecorator {
         }
 
         const metadata = ModelMetadata.installOnPrototype(target.prototype);
-        const parentMetadata = ModelMetadata.getFromConstructor(baseClass);
+        let parentMetadata = ModelMetadata.getFromConstructor(baseClass);
 
         if (parentMetadata === undefined) {
             throw new Error(getDiagnostic('inheritedModelIsNotDecorated', {
                 baseName: baseClass.name,
                 typeName,
             }));
+        }
+
+        while (parentMetadata.inheritance === undefined) {
+            // Traverse up the prototype chain and find a decorated class with an inheritance
+            // strategy.
+            const nextBaseClass = Object.getPrototypeOf(baseClass);
+            const nextParentMetadata = ModelMetadata.getFromConstructor(nextBaseClass);
+
+            if (nextParentMetadata === undefined) {
+                // Current prototype is not decorated. Stop traversal.
+                break;
+            }
+
+            baseClass = nextBaseClass;
+            parentMetadata = nextParentMetadata;
         }
 
         let subtypeMatcher: SubtypeMatcher;
