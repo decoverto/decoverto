@@ -136,8 +136,8 @@ Object of type '${info.actualType}' is not an instance, or subtype, of ${info.ex
     }) {
         return {
             code: 3004,
-            message: `No matching subtype found for type '${info.baseName}' on discriminator '${
-                info.discriminatorKey}' with value '${info.discriminatorValue}'.`,
+            message: `No type extending '${info.baseName}' matches the discriminator with key '${
+                info.discriminatorKey}' and value '${info.discriminatorValue}'.`,
         };
     },
     inheritanceNoMatchingPredicate(info: {
@@ -145,8 +145,7 @@ Object of type '${info.actualType}' is not an instance, or subtype, of ${info.ex
     }) {
         return {
             code: 3005,
-            message: `No matching subtype found for type '${info.baseName}' using predicate \
-strategy.`,
+            message: `No type extending '${info.baseName}' found using predicate strategy.`,
         };
     },
 };
