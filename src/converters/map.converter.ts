@@ -6,7 +6,7 @@ import {
 } from './converter';
 import {toConverter} from './converter.utils';
 
-export const enum MapShape {
+export enum MapShape {
     /**
      * A map will be converted as an array of key-value objects.
      * E.g. `map: Map<string, string>` is represented as:
