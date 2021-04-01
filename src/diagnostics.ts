@@ -118,7 +118,7 @@ ${info.actualType}, expected ${info.expectedType}.`,
           message: `Could not determine how to convert unknown type ${info.type} at ${info.path}`,
       };
     },
-    cannotConvertInstanceNotASubtype(info: {
+    cannotConvertInstanceNotASubclass(info: {
         actualType: string;
         expectedType: string;
         path: string;
@@ -126,7 +126,7 @@ ${info.actualType}, expected ${info.expectedType}.`,
         return {
             code: 3003,
             message: `Could not convert instance${info.path === '' ? '' : ` at ${info.path}`}. \
-Object of type '${info.actualType}' is not an instance, or subtype, of ${info.expectedType}'.`,
+Object of type '${info.actualType}' is not an instance, or subclass, of ${info.expectedType}'.`,
         };
     },
     inheritanceNoMatchingDiscriminator(info: {

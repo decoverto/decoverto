@@ -1,5 +1,5 @@
 import {getDiagnostic} from './diagnostics';
-import {ModelMetadata, SubtypeMatcher} from './metadata';
+import {ModelMetadata, SubclassMatcher} from './metadata';
 
 export interface InheritsOptionsDiscriminator {
     /**
@@ -17,7 +17,7 @@ export interface InheritsOptionsPredicate {
      * Return true if the given object is supposed to be transformed into an instance of this class.
      * Requires the `predicate` strategy on the parent's `@model`.
      */
-    matches: SubtypeMatcher;
+    matches: SubclassMatcher;
 }
 
 export type InheritsOptions =
@@ -60,7 +60,7 @@ export function inherits(options: InheritsOptions): ClassDecorator {
             parentMetadata = nextParentMetadata;
         }
 
-        let subtypeMatcher: SubtypeMatcher;
+        let subclassMatcher: SubclassMatcher;
 
         switch (parentMetadata.inheritance?.strategy) {
             case 'discriminator':
@@ -70,7 +70,7 @@ export function inherits(options: InheritsOptions): ClassDecorator {
                         // Re-add discriminator
                         result[discriminatorKey] = options.discriminator;
                     };
-                    subtypeMatcher = object => object[discriminatorKey] === options.discriminator;
+                    subclassMatcher = object => object[discriminatorKey] === options.discriminator;
                 } else {
                     throw new Error(getDiagnostic('inheritanceDiscriminatorStrategyMismatch', {
                         baseName: baseClass.name,
@@ -80,7 +80,7 @@ export function inherits(options: InheritsOptions): ClassDecorator {
                 break;
             case 'predicate':
                 if ('matches' in options) {
-                    subtypeMatcher = options.matches;
+                    subclassMatcher = options.matches;
                 } else {
                     throw new Error(getDiagnostic('inheritancePredicateStrategyMismatch', {
                         baseName: baseClass.name,
@@ -95,8 +95,8 @@ export function inherits(options: InheritsOptions): ClassDecorator {
                 }));
         }
 
-        parentMetadata.subtypes.push({
-            matches: subtypeMatcher,
+        parentMetadata.subclasses.push({
+            matches: subclassMatcher,
             metadata,
         });
     };

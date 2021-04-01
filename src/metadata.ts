@@ -46,7 +46,7 @@ export type PropertyMetadata =
     | PropertyOnlyConvertersMetadata
     | PropertyOverridingConvertersMetadata;
 
-export type SubtypeMatcher = (plain: Record<string, unknown>) => boolean;
+export type SubclassMatcher = (plain: Record<string, unknown>) => boolean;
 
 export class ModelMetadata {
 
@@ -64,14 +64,14 @@ export class ModelMetadata {
     name?: string | null;
 
     /**
-     * This function is called if the model has subtypes yet none match.
+     * This function is called if the model has subclasses yet none match.
      */
-    onNoMatchingSubtype?: (data: Record<string, unknown>) => ModelMetadata | never;
+    onNoMatchingSubclass?: (data: Record<string, unknown>) => ModelMetadata | never;
 
     properties = new Map<string, PropertyMetadata>();
 
-    subtypes: Array<{
-        matches: SubtypeMatcher;
+    subclasses: Array<{
+        matches: SubclassMatcher;
         metadata: ModelMetadata;
     }> = [];
 
@@ -122,23 +122,23 @@ export class ModelMetadata {
     }
 
     /**
-     * Checks all subtypes of the metadata and returns the one that matches the given plain object.
+     * Returns the appropriate metadata for the given plain object.
      * @param data The object that will be matched.
      */
-    getSubtypeMetadata<T>(
+    getSubclassMetadata<T>(
         data: Record<string, unknown>,
     ): ModelMetadata {
-        const subtype = this.subtypes.find(type => type.matches(data));
+        const subclass = this.subclasses.find(type => type.matches(data));
 
-        if (subtype === undefined) {
-            if (this.onNoMatchingSubtype === undefined) {
+        if (subclass === undefined) {
+            if (this.onNoMatchingSubclass === undefined) {
                 return this;
             } else {
-                return this.onNoMatchingSubtype(data);
+                return this.onNoMatchingSubclass(data);
             }
         }
 
-        return subtype.metadata;
+        return subclass.metadata;
     }
 }
 

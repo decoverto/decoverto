@@ -74,7 +74,7 @@ test('Converting to instance with a decorated parent and child should work', t =
     t.is(result.parentProperty, 'parent');
 });
 
-test('Converting a decorated subtype to plain with .type(Parent) should work', t => {
+test('Converting a decorated subclass to plain with .type(Parent) should work', t => {
     const subject = new DParentDChild();
     subject.childProperty = 'child';
     subject.parentProperty = 'parent';
@@ -86,7 +86,7 @@ test('Converting a decorated subtype to plain with .type(Parent) should work', t
     });
 });
 
-test('Converting a decorated subtype of a subtype to plain with .type(Parent) should work', t => {
+test('Converting a decorated subclass of a subclass to plain with .type(Parent) should work', t => {
     const subject = new DParentDChildDChild();
     subject.childProperty = 'child';
     subject.child2Property = 'child2';
@@ -100,7 +100,7 @@ test('Converting a decorated subtype of a subtype to plain with .type(Parent) sh
     });
 });
 
-test('Converting an undecorated subtype to plain with .type(Parent) should work', t => {
+test('Converting an undecorated subclass to plain with .type(Parent) should work', t => {
     const subject = new DParentUChild();
     subject.childProperty = 'child';
     subject.parentProperty = 'parent';
@@ -639,7 +639,7 @@ test(`An error should be thrown on conversion from instance if the given object 
 
         decoverto.type(Root).instanceToPlain(new NoExtend());
     }, {
-        message: getDiagnostic('cannotConvertInstanceNotASubtype', {
+        message: getDiagnostic('cannotConvertInstanceNotASubclass', {
             actualType: 'NoExtend',
             expectedType: 'Root',
             path: '',
@@ -670,7 +670,7 @@ the wrong type `, t => {
 
         decoverto.type(Root).instanceToPlain(subject);
     }, {
-        message: getDiagnostic('cannotConvertInstanceNotASubtype', {
+        message: getDiagnostic('cannotConvertInstanceNotASubclass', {
             actualType: 'NoExtend',
             expectedType: 'Wrapper',
             path: 'Root.noExtend',
@@ -699,7 +699,7 @@ should fail`, t => {
     });
 });
 
-test(`An error should be thrown on discriminator inheritance when no subtype matches`, t => {
+test(`An error should be thrown on discriminator inheritance when no subclass matches`, t => {
     t.throws(() => {
         @model({
             inheritance: {
@@ -729,7 +729,7 @@ test(`An error should be thrown on discriminator inheritance when no subtype mat
     });
 });
 
-test(`An error should be thrown on predicate inheritance when no subtype matches`, t => {
+test(`An error should be thrown on predicate inheritance when no subclass matches`, t => {
     t.throws(() => {
         @model({
             inheritance: {

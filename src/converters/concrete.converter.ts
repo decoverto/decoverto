@@ -80,7 +80,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
         const {source} = context;
         const modelMetadata = ModelMetadata
             .getFromConstructor(this.type)!
-            .getSubtypeMetadata(source);
+            .getSubclassMetadata(source);
         const result = new modelMetadata.classType();
 
         // Convert by expected properties.
@@ -141,7 +141,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
         context: ConversionContext<any>,
     ): asserts data is Class {
         if (!(data instanceof this.type)) {
-            throw new Error(getDiagnostic('cannotConvertInstanceNotASubtype', {
+            throw new Error(getDiagnostic('cannotConvertInstanceNotASubclass', {
                 actualType: data.constructor.name,
                 expectedType: this.type.name,
                 path: context.path,
