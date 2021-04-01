@@ -60,9 +60,9 @@ export class TypeHandler<RootType, Raw = string> {
     /**
      * Converts a raw value to an instance of RootType.
      * @example
-     * handler.parse('"foo"');
+     * type(String).parse('"foo"');
      * @example
-     * type(String).parse('{"bar": "foo"}');
+     * handler.parse('{"bar": "foo"}');
      */
     rawToInstance(string: Raw): RootType {
         return this.plainToInstance(this.settings.parser.parse(string));
@@ -167,7 +167,7 @@ export class TypeHandler<RootType, Raw = string> {
     /**
      * Converts a set of RootType to an array of its plain form.
      * @example
-     * handler.instanceArrayToPlain(new Set([example])); // [{foo: 'bar'}]
+     * handler.instanceSetToPlain(new Set([example])); // [{foo: 'bar'}]
      */
     instanceSetToPlain(set: Set<RootType>): Array<Plain<RootType>> {
         return this.toPlainSingleValue(set, new SetConverter(this.rootConverter));
