@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.2](https://github.com/decoverto/decoverto/compare/v0.2.1...v0.2.2) (2021-04-02)
+
+### Bug Fixes
+
+* correct JSDoc on rawToInstance and instanceSetToPlain ([1acd2d2](https://github.com/decoverto/decoverto/commit/1acd2d2c09aca3f4aefa9fede85f2e27027cbc29))
+* correct own entry in LICENSE ([6412755](https://github.com/decoverto/decoverto/commit/6412755208a7ed88a1b27c87201ccf51dd1dde3e))
+* prevent MapShape erasure on compilation ([869272a](https://github.com/decoverto/decoverto/commit/869272addb59be1233f62e99421499ec5dd59b83))
+
+
 ## [0.2.1](https://www.github.com/decoverto/decoverto/compare/v0.2.0...v0.2.1) (2021-04-01)
 
 ### ⚠ BREAKING CHANGES
