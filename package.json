@@ -1,6 +1,6 @@
 {
     "name": "decoverto",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "Converts data such as JSON to JS/TS classes and back using decorators",
     "keywords": [
         "serialization",
