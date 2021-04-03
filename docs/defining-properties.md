@@ -191,7 +191,7 @@ Do note that in order to prevent the values from being parsed as `Number`, losin
 
 ### Overriding converters with toInstance and toPlain
 
-On the `@property` decorator, you can provide your own functions to perform custom conversion. This is similar to [mapped types](#mapping-types) but only applies to the property on which it is declared. The example below is used to fix up data on parsing.
+On the `@property` decorator, you can provide your own functions to perform custom conversion. This is similar to [mapped types](#mapping-types) but only applies to the property on which it is declared. The example below is used to fix up data on parsing. [View on playground](https://codesandbox.io/s/github/decoverto/playground?file=/src/overriding-converters.ts).
 
 ```typescript
 import {model, property} from 'decoverto';
