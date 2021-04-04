@@ -13,8 +13,7 @@ class Person {
     lastName: string;
 }
 
-test(`Converting @property({toPlain: ...}) to JSON  should use the custom toInstance \
-function`, t => {
+test(`instanceToRaw @property({toPlain: ...}) should use the overriding converter`, t => {
     const person = new Person();
     person.firstName = 'Mulit term name';
     person.lastName = 'Surname';
@@ -25,15 +24,15 @@ function`, t => {
     });
 });
 
-test('Converting @property({toPlain: ...}) to JSON should not affect toInstance', t => {
+test(`rawToInstance @property({toPlain: ...}) should not be affected by overriding toPlain`, t => {
     t.deepEqual(
         decoverto.type(Person).rawToInstance('{"firstName":"name","lastName":"last"}'),
         Object.assign(new Person(), {firstName: 'name', lastName: 'last'}),
     );
 });
 
-test(`@property({toInstance: ..., toPlain: ...}) with complex type uses specified toPlain \
-function`, t => {
+test(`instanceToPlain @property({toInstance: ..., toPlain: ...}) with complex type uses the \
+overriding toPlain function`, t => {
     t.notThrows(() => {
         @model()
         class ToPlainComplexType {
@@ -55,7 +54,7 @@ class ArrayToPlainTest {
     str: string;
 }
 
-test('Parsing @property(array(() => Number), {toPlain: ...}) should use the toPlain \
+test('instanceToRaw on @property(array(() => Number), {toPlain: ...}) should use the toPlain \
 function', t => {
     const testInstance = new ArrayToPlainTest();
     testInstance.nums = [3, 45, 34];
@@ -67,15 +66,15 @@ function', t => {
     });
 });
 
-test(`Result of parsing @property(array(() => Number), {toInstance: ...}) should not affect \
-toPlain`, t => {
+test(`rawToInstance @property(array(() => Number), {toPlain: ...}) should not be affected \
+by overriding toPlain`, t => {
     t.deepEqual(
         decoverto.type(ArrayToPlainTest).rawToInstance('{"nums":[4,5,6,7],"str":"string"}'),
         Object.assign(new ArrayToPlainTest(), {nums: [4, 5, 6, 7], str: 'string'}),
     );
 });
 
-test('Converting @property(array(() => Class), {toPlain: function}) should succeed', t => {
+test('toPlain @property(array(() => Class), {toPlain: function}) should succeed', t => {
     @model()
     class Inner {
         @property()

@@ -19,26 +19,27 @@ class Person {
 
 const simpleJson = '{ "firstName": "John", "lastName": "Doe" }';
 
-test('Parsing @property({toInstance: ...}) should use the toInstance function', t => {
+test('rawToInstance on @property({toInstance: ...}) should use the overriding converter', t => {
     const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.is(result.firstName, 'Mark');
     t.is(result.lastName, 'Foreman');
 });
 
-test('Result of parsing @property({toInstance: ...}) should have the correct type', t => {
+test('rawToInstance @property({toInstance: ...}) result should have the correct type', t => {
     const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.true(result instanceof Person);
 });
 
-test('Result of parsing @property({toInstance: ...}) should have with callable methods', t => {
+test('rawToInstance @property({toInstance: ...}) result should have callable methods', t => {
     const result = decoverto.type(Person)
         .rawToInstance(simpleJson);
     t.is(result.getFullName(), 'Mark Foreman');
 });
 
-test('Result of parsing @property({toInstance: ...}) should not affect toPlain', t => {
+test(`instanceToRaw @property({toInstance: ...}) should not be affected by overriding toInstance\
+`, t => {
     const result = new Person();
     result.firstName = 'John';
     result.lastName = 'Doe';
@@ -48,8 +49,8 @@ test('Result of parsing @property({toInstance: ...}) should not affect toPlain',
     );
 });
 
-test(`@property({toInstance: ..., toPlain: ...}) with complex type uses specified toInstance \
-function`, t => {
+test(`plainToInstance @property({toInstance: ..., toPlain: ...}) with complex type uses the \
+overriding toInstance function`, t => {
     t.notThrows(() => {
         @model()
         class ToPlainComplexType {
@@ -80,28 +81,28 @@ class ArrayToInstanceTest {
 const arrayJson = '{ "nums": "1,2,3,4,5", "str": "Some string" }';
 const arrayToInstanceHandler = decoverto.type(ArrayToInstanceTest);
 
-test(`Parsing @property(array(() => Number), {toInstance: ...}) should use the toInstance \
+test(`rawToInstance on @property(array(() => Number), {toInstance: ...}) should use the toInstance \
 function`, t => {
     const result = arrayToInstanceHandler.rawToInstance(arrayJson);
     t.deepEqual(result.nums, [1, 2, 3, 4, 5]);
     t.is(result.str, 'Some string');
 });
 
-test(`Result of parsing @property(array(() => Number), {toInstance: ...}) should have with \
+test(`rawToInstance @property(array(() => Number), {toInstance: ...}) result should have \
 callable methods`, t => {
     const result = arrayToInstanceHandler.rawToInstance(arrayJson);
     t.is(result.sum?.(), 15);
 });
 
-test(`Result of parsing @property(array(() => Number), {toInstance: ...}) should not affect \
-toPlain`, t => {
+test(`instanceToRaw @property(array(() => Number), {toInstance: ...}) should not be affected \
+by overriding toInstance`, t => {
     const result = arrayToInstanceHandler.instanceToRaw(
         arrayToInstanceHandler.rawToInstance(arrayJson),
     );
     t.is(result, '{"nums":[1,2,3,4,5],"str":"Some string"}');
 });
 
-test('Converting @property(array(() => Class), {toInstance: function}) should succeed', t => {
+test('toInstance @property(array(() => Class), {toInstance: function}) should succeed', t => {
     @model()
     class Inner {
         @property()
