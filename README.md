@@ -21,9 +21,8 @@ Convert data into instances of first and third party classes and back using deco
 - [Make your own converters](docs/defining-properties.md#mapping-types) <small>Handy for third-party types</small>
 - Supports circular references
 - Builtin support for:
-  - `number`, `string`, `Date`, `ArrayBuffer`, `DataView`
+  - `number`, `string`, `Date`, `ArrayBuffer`, `DataView`, `TypedArray`
   - [Collections such as `Array`, `Set`, `Map`](docs/defining-properties.md#collections)
-  - [TypedArray](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
 - Convert any raw data:
     - [Use your own parser](docs/parser.md#custom-parser)
     - [Configure the default JSON parser](docs/parser.md#customize-json-parser)
