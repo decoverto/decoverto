@@ -29,6 +29,9 @@ export interface PropertyOnlyConvertersMetadata extends PropertyMetadataBase {
 
 export interface PropertyOverridingConvertersMetadata extends PropertyMetadataBase {
 
+    /**
+     * This converter will perform the conversion unless overwritten by `toInstance` or `toPlain`.
+     */
     converter: Converter;
 
     /**
