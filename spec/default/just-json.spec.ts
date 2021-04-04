@@ -15,7 +15,7 @@ test('String toPlain should not modify the source', t => {
     t.is(decoverto.type(String).instanceToPlain('str'), 'str');
 });
 
-test('Unquoted builtins should convert from JSON', t => {
+test('Unquoted builtins should convert plain to instance', t => {
     t.is(decoverto.type(Number).plainToInstance(45834), 45834);
     t.is(decoverto.type(Boolean).plainToInstance(true), true);
 
@@ -23,7 +23,7 @@ test('Unquoted builtins should convert from JSON', t => {
     t.deepEqual(decoverto.type(Uint8Array).plainToInstance([100, 117, 112, 97]), dataBuffer);
 });
 
-test('Unquoted builtins should convert to JSON', t => {
+test('Unquoted builtins should convert to plain', t => {
     t.is(decoverto.type(Number).instanceToPlain(45834), 45834);
     t.is(decoverto.type(Boolean).instanceToPlain(true), true);
 

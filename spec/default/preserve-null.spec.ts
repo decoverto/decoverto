@@ -10,16 +10,16 @@ class NullTest {
     name: string | null;
 }
 
-test('null should be preserved while converting from JSON', t => {
+test('null should be preserved while converting from raw', t => {
     const obj = decoverto.type(NullTest).plainToInstance({name: null});
     t.is(obj.name, null);
 });
 
-test('null should be preserved while converting to JSON', t => {
+test('null should be preserved while converting to raw', t => {
     const input = new NullTest();
     input.name = null;
-    const json = decoverto.type(NullTest).instanceToPlain(input);
-    t.deepEqual(json, {name: null});
+    const plain = decoverto.type(NullTest).instanceToPlain(input);
+    t.deepEqual(plain, {name: null});
 });
 
 @model()
@@ -28,7 +28,7 @@ class UndefinedTest {
     name?: string;
 }
 
-test('Undefined should not be assigned while converting from JSON', t => {
+test('Undefined should not be assigned while converting plainToInstance', t => {
     const obj = decoverto.type(UndefinedTest).plainToInstance({name: undefined});
     t.true(obj instanceof UndefinedTest);
     t.false(Object.prototype.hasOwnProperty.call(obj, 'name'));

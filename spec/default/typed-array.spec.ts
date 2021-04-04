@@ -93,17 +93,17 @@ test('Typed arrays', passThroughMacro, {
     value: undefined,
 });
 
-type TypedArrayJsonData = {[k in TypedArraySpecProperties]?: Array<number | string> | null};
+type TypedArrayPlainData = {[k in TypedArraySpecProperties]?: Array<number | string> | null};
 type TypedArrayObjectData = {[k in TypedArraySpecProperties]?: Array<number> | null};
 
 interface ToInstanceMacro {
-    subject: TypedArrayJsonData;
+    subject: TypedArrayPlainData;
     expected: TypedArrayObjectData;
 }
 
 interface ToPlainMacro {
     subject: TypedArrayObjectData;
-    expected: TypedArrayJsonData;
+    expected: TypedArrayPlainData;
 }
 
 const toInstanceMacro: Macro<[ToInstanceMacro]> = (t, options) => {
@@ -151,7 +151,7 @@ const toPlainMacro: Macro<[ToPlainMacro]> = (t, options) => {
     t.deepEqual(actual, expected);
 };
 
-test('Typed arrays from JSON should process valid simple values', toInstanceMacro, {
+test('Typed arrays toInstance should process valid simple values', toInstanceMacro, {
     subject: {
         float32: [1.5],
         float64: [1.5],
@@ -176,7 +176,7 @@ test('Typed arrays from JSON should process valid simple values', toInstanceMacr
     },
 });
 
-test('Typed arrays from JSON should round down correctly', toInstanceMacro, {
+test('Typed arrays toInstance should round down correctly', toInstanceMacro, {
     subject: {
         float32: [1.5],
         float64: [1.5],
@@ -201,7 +201,7 @@ test('Typed arrays from JSON should round down correctly', toInstanceMacro, {
     },
 });
 
-test('Typed arrays from JSON should round up correctly', toInstanceMacro, {
+test('Typed arrays toInstance should round up correctly', toInstanceMacro, {
     subject: {
         float32: [1.5],
         float64: [1.5],
@@ -226,7 +226,7 @@ test('Typed arrays from JSON should round up correctly', toInstanceMacro, {
     },
 });
 
-test('Typed arrays from JSON should handle NaN, +0, -0, +∞, and -∞', toInstanceMacro, {
+test('Typed arrays to instance should handle NaN, +0, -0, +∞, and -∞', toInstanceMacro, {
     subject: {
         float32: ['NaN', 0, '-0', '+∞', '-∞'],
         float64: ['NaN', 0, '-0', '+∞', '-∞'],
@@ -266,15 +266,15 @@ const toInstanceNotAnArrayError: Macro<[keyof TypedArraySpec]> = (t, propertyKey
     });
 };
 toInstanceNotAnArrayError.title = (providedTitle, proeprtyKey) => {
-    return `Typed arrays from JSON should error when the source value is not an array on property ${
-        proeprtyKey}`;
+    return `Typed arrays plainToInstance should error when the source value is not an array on \
+property ${proeprtyKey}`;
 };
 
 typedArrayPropertyMap.forEach(([propertyKey]) => {
     test(toInstanceNotAnArrayError, propertyKey);
 });
 
-test('Typed arrays to JSON should process valid values', toPlainMacro, {
+test('Typed arrays to plain should process valid values', toPlainMacro, {
     type: 'toInstance',
     subject: {
         float32: [1.5],
@@ -300,7 +300,7 @@ test('Typed arrays to JSON should process valid values', toPlainMacro, {
     },
 });
 
-test('Typed array to JSON should error if the source value does not match the expected type', t => {
+test('Typed array to raw should error if the source value does not match the expected type', t => {
     t.throws(() => {
         const subject = new TypedArraySpec();
         subject.int8 = new Float32Array([5]) as any;

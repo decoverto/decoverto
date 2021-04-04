@@ -69,7 +69,7 @@ test('@property(map(...))', passThroughMacro, {
     value: undefined,
 });
 
-test('Map with dictionary shape converts from JSON', t => {
+test('Map with dictionary shape converts json to instance', t => {
     const result = decoverto.type(DictMap).rawToInstance(
         JSON.stringify(
             {
@@ -90,7 +90,7 @@ test('Map with dictionary shape converts from JSON', t => {
     t.is(result.prop.get('two')?.strProp, 'gamma');
 });
 
-test('Map with dictionary shape converts to JSON', t => {
+test('Map with dictionary shape converts instance to JSON', t => {
     const object = new DictMap();
     object.prop = new Map<string, Simple>([
         ['one', new Simple({strProp: 'delta', numProp: 4})],
@@ -106,7 +106,7 @@ test('Map with dictionary shape converts to JSON', t => {
     }));
 });
 
-test('Map from JSON with dictionary shape errors when an array type is provided', t => {
+test('Map plainToInstance with dictionary shape errors when an array type is provided', t => {
     t.throws(() => {
         decoverto.type(DictMap).plainToInstance({
             prop: [{key: 'key', value: 'value'}],
@@ -126,7 +126,7 @@ class DictionaryArrayShape {
     map: Map<string, Simple>;
 }
 
-test('Map with array shape converts from JSON', t => {
+test('Map with array shape converts to instance', t => {
     const result = decoverto.type(DictionaryArrayShape).plainToInstance({
         map: [
             {key: 'one', value: {numProp: 4, strPop: 'value1'}},

@@ -110,7 +110,7 @@ class NameDifferenceSpec {
     classProperty: string;
 }
 
-test('Difference in naming between class property and json should be handled by toInstance', t => {
+test('Difference in naming between class property and plain should be handled by toInstance', t => {
     const result = new Decoverto().type(NameDifferenceSpec).plainToInstance({
         property: 'hello',
     });
@@ -118,7 +118,7 @@ test('Difference in naming between class property and json should be handled by 
     t.is((result as any).property, undefined);
 });
 
-test('Difference in naming between class property and json should be handled by toPlain', t => {
+test('Difference in naming between class property and plain should be handled by toPlain', t => {
     const testSubject = new NameDifferenceSpec();
     testSubject.classProperty = 'hello';
     const result = new Decoverto().type(NameDifferenceSpec).instanceToPlain(testSubject);

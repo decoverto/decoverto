@@ -26,10 +26,10 @@ export interface PassThroughMacro<T> {
 }
 
 /**
- * The pass through macro tests whether running `parse` and `toPlain` on an object preserves the
- * value. This is handy to test whether, for example, the converter functions return `null` when
+ * The pass through macro tests whether running `toInstance` and `toPlain` on an object preserves
+ * the value. This is handy to test whether, for example, the converter functions return `null` when
  * given `null` as source and `undefined` when given `undefined`. It will perform a strict equal
- * check between the properties of the `parse/toPlain` result and the given value.
+ * check between the properties of the `toInstance/toPlain` result and the given value.
  */
 export function createPassThroughMacro<T>(
     createOptions: CreatePassThroughMacro<T>,
@@ -46,8 +46,9 @@ export function createPassThroughMacro<T>(
         });
     };
     macro.title = (providedTitle, options) => {
-        return `${providedTitle} ${options.type === 'toInstance' ? 'from JSON' : 'to JSON'} should \
-pass${isObject(options.value) ? ' and referentially equal' : ''} ${JSON.stringify(options.value)}`;
+        return `${providedTitle} ${options.type === 'toInstance' ? 'to instance' : 'to plain'} \
+should pass${isObject(options.value) ? ' and referentially equal' : ''} \
+${JSON.stringify(options.value)}`;
     };
 
     return macro;
