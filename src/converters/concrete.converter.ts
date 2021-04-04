@@ -88,7 +88,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
             const propertyValue = source[property];
             const typeName = modelMetadata.classType.name;
 
-            const revivedValue = this.shouldUseType(propertyMetadata, 'toInstance')
+            const revivedValue = this.shouldUseConverter(propertyMetadata, 'toInstance')
                 ? propertyMetadata.converter.toInstance({
                     ...context,
                     path: `${typeName}.${property}`,
@@ -118,7 +118,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
 
         modelMetadata.properties.forEach((propertyMetadata) => {
             const property = propertyMetadata.key as keyof Class;
-            const plain = this.shouldUseType(propertyMetadata, 'toPlain')
+            const plain = this.shouldUseConverter(propertyMetadata, 'toPlain')
                 ? propertyMetadata.converter.toPlain({
                     ...context,
                     path: `${modelMetadata.classType.name}.${property}`,
@@ -157,7 +157,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
      * Returns true if the property should be converted using the mapped converter rather than the
      * overriding converters. False otherwise.
      */
-    private shouldUseType(
+    private shouldUseConverter(
         metadata: PropertyMetadata,
         method: 'toInstance' | 'toPlain',
     ): metadata is PropertyOverridingConvertersMetadata {
