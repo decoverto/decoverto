@@ -19,10 +19,10 @@ Convert data into instances of first and third party classes and back using deco
     - [Using a predicate](docs/inheritance.md#predicate-strategy)
 - [Reflect property types and stay DRY](docs/defining-properties.md#reflect-metadata)
 - [Make your own converters](docs/defining-properties.md#mapping-types) <small>Handy for third-party types</small>
-- Supports circular references
 - Builtin support for:
   - `number`, `string`, `Date`, `ArrayBuffer`, `DataView`, `TypedArray`
   - [Collections such as `Array`, `Set`, `Map`](docs/defining-properties.md#collections)
+- [Deferred types](docs/defining-properties.md#passing-the-type-to-the-decorator) 
 - Convert any raw data:
     - [Use your own parser](docs/parser.md#custom-parser)
     - [Configure the default JSON parser](docs/parser.md#customize-json-parser)
