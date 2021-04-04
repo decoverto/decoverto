@@ -2,6 +2,7 @@ import test from 'ava';
 import * as sinon from 'sinon';
 
 import {
+    Any,
     array,
     ConversionContext,
     Converter,
@@ -199,4 +200,52 @@ test('Mapped types work on .type(String)', t => {
 
     t.context.decoverto.converterMap.set(String, new StringConverterTest(String as any));
     t.is(t.context.decoverto.type(String).plainToInstance('hmmm'), 'toInstance');
+});
+
+test('Mapped types can overwrite class conversion', t => {
+    @model()
+    class OverrideClassConversion {
+
+        @property(Any)
+        foo: any;
+    }
+
+    class OverrideClassConversionConverter extends SimpleConverter<OverrideClassConversion> {
+        toInstance(context: ConversionContext<any>): OverrideClassConversion | null | undefined {
+            return new OverrideClassConversion();
+        }
+
+        toPlain(context: ConversionContext<OverrideClassConversion | null | undefined>): any {
+            if (context.source == null) {
+                return context.source;
+            }
+
+            return {
+                foo: context.source.foo,
+            };
+        }
+    }
+
+    t.context.decoverto.converterMap.set(
+        OverrideClassConversion,
+        new OverrideClassConversionConverter(OverrideClassConversion),
+    );
+
+    const typeHandler = t.context.decoverto.type(OverrideClassConversion);
+
+    const instance = typeHandler.plainToInstance({
+        foo: new Date(),
+    });
+
+    t.true(instance instanceof OverrideClassConversion);
+    t.false('foo' in instance);
+
+    const subject = new OverrideClassConversion();
+    subject.foo = new Date();
+
+    const plain = typeHandler.instanceToPlain(subject);
+
+    t.deepEqual(plain, {
+        foo: subject.foo,
+    });
 });
