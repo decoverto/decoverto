@@ -285,3 +285,45 @@ test('Map friendly name is correct', t => {
     const mapConverter = map(() => String, () => Simple, {shape: MapShape.Array});
     t.is(mapConverter.getFriendlyName(), 'Map<String, Simple>');
 });
+
+@model()
+class MapAny {
+
+    @property(map(Any, Any, {shape: MapShape.Array}))
+    map: Map<any, any>;
+}
+
+test('Map<any, any> should convert to instance', t => {
+    const key1 = /\w+/gm;
+    const key2 = new URL('https://example.com');
+    const value1 = new URL('https://value.com');
+    const result = decoverto.type(MapAny).plainToInstance({
+        map: [
+            {key: key1, value: value1},
+            {key: key2, value: 'string'},
+        ],
+    });
+
+    t.true(result.map instanceof Map);
+    t.is(result.map.get(key1), value1);
+    t.is(result.map.get(key2), 'string');
+});
+
+test('Map<any, any> should convert to plain', t => {
+    const subject = new MapAny();
+    const key1 = /d/g;
+    const key2 = new URL('https://example.com');
+    const value1 = new URL('https://value.com');
+    subject.map = new Map<any, any>([
+        [key1, value1],
+        [key2, 'string'],
+    ]);
+
+    const result = decoverto.type(MapAny).instanceToPlain(subject);
+    t.deepEqual(result, {
+        map: [
+            {key: key1, value: value1},
+            {key: key2, value: 'string'},
+        ],
+    });
+});
