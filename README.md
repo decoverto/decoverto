@@ -28,6 +28,7 @@ Convert data into instances of first and third party classes and back using deco
     - [Use your own parser](docs/parser.md#custom-parser)
     - [Configure the default JSON parser](docs/parser.md#customize-json-parser)
 - Works in browser and Node
+- Use TypeScript ([playground](https://codesandbox.io/s/github/decoverto/playground?file=/index.ts)) or JavaScript with Babel ([playground](https://codesandbox.io/s/github/decoverto/example-javascript?file=/index.js))
 
 
 A model looks like this:
@@ -118,4 +119,6 @@ For more information, see links in the [features list](#features) or the [docs d
 
 ## Examples/Playground
 
-On the [Decoverto playground](https://codesandbox.io/s/github/decoverto/playground?file=/index.ts) you can view, test, and modify examples.
+Decoverto has playgrounds where you can view examples and tinker with them. It allows you to see what is possible and experiment.
+- [TypeScript playground](https://codesandbox.io/s/github/decoverto/playground?file=/index.ts) This is the main playground.
+- [JavaScript + Babel playground](https://codesandbox.io/s/github/decoverto/example-javascript?file=/index.js)
