@@ -99,8 +99,8 @@ const result = typeHandler.plainToInstanceArray(subject);
 
 // Result: [
 //     Bicycle {name: 'SuperVroom street Racer', saddleMaximumLengthInCm: 30}
-//     Car {name: 'AF 4C 2017, entertainmentSystem: true, power: 177},
-//     Car {name: 'BWM 2M 2021, entertainmentSystem: true, power: 302},
+//     Car {name: 'AF 4C 2017', entertainmentSystem: true, power: 177},
+//     Car {name: 'BWM 2M 2021', entertainmentSystem: true, power: 302},
 // ]
 ```
 
@@ -158,7 +158,7 @@ const result = new Decoverto().type(Vehicle).plainToInstanceArray([
     },
 ]);
 // Result: [
-//     Truck {name: 'Vroom S-Haul, engineDisplacement: 13, maxTrailerLoad: 50000},
+//     Truck {name: 'Vroom S-Haul', engineDisplacement: 13, maxTrailerLoad: 50000},
 //     Bicycle {name: 'SuperVroom street Racer', rearGears: 8}
 // ]
 ```
