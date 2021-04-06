@@ -107,7 +107,7 @@ const result = typeHandler.plainToInstanceArray(subject);
 The discriminator key, `type` in the example, can be defined as property (e.g. `@property() readonly type: string`). No matter the value of the property when converting from an instance, it will be set to the discriminator value as defined using `@inherits`.
 
 ## Predicate strategy
-This strategy allows subclasses to be selected using a predicate enabling [structural typing](https://en.wikipedia.org/wiki/Structural_type_system). When true is returned, that subclass will be used for the conversion. [View on the playground](https://codesandbox.io/s/github/decoverto/playground?file=/src/inheritance-predicate.ts)
+This strategy allows subclasses to be selected using a predicate enabling [structural typing](https://en.wikipedia.org/wiki/Structural_type_system). When true is returned, that subclass will be used for the conversion. [View on the playground](https://codesandbox.io/s/github/decoverto/playground?file=/src/inheritance-predicate.ts).
 
 ```TypeScript
 import {Decoverto, inherits, model, property} from 'decoverto';
