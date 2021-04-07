@@ -4,7 +4,7 @@
 [![Code coverage](https://img.shields.io/codecov/c/github/decoverto/decoverto/master?style=for-the-badge)
 ](https://app.codecov.io/gh/decoverto/decoverto)
 [![License](https://img.shields.io/npm/l/decoverto?&style=for-the-badge&color=green)
-](https://github.com/decoverto/decoverto/LICENSE)
+](https://github.com/decoverto/decoverto/blob/master/LICENSE)
 
 # Decoverto
 Convert data into instances of first and third party classes and back using decorators. Enjoy not having to write data-to-class setup code.
