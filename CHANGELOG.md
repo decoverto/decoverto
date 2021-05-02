@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.0.0](https://github.com/decoverto/decoverto/compare/v0.2.4...v1.0.0) (2021-05-02)
+
 ## [0.2.4](https://github.com/decoverto/decoverto/compare/v0.2.3...v0.2.4) (2021-04-04)
 
 * improve documentation
