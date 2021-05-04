@@ -55,7 +55,7 @@ type`, t => {
     });
 });
 
-test(`An error should not be thrown on thunk, no custom converters, and a simple\
+test(`An error should not be thrown on thunk, no custom converters, and a simple \
 reflected type`, t => {
     t.notThrows(() => {
         @model()
@@ -67,7 +67,7 @@ reflected type`, t => {
     });
 });
 
-test(`An error should not be thrown on thunk, no custom converters, and a complex\
+test(`An error should not be thrown on thunk, no custom converters, and a complex \
 reflected type`, t => {
     t.notThrows(() => {
         @model()
@@ -79,7 +79,7 @@ reflected type`, t => {
     });
 });
 
-test(`An error should not be thrown on custom converters, no thunk, and a complex\
+test(`An error should not be thrown on custom converters, no thunk, and a complex \
 reflected type`, t => {
     t.notThrows(() => {
         @model()
@@ -91,7 +91,7 @@ reflected type`, t => {
     });
 });
 
-test(`An error should not be thrown on both custom converters and thunk with a complex\
+test(`An error should not be thrown on both custom converters and thunk with a complex \
 reflected type`, t => {
     t.notThrows(() => {
         @model()
