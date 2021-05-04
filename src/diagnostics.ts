@@ -104,6 +104,15 @@ function was specified on @inherits.`,
 inheritance strategy. A inheritance strategy can only set on one model in the chain.`,
         };
     },
+    propertyReflectedTypeIsArray(info: {property: string | symbol; typeName: string}) {
+        return {
+            code: 1012,
+            message: `Cannot determine type on @property at ${info.typeName}.\
+${String(info.property)}. Solutions:
+ - It looks like you're trying to define an array. Define one using @property(array(() => String))
+ - Specify toInstance and toPlain on @property, e.g. @property({toInstance: ..., toPlain: ...})`,
+        };
+    },
 
     // Initialization errors, e.g. new Decoverto
     unknownTypeCreatingTypeHandler(info: {type: Serializable<any>}) {

@@ -89,6 +89,13 @@ export function property<T extends Function>(
                 }));
             }
 
+            if (reflectCtor === Array) {
+                throw new Error(getDiagnostic('propertyReflectedTypeIsArray', {
+                    typeName,
+                    property: propertyKey,
+                }));
+            }
+
             converter = new ConcreteConverter(reflectCtor);
         } else {
             throw new Error(getDiagnostic('propertyNoTypeNoConvertersNoReflect', {

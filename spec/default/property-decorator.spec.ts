@@ -21,6 +21,23 @@ type`, t => {
     });
 });
 
+test(`An error should be thrown on no thunk, no custom converters, and Array as reflected \
+type`, t => {
+    t.throws(() => {
+        @model()
+        class NoThunkNoCustomConvertersArrayReflect {
+            @property()
+            array: Array<any>;
+        }
+        use(NoThunkNoCustomConvertersArrayReflect);
+    }, {
+        message: getDiagnostic('propertyReflectedTypeIsArray', {
+            typeName: 'NoThunkNoCustomConvertersArrayReflect',
+            property: 'array',
+        }),
+    });
+});
+
 test(`An error should be thrown on no thunk, toInstance, and a complex reflected \
 type`, t => {
     t.throws(() => {
