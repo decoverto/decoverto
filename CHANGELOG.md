@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1](https://github.com/decoverto/decoverto/compare/v1.0.0...v1.0.1) (2021-07-26)
+
+### Bug Fixes
+
+* throw error when reflected type is Array ([67d89ac](https://github.com/decoverto/decoverto/commit/67d89ac53c9611b0b8bf2bdf33f362d65f69bc69))
+
 ## [1.0.0](https://github.com/decoverto/decoverto/compare/v0.2.4...v1.0.0) (2021-05-02)
 
 ## [0.2.4](https://github.com/decoverto/decoverto/compare/v0.2.3...v0.2.4) (2021-04-04)
