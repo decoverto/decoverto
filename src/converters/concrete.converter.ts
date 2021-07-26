@@ -39,10 +39,9 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
                 });
             }
 
-            return this.objectToInstance({
-                ...context,
-                source: source,
-            }) as unknown as any; // Required since return type might not match Class
+            return this.objectToInstance(
+                context,
+            ) as unknown as any; // Required since return type might not match Class
         } else {
             return converter.toInstance(context);
         }
@@ -61,10 +60,9 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
                 this.throwTypeMismatchError(context);
             }
 
-            return this.objectToPlain({
-                ...context,
-                source: source,
-            }) as any; // Cast to any since generic Plain parameter could be anything
+            return this.objectToPlain(
+                context,
+            ) as any; // Cast to any since generic Plain parameter could be anything
         } else {
             return converter.toPlain(context);
         }
