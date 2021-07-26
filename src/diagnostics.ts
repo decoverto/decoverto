@@ -134,7 +134,13 @@ ${info.actualType}, expected ${info.expectedType}.`,
     unknownTypeError(info: UnknownTypeErrorInput) {
       return {
           code: 3001,
-          message: `Could not determine how to convert unknown type ${info.type} at ${info.path}`,
+          message: `Could not determine how to convert type ${info.type} at ${info.path}. \
+Solutions:
+ - Add the @model decorator to ${info.type}
+ - Create a converter for ${info.type} and add it to the converter map. E.g. decoverto.converterMap\
+.set(${info.type}, new ${info.type}Converter());
+ - Override the conversion for ${info.path} by using toInstance and toPlain. \
+e.g. @property({toInstance: ..., toPlain: ...})`,
       };
     },
     cannotConvertInstanceNotASubclass(info: {
