@@ -76,9 +76,16 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
         context: ConversionContext<Record<string, unknown>>,
     ): Class | Record<string, unknown> {
         const {source} = context;
-        const modelMetadata = ModelMetadata
-            .getFromConstructor(this.type)!
-            .getSubclassMetadata(source);
+        const maybeModelMetadata = ModelMetadata.getFromConstructor(this.type);
+
+        if (maybeModelMetadata === undefined) {
+            throw new UnknownTypeError({
+                path: context.path,
+                type: this.getFriendlyName(),
+            });
+        }
+
+        const modelMetadata = maybeModelMetadata.getSubclassMetadata(source);
         const result = new modelMetadata.classType();
 
         // Convert by expected properties.
@@ -111,7 +118,16 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
 
         this.assertInstanceOfType(source, context);
 
-        const modelMetadata = ModelMetadata.getFromConstructor(source.constructor)!;
+        const maybeModelMetadata = ModelMetadata.getFromConstructor(source.constructor);
+
+        if (maybeModelMetadata === undefined) {
+            throw new UnknownTypeError({
+                path: context.path,
+                type: this.getFriendlyName(),
+            });
+        }
+
+        const modelMetadata = maybeModelMetadata;
         const result: Record<string, unknown> = {};
 
         modelMetadata.properties.forEach((propertyMetadata) => {
