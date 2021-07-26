@@ -35,6 +35,19 @@ export enum MapShape {
      * ```
      */
     Object = 'Object',
+
+    /**
+     * A map will be converted as an array of tuples.
+     * E.g. `map: Map<string, string>` is represented as:
+     * ```json
+     * {
+     *     "map": [
+     *         ["key", "value"]
+     *     ]
+     * }
+     * ```
+     */
+    Tuple = 'Tuple',
 }
 
 export interface MapOptions {
@@ -81,7 +94,7 @@ export class MapConverter<Key extends Object, Value extends Object>
 
         const resultMap = new Map<any, any>();
 
-        if (Array.isArray(source)) {
+        if (Array.isArray(source) && this.shape === MapShape.Array) {
             source.forEach((element, index) => {
                 const key = this.keyType.toInstance({
                     ...context,
@@ -95,6 +108,23 @@ export class MapConverter<Key extends Object, Value extends Object>
                         ...context,
                         path: `${path}[${index}].value`,
                         source: element.value,
+                    }),
+                );
+            });
+        } else if (Array.isArray(source) && this.shape === MapShape.Tuple) {
+            source.forEach((element, index) => {
+                const key = this.keyType.toInstance({
+                    ...context,
+                    path: `${path}[${index}].key`,
+                    source: element[0],
+                });
+
+                resultMap.set(
+                    key,
+                    this.valueType.toInstance({
+                        ...context,
+                        path: `${path}[${index}].value`,
+                        source: element[1],
                     }),
                 );
             });
@@ -130,7 +160,7 @@ export class MapConverter<Key extends Object, Value extends Object>
             return context.source;
         }
 
-        const result: Array<{key: any; value: any}> | Record<string, any> =
+        const result: Array<{key: any; value: any} | [any, any]> | Record<string, any> =
             this.shape === MapShape.Object ? {} : [];
 
         // Convert each *entry* in the map to a simple javascript object with key and value
@@ -151,7 +181,11 @@ export class MapConverter<Key extends Object, Value extends Object>
 
             // We are not going to emit entries with undefined keys OR undefined values.
             if (Array.isArray(result)) {
-                result.push(resultKeyValuePairObj);
+                if (this.shape === MapShape.Array) {
+                    result.push(resultKeyValuePairObj);
+                } else {
+                    result.push([resultKeyValuePairObj.key, resultKeyValuePairObj.value]);
+                }
             } else {
                 result[resultKeyValuePairObj.key] = resultKeyValuePairObj.value;
             }
@@ -165,8 +199,14 @@ export class MapConverter<Key extends Object, Value extends Object>
     }
 
     private isExpectedMapShape(source: any): boolean {
-        return (this.shape === MapShape.Array && Array.isArray(source))
-            || (this.shape === MapShape.Object && isObject(source) && !Array.isArray(source));
+        switch (this.shape) {
+            case MapShape.Array:
+                return Array.isArray(source);
+            case MapShape.Object:
+                return isObject(source) && !Array.isArray(source);
+            case MapShape.Tuple:
+                return Array.isArray(source);
+        }
     }
 }
 

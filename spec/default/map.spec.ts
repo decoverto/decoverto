@@ -126,6 +126,12 @@ class DictionaryArrayShape {
     map: Map<string, Simple>;
 }
 
+@model()
+class DictionaryTupleShape {
+    @property(map(() => String, () => Simple, {shape: MapShape.Tuple}))
+    map: Map<string, Simple>;
+}
+
 test('Map with array shape converts to instance', t => {
     const result = decoverto.type(DictionaryArrayShape).plainToInstance({
         map: [
@@ -146,6 +152,28 @@ test('Map with array shape converts to JSON', t => {
     t.true(result.map instanceof Array);
     t.is(result.map[0].key, 'one');
     t.is(result.map[0].value.numProp, 4);
+});
+
+test('Map with tuple shape converts to instance', t => {
+    const result = decoverto.type(DictionaryTupleShape).plainToInstance({
+        map: [
+            ['one', {numProp: 4, strPop: 'value1'}],
+        ],
+    });
+
+    t.true(result.map instanceof Map);
+    t.is(result.map.get('one')?.numProp, 4);
+});
+
+test('Map with tuple shape converts to JSON', t => {
+    const object = new DictionaryTupleShape();
+    object.map = new Map<string, Simple>([
+        ['one', new Simple({numProp: 4, strProp: 'delta'})],
+    ]);
+    const result = decoverto.type(DictionaryTupleShape).instanceToPlain(object);
+    t.true(result.map instanceof Array);
+    t.is(result.map[0][0], 'one');
+    t.is(result.map[0][1].numProp, 4);
 });
 
 @model()
