@@ -5,22 +5,23 @@ import {getDiagnostic} from '../../src/diagnostics';
 
 const decoverto = new Decoverto();
 
-test('An error should be thrown when it is unknown how to convert a type', t => {
-    class CustomType {
-    }
+class Unknown {
+}
 
-    @model()
-    class TestNonDeterminableTypes {
+@model()
+class UnknownPropertyType {
 
-        @property()
-        bar: CustomType;
-    }
+    @property(() => Unknown)
+    unknown: any;
+}
 
-    const testNonDeterminableTypesHandler = decoverto.type(TestNonDeterminableTypes);
-    t.throws(() => testNonDeterminableTypesHandler.plainToInstance({bar: 'bar'}), {
+test(`An error should be thrown when converting a non-object to an instance of an unknown type \
+`, t => {
+    const typeHandler = decoverto.type(UnknownPropertyType);
+    t.throws(() => typeHandler.plainToInstance({unknown: 'bar'}), {
         message: getDiagnostic('unknownTypeError', {
-            path: 'TestNonDeterminableTypes.bar',
-            type: 'CustomType',
+            path: 'UnknownPropertyType.unknown',
+            type: 'Unknown',
         }),
     });
 });
