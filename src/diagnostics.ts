@@ -7,7 +7,7 @@ export const Diagnostics = {
     propertyReflectedTypeIsNull(info: {property: string | symbol; typeName: string}) {
         return {
             code: 1000,
-            message: `Cannot determine type on @property at ${info.typeName}. \
+            message: `Cannot determine type on @property at ${info.typeName}.\
 ${String(info.property)}. Do you have emitDecoratorMetadata enabled in your tsconfig.json?
 Other solutions:
  - Provide the type as an argument of the @property decorator. E.g. \
