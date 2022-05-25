@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.4](https://github.com/decoverto/decoverto/compare/v1.0.3...v1.0.4) (2022-05-25)
+
+* Remove erroneous space before property name in DV1000
+
 ## [1.0.3](https://github.com/decoverto/decoverto/compare/v1.0.2...v1.0.3) (2021-07-27)
 
 * Improve message for error DV3001
