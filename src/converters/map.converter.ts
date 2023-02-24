@@ -46,7 +46,9 @@ export interface MapOptions {
 
 export type MapPlain =
     | Array<{key: any; value: any}>
-    | Record<string, any> | null | undefined
+    | Record<string, any>
+    | null
+    | undefined
 ;
 
 export class MapConverter<Key extends Object, Value extends Object>
