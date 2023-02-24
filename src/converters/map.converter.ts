@@ -52,7 +52,7 @@ export type MapPlain =
 ;
 
 export class MapConverter<Key extends Object, Value extends Object>
-    extends Converter<Map<Key, Value> | null | undefined, MapPlain> {
+    extends Converter<Map<Key | null | undefined, Value | null | undefined> | null | undefined, MapPlain> {
 
     readonly shape: MapShape;
 
@@ -172,7 +172,7 @@ export class MapConverter<Key extends Object, Value extends Object>
     }
 }
 
-export function map<K, V>(
+export function map<K extends Object, V extends Object>(
     keyType: Typelike<K>,
     valueType: Typelike<V>,
     options: MapOptions,

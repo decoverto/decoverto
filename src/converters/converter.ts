@@ -1,7 +1,7 @@
 import {InvalidValueError} from '../errors/invalid-value.error';
 import {Serializable} from '../types';
 
-export type Typelike<T extends Object> = TypeThunk<T> | Converter<T>;
+export type Typelike<T extends Object> = TypeThunk<T> | Converter<T | null | undefined>;
 export type TypeThunk<T extends Object = any> = () => Serializable<T>;
 
 export interface ConversionContext<Raw> {

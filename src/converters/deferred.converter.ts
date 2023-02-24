@@ -5,7 +5,7 @@ import {
     TypeThunk,
 } from './converter';
 
-export class DeferredConverter<Class>
+export class DeferredConverter<Class extends Object>
     extends Converter<Class | null | undefined> {
 
     private resolvedConverter: ConcreteConverter<Class> | undefined;

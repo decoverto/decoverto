@@ -70,6 +70,6 @@ export class ArrayConverter<Class extends Object>
     }
 }
 
-export function array<T>(elementType: Typelike<T>): ArrayConverter<T> {
+export function array<T extends Object>(elementType: Typelike<T>): ArrayConverter<T> {
     return new ArrayConverter(toConverter(elementType));
 }

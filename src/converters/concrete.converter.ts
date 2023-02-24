@@ -135,7 +135,7 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
             const plain = this.shouldUseConverter(propertyMetadata, 'toPlain')
                 ? propertyMetadata.converter.toPlain({
                     ...context,
-                    path: `${modelMetadata.classType.name}.${property}`,
+                    path: `${modelMetadata.classType.name}.${property.toString()}`,
                     source: source[property],
                 })
                 : propertyMetadata.toPlain(source[property]);

@@ -69,6 +69,6 @@ export class SetConverter<Class extends Object>
     }
 }
 
-export function set<T>(elementType: Typelike<T>): SetConverter<T> {
+export function set<T extends Object>(elementType: Typelike<T>): SetConverter<T> {
     return new SetConverter(toConverter(elementType));
 }
