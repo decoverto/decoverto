@@ -11,7 +11,7 @@ export interface PropertyMetadataBase {
     plainName: string;
 
     /** Name of the property as it appears in the class. */
-    key: string;
+    key: string | symbol;
 }
 
 export interface PropertyOnlyConvertersMetadata extends PropertyMetadataBase {

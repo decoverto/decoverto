@@ -112,7 +112,7 @@ export function property<T extends Function>(
 
         injectMetadataInformation(target, propertyKey, {
             ...conditionalOptions,
-            key: propertyKey.toString(),
+            key: propertyKey,
             plainName: options.plainName ?? propertyKey.toString(),
         });
     };
