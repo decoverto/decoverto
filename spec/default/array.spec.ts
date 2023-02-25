@@ -67,6 +67,33 @@ test('array of objects toPlain result should contain all elements', t => {
     t.is(result, JSON.stringify(expectation));
 });
 
+@model()
+class ArrayOfStrings {
+
+    @property(array(() => String))
+    strings: Array<string | null | undefined>;
+}
+test('array(() => String) toInstance preserves null', t => {
+    const result = decoverto.type(ArrayOfStrings).plainToInstance({
+        strings: ['1', null],
+    });
+
+    const expected = new ArrayOfStrings();
+    expected.strings = ['1', null];
+
+    t.deepEqual(result, expected);
+});
+
+test('array(() => String) toPlain preserves null', t => {
+    const subject = new ArrayOfStrings();
+    subject.strings = ['1', null];
+    const result = decoverto.type(ArrayOfStrings).instanceToPlain(subject);
+
+    t.deepEqual(result, {
+        strings: ['1', null],
+    });
+});
+
 test('array of objects should error on non-array toInstance', t => {
     t.throws(() => decoverto.type(Simple).plainToInstanceArray(false as any), {
         message: getDiagnostic('invalidValueError', {
