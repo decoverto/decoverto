@@ -62,7 +62,7 @@ export class Decoverto<Raw = string> {
         };
     }
 
-    type<T extends Object>(type: Serializable<T>): TypeHandler<T, Raw> {
+    type<T extends {}>(type: Serializable<T>): TypeHandler<T, Raw> {
         return new TypeHandler<T, Raw>(type, {
             parser: this.settings.parser,
             converterMap: this.converterMap,

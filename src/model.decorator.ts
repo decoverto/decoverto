@@ -65,7 +65,7 @@ export interface ModelOptions<T> {
  * Marks that a class is convertible using Decoverto, with additional settings.
  * @param options Configuration settings.
  */
-export function model<T extends Object>(
+export function model<T extends {}>(
     options: ModelOptions<T> = {},
 ): (target: Serializable<T>) => void {
     return target => {

@@ -13,7 +13,7 @@ import {ConversionContext, Converter} from './converter';
  * This converter is responsible for traversing objects and converting them and their
  * properties.
  */
-export class ConcreteConverter<Class extends Object = any, Plain = any>
+export class ConcreteConverter<Class extends {} = any, Plain = any>
     extends Converter<Class | null | undefined, Plain> {
 
     constructor(
@@ -131,11 +131,11 @@ export class ConcreteConverter<Class extends Object = any, Plain = any>
         const result: Record<string, unknown> = {};
 
         modelMetadata.properties.forEach((propertyMetadata) => {
-            const property = propertyMetadata.key as keyof Class;
+            const property = propertyMetadata.key as keyof Class & string;
             const plain = this.shouldUseConverter(propertyMetadata, 'toPlain')
                 ? propertyMetadata.converter.toPlain({
                     ...context,
-                    path: `${modelMetadata.classType.name}.${property.toString()}`,
+                    path: `${modelMetadata.classType.name}.${property}`,
                     source: source[property],
                 })
                 : propertyMetadata.toPlain(source[property]);

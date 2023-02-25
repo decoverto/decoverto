@@ -22,7 +22,7 @@ export interface TypeHandlerSettings<Raw> {
     parser: Parser<Raw>;
 }
 
-export class TypeHandler<RootType extends Object, Raw = string> {
+export class TypeHandler<RootType extends {}, Raw = string> {
 
     private settings!: TypeHandlerSettings<Raw>;
     private readonly rootConverter: ConcreteConverter;

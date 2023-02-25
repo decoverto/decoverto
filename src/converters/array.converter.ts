@@ -5,7 +5,7 @@ import {
 import {toConverter} from './converter.utils';
 import {ListConverter} from './list.converter';
 
-export class ArrayConverter<Class extends Object>
+export class ArrayConverter<Class extends {}>
     extends ListConverter<
         Array<Class | null | undefined> | null | undefined,
         Class | null | undefined
@@ -70,6 +70,6 @@ export class ArrayConverter<Class extends Object>
     }
 }
 
-export function array<T extends Object>(elementType: Typelike<T>): ArrayConverter<T> {
+export function array<T extends {}>(elementType: Typelike<T>): ArrayConverter<T> {
     return new ArrayConverter(toConverter(elementType));
 }

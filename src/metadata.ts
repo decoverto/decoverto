@@ -88,7 +88,7 @@ export class ModelMetadata {
      * Gets model metadata information from a class.
      * @param ctor The constructor class.
      */
-    static getFromConstructor<T extends Object>(ctor: Serializable<T>): ModelMetadata | undefined {
+    static getFromConstructor<T extends {}>(ctor: Serializable<T>): ModelMetadata | undefined {
         const prototype = ctor.prototype;
         if (prototype == null) {
             return;

@@ -5,7 +5,7 @@ import {
 import {toConverter} from './converter.utils';
 import {ListConverter} from './list.converter';
 
-export class SetConverter<Class extends Object>
+export class SetConverter<Class extends {}>
     extends ListConverter<
         Set<Class | null | undefined> | null | undefined,
         Class | null | undefined
@@ -69,6 +69,6 @@ export class SetConverter<Class extends Object>
     }
 }
 
-export function set<T extends Object>(elementType: Typelike<T>): SetConverter<T> {
+export function set<T extends {}>(elementType: Typelike<T>): SetConverter<T> {
     return new SetConverter(toConverter(elementType));
 }
