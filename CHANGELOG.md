@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0](https://github.com/decoverto/decoverto/compare/v1.0.4...v2.0.0) (2023-02-25)
+
+
+* build(deps)!: upgrade TypeScript to ~4.9.5, was 3.9.7 ([42421ac](https://github.com/decoverto/decoverto/commit/42421ace5d6165e5130b19ccd5c40b3781a4862c))  
+  This fixes TypeScript errors that would occur when using TypeScript `>= 4.7.0` without `skipLibCheck`.
+
+
+### BREAKING CHANGES
+
+* Some generic types have been changed slightly in
+regard to extending `Object`. This should not cause a problem.
+
+
 ## [1.0.4](https://github.com/decoverto/decoverto/compare/v1.0.3...v1.0.4) (2022-05-25)
 
 * Remove erroneous space before property name in DV1000
