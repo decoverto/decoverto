@@ -56,8 +56,9 @@ overrides:
         - error
         -
           types:
-            Function: false
-            '{}': false
+            'NonNullable<unknown>':
+              suggest:
+                - unknown
 
   -
     files:

@@ -146,7 +146,7 @@ export class ModelMetadata {
 }
 
 export function injectMetadataInformation(
-    prototype: Record<string, any> | Function,
+    prototype: Record<string, any> | Constructor<any>,
     propKey: string | symbol,
     metadata: PropertyMetadata,
 ) {

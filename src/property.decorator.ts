@@ -48,7 +48,7 @@ export function property(
     options?: PropertyOptions,
 ): PropertyDecorator;
 
-export function property<T extends Function>(
+export function property(
     optionsOrType?: PropertyOptions | Typelike<any>,
     options?: PropertyOptions,
 ): PropertyDecorator {
